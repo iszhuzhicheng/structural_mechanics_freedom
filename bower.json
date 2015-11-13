@@ -1,0 +1,24 @@
+{
+  "name": "zyd",
+  "version": "1.0.0",
+  "homepage": "https://github.com/ZhouHansen/ZhouHansen.github.io",
+  "directory": "~/ZhouHansen.github.io/vendor",
+  "authors": [
+    "ZhouHansen <308114274@qq.com>"
+  ],
+  "description": "\"这是我的第一个bower\"",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "underscore": "~1.8.3",
+    "jcanvas": "15.06.17",
+    "jquery-ui": "~1.11.4"
+  }
+}

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <script src="vendor/pace.js"></script>
 <link rel="stylesheet" media="screen" href="app/css/pace.css" />
+<link rel="stylesheet" media="screen" href="app/css/obvious-buttons.css" />
 <link rel="stylesheet" media="screen" href="app/css/animate.css" />
 <link rel="stylesheet" media="screen" href="app/css/zyd.css" />
 <title>结构自由度||漢成精工</title>
@@ -11,13 +12,11 @@
 
 <body>
 <div class="wrap ownfadeIn ownanimate ">
-<div id="calcubutton" class="animated bounceInUp">
-</div>
-<!-- 因为存在父元素透明，子元素无法不透明的技术瓶颈，我只好这样了-->
-<div id="resultboxui" class = "ownfadeIn2 ownanimate2">
+<div id="calcubutton" class="animated bounceInUp btn btn-inline btn-large btn-primary">
+calculate
 </div>
 
-<div id="resultbox">
+<div id="resultbox" class="ownfadeIn2 ownanimate2">
 </div>
 
 <div id="canvaswrap" class="animated fadeInDownBig">
@@ -27,14 +26,30 @@
 
 
 <div id="elementbar" class="animated fadeInLeftBig">
-  <div id="gdj"></div>
-  <div id="hdj"></div>
-  <div id="gdd"></div>
-  <div id="dxj"></div>
-  <div id="dj"></div>
-  <div id="linebar"></div>
-  <div id="move"></div>
-  <div id="mirror"></div>
+  <div id="gdj" class="btn btn-inline">
+    <img src="app/img/gdj.png">
+  </div>
+  <div id="hdj" class="btn btn-inline">
+    <img src="app/img/hdj.png">
+  </div>
+  <div id="gdd" class="btn btn-inline">
+    <img src="app/img/gdd.png">
+  </div>
+  <div id="dxj" class="btn btn-inline">
+      <img src="app/img/dxj.png">
+  </div>
+  <div id="dj" class="btn btn-inline">
+    <img src="app/img/d.png">
+  </div>
+  <div id="linebar" class="btn btn-inline">
+    <img src="app/img/linebar.png">
+  </div>
+  <div id="move" class="btn btn-inline">
+    <img src="app/img/move.png">
+  </div>
+  <div id="mirror" class="btn btn-inline">
+    <img src="app/img/mirror.png">
+  </div>
 </div>
 
 <div id="utilitybar" class="animated zoomInUp">

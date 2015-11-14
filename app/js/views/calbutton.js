@@ -19,40 +19,31 @@ App.Views.calbutton = Backbone.View.extend({
 	calculate:function(){
 		var that = this;
 
-		if (!this.$el.hasClass("active")) {
+		if (!this.$el.hasClass("btn-danger")) {
 			return false;
 		};
 
 		if (!this.viewing) {
-			App.singleC.calculate();
-			this.$el.addClass("rotateOut");
-			setTimeout(function(){
-				that.$el.removeClass("rotateOut");
-				that.$el.addClass("rotateIn");
-				that.$el.removeClass("active");
-			},800);
-
+			that.$el.removeClass("btn-danger");
+			this.$el.addClass("btn-primary");
 			this.viewing = true;
+			App.singleC.calculate();
 		};	
 	},
 
 	enter:function(){
 		var that = this;
 
-		if (!this.$el.hasClass("active")) {
-			this.$el.addClass("rotateOut");
-
-			setTimeout(function(){
-				that.$el.removeClass("rotateOut");
-				that.$el.addClass("rotateIn");
-				that.$el.addClass("active");
-			},800);
+		if (!this.$el.hasClass("btn-danger")) {
+			this.$el.addClass("btn-danger");
+			this.$el.removeClass("btn-primary");
 		}
 	},
 
 	leave:function(){
-		if (this.$el.hasClass("active")) {
-			this.$el.removeClass("active");	
+		if (this.$el.hasClass("btn-danger")) {
+			this.$el.removeClass("btn-danger");	
+			this.$el.addClass("btn-primary");
 		}
 	}
 });

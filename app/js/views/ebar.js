@@ -7,7 +7,11 @@ App.Views.ebar = Backbone.View.extend({
 	
 	main: function(e){
 		if (e.type === "click") {
-			var id = e.target.id;
+			if (e.target.tagName == "IMG") {
+				var id = $(e.target).parent().attr("id");
+			} else {
+				var id = e.target.id;
+			}
 		} else {
 			if (e.which === 37){
 				var id = this.$el.find(".active").prev().attr("id");
@@ -23,7 +27,6 @@ App.Views.ebar = Backbone.View.extend({
 			}
 		};
 		App.factoryM.changeType(id)
-		
 	},
 	
 	ui: function(model,type){
@@ -59,31 +62,3 @@ App.Views.ebar = Backbone.View.extend({
 		this.ui();
 	}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

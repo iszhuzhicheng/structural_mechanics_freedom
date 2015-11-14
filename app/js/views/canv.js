@@ -8,13 +8,13 @@ App.Views.canv = Backbone.View.extend({
 			atan = Math.atan,
 			Pi = Math.PI,
 			
-			//黑圆
+			//空圆
 			blackArc = function(x,y){
 				canvas.drawArc({
 				   layer:true,
 				   strokeWidth:1,
-				   strokeStyle: '#0e0e0e',
-				   fillStyle: '#0e0e0e',
+				   strokeStyle: '#fff',
+				   fillStyle: '#fff',
 				   x: x, y: y,
 				   radius: 3.5,
 				})
@@ -25,7 +25,7 @@ App.Views.canv = Backbone.View.extend({
 				canvas.drawArc({
 				   layer:true,
 				   strokeWidth: 1,
-				   strokeStyle: '#888bff',
+				   strokeStyle: '#df701e',
 				   x: x, y: y,
 				   radius: 5,
 				})
@@ -34,7 +34,7 @@ App.Views.canv = Backbone.View.extend({
 			//直线
 			drawline = function(x1,y1,x2,y2,color){
 				if (!color) {
-					var color = '#c4c4c4';
+					var color = '#434343';
 				}
 				
 				canvas.drawLine({
@@ -116,11 +116,11 @@ App.Views.canv = Backbone.View.extend({
 				whiteArc(x,y);
 				whiteArc(x2,y2);
 				whiteArc(x3,y3);
-				drawline(lx11,ly11,lx12,ly12,"#1ad935");
-				drawline(lx21,ly21,lx22,ly22,"#1ad935");
-				drawline(lx31,ly31,lx32,ly32,"#1ad935");
-				drawline(lx41,ly41,lx42,ly42,"#1ad935");
-				drawline(lx51,ly51,lx52,ly52,"#1ad935");
+				drawline(lx11,ly11,lx12,ly12,"#5a4283");
+				drawline(lx21,ly21,lx22,ly22,"#5a4283");
+				drawline(lx31,ly31,lx32,ly32,"#5a4283");
+				drawline(lx41,ly41,lx42,ly42,"#5a4283");
+				drawline(lx51,ly51,lx52,ly52,"#5a4283");
 				
 				 _.each(model.get("connects"),function(num){
 					if (App.singleC.models[num].get("category") == "bar") {
@@ -158,11 +158,11 @@ App.Views.canv = Backbone.View.extend({
 				
 				whiteArc(x,y);
 				whiteArc(x2,y2);
-				drawline(lx11,ly11,lx12,ly12,"#1ad935");
-				drawline(lx21,ly21,lx22,ly22,"#1ad935");
-				drawline(lx31,ly31,lx32,ly32,"#1ad935");
-				drawline(lx41,ly41,lx42,ly42,"#1ad935");
-				drawline(lx51,ly51,lx52,ly52,"#1ad935");
+				drawline(lx11,ly11,lx12,ly12,"#5a4283");
+				drawline(lx21,ly21,lx22,ly22,"#5a4283");
+				drawline(lx31,ly31,lx32,ly32,"#5a4283");
+				drawline(lx41,ly41,lx42,ly42,"#5a4283");
+				drawline(lx51,ly51,lx52,ly52,"#5a4283");
 				
 				 _.each(model.get("connects"),function(num){
 					if (App.singleC.models[num].get("category") == "bar") {
@@ -201,12 +201,12 @@ App.Views.canv = Backbone.View.extend({
 					lx62 = x-15*sin(-angle),
 					ly62 = y-15*cos(-angle);
 					
-				drawline(lx11,ly11,lx12,ly12,"#888bff");
-				drawline(lx21,ly21,lx22,ly22,"#888bff");
-				drawline(lx31,ly31,lx32,ly32,"#888bff");
-				drawline(lx41,ly41,lx42,ly42,"#888bff");
-				drawline(lx51,ly51,lx52,ly52,"#888bff");
-				drawline(lx61,ly61,lx62,ly62,"#888bff");
+				drawline(lx11,ly11,lx12,ly12,"#5a4283");
+				drawline(lx21,ly21,lx22,ly22,"#5a4283");
+				drawline(lx31,ly31,lx32,ly32,"#5a4283");
+				drawline(lx41,ly41,lx42,ly42,"#5a4283");
+				drawline(lx51,ly51,lx52,ly52,"#5a4283");
+				drawline(lx61,ly61,lx62,ly62,"#5a4283");
 			},
 			
 			dxj: function(model){
@@ -256,13 +256,13 @@ App.Views.canv = Backbone.View.extend({
 				whiteArc(x2,y2);
 				whiteArc(x3,y3);
 				whiteArc(x4,y4);
-				drawline(lx11,ly11,lx12,ly12,"#1ad935");
-				drawline(lx21,ly21,lx22,ly22,"#1ad935");
-				drawline(lx31,ly31,lx32,ly32,"#1ad935");
-				drawline(lx41,ly41,lx42,ly42,"#1ad935");
-				drawline(lx51,ly51,lx52,ly52,"#1ad935");
-				drawline(lx61,ly61,lx62,ly62,"#1ad935");
-				drawline(lx71,ly71,lx72,ly72,"#1ad935");
+				drawline(lx11,ly11,lx12,ly12,"#5a4283");
+				drawline(lx21,ly21,lx22,ly22,"#5a4283");
+				drawline(lx31,ly31,lx32,ly32,"#5a4283");
+				drawline(lx41,ly41,lx42,ly42,"#5a4283");
+				drawline(lx51,ly51,lx52,ly52,"#5a4283");
+				drawline(lx61,ly61,lx62,ly62,"#5a4283");
+				drawline(lx71,ly71,lx72,ly72,"#5a4283");
 			}
 	   };
 		

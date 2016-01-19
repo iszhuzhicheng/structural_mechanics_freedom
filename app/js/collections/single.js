@@ -7,9 +7,38 @@ App.Collections.single = Backbone.Collection.extend({
 	},
 	
 	comparator: 'order',
+
+	initialize: function(){
+		_.combine = function(arr1,arr2,strict){
+			var arr = [];
+			_.each(arr1,function(value1){
+			  _.each(arr2,function(value2){
+				  if (value1 !== value2) {
+					var subarr = [];
+					subarr.push(value1);
+					subarr.push(value2);
+					if (strict) {
+						subarr.reverse();
+						if (
+						  !_.some(arr,function(sarr){
+						   	  return _.isEqual(sarr,subarr);
+						  })
+						) {
+						  arr.push(subarr.reverse());
+						}
+							
+					} else {
+						arr.push(subarr);
+					}
+				  }
+			  });
+			});
+			return arr;
+		}
+	},
 	
-	calculate:function(){
-		
+	calculate: function(){
+
 		// 为了编号
 		var rawdata = App.singleC.models;
 
@@ -18,7 +47,7 @@ App.Collections.single = Backbone.Collection.extend({
 		var bars = this.where({"category":"bar"}),
 			that = this,
 			// 合成更大刚片的函数数组
-		
+			
 			Cals = [
 			   // 杆杆刚接的
 			   function(plates,i,j){
@@ -38,7 +67,7 @@ App.Collections.single = Backbone.Collection.extend({
 						  	  _.contains(that.at(order).get("connects"),nextplate.components[0])) {
 							  return true;
 						  };
-					  })
+					  })	
 				  ){
 					  // var connects = _.intersection(newplate.components,nextplate.connects);
 					  var union = false;
@@ -365,24 +394,8 @@ App.Collections.single = Backbone.Collection.extend({
 				  };
 				  
 				  function selfchaindjMaker(dj){
-
 				      return _.filter(_.combine(dj,dj,true),function(chaindj){
 				      	 return true;
-						 /*var dj1connects = that.at(chaindj[0]).get("connects"),
-							   dj2connects = that.at(chaindj[1]).get("connects");
-										 
-						  //单铰对中的两个单铰分别连接的组件中的构件
-						  dj1connects = _.intersection(newplate.components,dj1connects);
-						  dj2connects = _.intersection(newplate.components,dj2connects);
-						  
-						  //共同连接着一个构件，则不能作为单铰对
-						  if (_.intersection(dj1connects,dj2connects).length > 0&&
-						  		!_.isEqual(_.intersection(dj1connects,dj2connects),newplate.components)) {
-							 return false;
-						  }
-						  else { 
-							 return true;
-						  }	 */
 				      });  
 				  };
 				  

@@ -1,12 +1,12 @@
 App.Views.calbutton = Backbone.View.extend({
-	el:$("#calcubutton"),
+	el:$("#calbutton"),
 
 	initialize:function(){
-		var that = this;
+		var initanime = function(){
+			this.$el.css("display","block")
+		}.bind(this)
 
-		setTimeout(function(){
-			that.$el.css("display","block");    
-		},1000);
+		setTimeout(initanime,100)
 	},
 
 	events:{
@@ -17,33 +17,28 @@ App.Views.calbutton = Backbone.View.extend({
 	viewing:false,
 
 	calculate:function(){
-		var that = this;
-
-		if (!this.$el.hasClass("btn-danger")) {
-			return false;
-		};
+		if (!this.$el.hasClass("btn-danger")) return false
 
 		if (!this.viewing) {
-			that.$el.removeClass("btn-danger");
-			this.$el.addClass("btn-primary");
+			this.$el.removeClass("btn-danger")
+					.addClass("btn-primary")
+
 			this.viewing = true;
-			App.singleC.calculate();
-		};	
+			App.singleC.calculate()
+		}
 	},
 
 	enter:function(){
-		var that = this;
-
 		if (!this.$el.hasClass("btn-danger")) {
-			this.$el.addClass("btn-danger");
-			this.$el.removeClass("btn-primary");
+			this.$el.addClass("btn-danger")
+					.removeClass("btn-primary")
 		}
 	},
 
 	leave:function(){
 		if (this.$el.hasClass("btn-danger")) {
-			this.$el.removeClass("btn-danger");	
-			this.$el.addClass("btn-primary");
+			this.$el.removeClass("btn-danger")
+					.addClass("btn-primary")
 		}
 	}
 });

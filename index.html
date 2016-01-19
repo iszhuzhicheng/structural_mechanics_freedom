@@ -11,55 +11,48 @@
 </head>
 
 <body>
-<div class="wrap ownfadeIn ownanimate ">
-<div id="calcubutton" class="animated bounceInUp btn btn-inline btn-large btn-primary">
-calculate
-</div>
+  <div id="calbutton" class="animated fadeInRightBig btn btn-inline btn-large btn-primary">
+      calculate
+  </div>
+    
+  <div id="resultbox" class="animated bounceInUp">
+  </div>
+  
+  <div id="canvaswrap" class="animated bounceInDown">
+      <canvas id="canvas" width="8000" height="8000"></canvas>
+  </div>
 
-<div id="resultbox" class="ownfadeIn2 ownanimate2">
-</div>
+  <div id="componentbar" class="animated fadeInLeftBig">
+      <div id="gdj" class="btn btn-inline">
+        <img src="app/img/gdj.png"/>
+      </div>
+      <div id="hdj" class="btn btn-inline">
+        <img src="app/img/hdj.png"/>
+      </div>
+      <div id="gdd" class="btn btn-inline">
+        <img src="app/img/gdd.png"/>
+      </div>
+      <div id="dxj" class="btn btn-inline">
+          <img src="app/img/dxj.png"/>
+      </div>
+      <div id="dj" class="btn btn-inline">
+        <img src="app/img/d.png"/>
+      </div>
+      <div id="linebar" class="btn btn-inline">
+        <img src="app/img/linebar.png"/>
+      </div>
+      <div id="move" class="btn btn-inline">
+        <img src="app/img/move.png"/>
+      </div>
+      <div id="mirror" class="btn btn-inline">
+        <img src="app/img/mirror.png"/>
+      </div>
+  </div>
 
-<div id="canvaswrap" class="animated fadeInDownBig">
-  <canvas id="canvas" width="8000" height="8000">
-  </canvas>
-</div>
+  <div id="inputbar" class="animated zoomInUp">
+  </div>
 
-
-<div id="elementbar" class="animated fadeInLeftBig">
-  <div id="gdj" class="btn btn-inline">
-    <img src="app/img/gdj.png">
-  </div>
-  <div id="hdj" class="btn btn-inline">
-    <img src="app/img/hdj.png">
-  </div>
-  <div id="gdd" class="btn btn-inline">
-    <img src="app/img/gdd.png">
-  </div>
-  <div id="dxj" class="btn btn-inline">
-      <img src="app/img/dxj.png">
-  </div>
-  <div id="dj" class="btn btn-inline">
-    <img src="app/img/d.png">
-  </div>
-  <div id="linebar" class="btn btn-inline">
-    <img src="app/img/linebar.png">
-  </div>
-  <div id="move" class="btn btn-inline">
-    <img src="app/img/move.png">
-  </div>
-  <div id="mirror" class="btn btn-inline">
-    <img src="app/img/mirror.png">
-  </div>
-</div>
-
-<div id="utilitybar" class="animated zoomInUp">
-</div>
-
-<!--<div id="resultbox">
-</div>-->
-
-</div>
-<script type="text/template" class="ubar_tmpl">
+<script type="text/template" class="ibar_tmpl">
 <%if (type == "Angle"){%>
 <div class="txt">
 <input type="text" id="angle" placeholder="angle" />
@@ -147,9 +140,9 @@ calculate
 <script src="app/js/models/single.js"></script>
 <script src="app/js/collections/single.js"></script>
 <script src="app/js/views/body.js"></script>
-<script src="app/js/views/ebar.js"></script>
-<script src="app/js/views/ubar.js"></script>
-<script src="app/js/views/canv.js"></script>
+<script src="app/js/views/componentbar.js"></script>
+<script src="app/js/views/inputbar.js"></script>
+<script src="app/js/views/canvas.js"></script>
 <script src="app/js/views/calbutton.js"></script>
 <script src="app/js/views/result.js"></script>
 <script>

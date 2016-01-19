@@ -22,21 +22,37 @@ App.Models.factory = Backbone.Model.extend({
 			"geodata":[]
 		}
 	},
+
+	georule: {
+		"constr":["x","y","angle"],
+		"bar":["x","y","x2","y2"],
+		"other":[]
+	},
+
+	newrule: {
+		"dj":"constr",
+		"gdj":"constr",
+		"hdj":"constr",
+		"gdd":"constr",
+		"dxj":"constr",
+		"linebar":"bar",
+		"move":"other",
+		"mirror":"constr"
+	},
 	
 	changeType: function(type){
 		var that = this;
 		this.set("type",type);
-			
+		
 		_.each(this.rule,function(category,key){
-			if (_.contains(category["type"],type)) {
+			if (_.contains(category["type"],type)) 
 				that.set("category",key);
-			}
 		});
 	},
 	
 	retrRule: function(type) {
 		var rule = this.rule;
-		
+	
 		for (var i in rule) {
 			if (_.contains(rule[i]["type"],type)) {
 				return {
@@ -54,17 +70,14 @@ App.Models.factory = Backbone.Model.extend({
 	},
 
 	clearAtrrs: function(model,type){
-		//如果type或上一个type是拖动，不清除工厂数据
-		if (type == "move"||model.previous("type") == "move") {
-			return;
-		}
+		if (type == "move"||model.previous("type") == "move") return;
+
+		// 改变type时，清除之前的几何数据
+		var clear = function(value,key){
+			this.unset(value,{silent:true});
+		}.bind(this)
 		
-		//改变type时，清除之前的几何数据
-		var that = this;
-		
-		_.each(this.cleardatas,function(value,key){
-			that.unset(value,{silent:true});
-		});
+		_.each(this.cleardatas,clear);
 	},
 	
 	drawelement: function(){
@@ -87,18 +100,17 @@ App.Models.factory = Backbone.Model.extend({
 			};
 		
 		if (passCard) {
-
 			// 通过后，清除input中的值
-			App.ubarV.$el.find("input").val("");
+			App.ibarV.$el.find("input").val("")
 			
 			_.each(geodata,function(value,key){
-				geobj[value] = that.get(value);
-			});
+				geobj[value] = that.get(value)
+			})
 			
 			//当通过的是约束，ebar跳转到直线。同时设置直线的第一个坐标
 			if (retr["category"] == "constr") {
-				var x = this.get("x"),
-					y = this.get("y");
+				var x = this.get("x")
+					, y = this.get("y")
 				
 				if (type == "gdj"||type == "hdj") {
 					geobj.k = Math.tan((this.get("angle") - 90)/180*Math.PI);
@@ -253,10 +265,10 @@ App.Models.factory = Backbone.Model.extend({
 
 						if (category == "constr") return true;
 						
-						var x1 = model.get("x"),
-							y1 = model.get("y"),
-							x2 = model.get("x2"),
-							y2 = model.get("y2");
+						var x1 = model.get("x")
+							, y1 = model.get("y")
+							, x2 = model.get("x2")
+							, y2 = model.get("y2")
 						
 						if ((x1==geobj.x&&y1==geobj.y&&x2==geobj.x2&&y2==geobj.y2)||
 							(x1==geobj.x2&&y1==geobj.y2&&x2==geobj.x&&y2==geobj.y)) {

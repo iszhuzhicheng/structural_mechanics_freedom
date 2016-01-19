@@ -1,6 +1,6 @@
 App.Views.canv = Backbone.View.extend({
 	el: $("#canvaswrap"),
-			
+
 	drawlib:(function(){
 		var canvas = $(this.canvas),
 			sin = Math.sin,
@@ -16,7 +16,7 @@ App.Views.canv = Backbone.View.extend({
 				   strokeStyle: '#fff',
 				   fillStyle: '#fff',
 				   x: x, y: y,
-				   radius: 3.5,
+				   radius: 3.5
 				})
 			},
 			
@@ -27,7 +27,7 @@ App.Views.canv = Backbone.View.extend({
 				   strokeWidth: 1,
 				   strokeStyle: '#df701e',
 				   x: x, y: y,
-				   radius: 5,
+				   radius: 5
 				})
 			},
 			
@@ -269,9 +269,28 @@ App.Views.canv = Backbone.View.extend({
 	})(),
 	
 	initialize: function(data){
-		this.listenTo(App.factoryM,"change:type",this.movable);
-		this.listenTo(App.singleC,"add",this.presolve);
-		this.canvas = this.$el.find("canvas");
+		var initanime = function(){
+			this.$el.css("display","block")
+		}.bind(this)
+
+		setTimeout(initanime,100)
+		
+		this.listenTo(App.factoryM,"change:type",this.movable)
+		this.listenTo(App.singleC,"add",this.presolve)
+		this.canvas = this.$el.find("canvas")
+
+		Function.prototype.method = function (name, func) {
+		    this.prototype[name] = func;
+		    return this;
+		};
+
+		//四舍五入
+		Number.method('integer', function(){
+			if (Math.abs(parseInt(this)-this) >= Math.abs(parseInt(this)+1-this))
+		   		return parseInt(this) + 1
+			else 
+				return parseInt(this)
+		});		
 	},
 
 	presolve: function(newmodel){
@@ -329,8 +348,7 @@ App.Views.canv = Backbone.View.extend({
 		_.each(App.singleC.models,function(model){
 			var category = model.get("category"),
 				order = model.get("order");
-
-
+						
 			//因为此时newmodel已经加入，所以要避免和自己进行比较
 			if (order == neworder) return;
 
@@ -679,12 +697,9 @@ App.Views.canv = Backbone.View.extend({
 						"x":x,
 						"y":y
 					});
-				}
-				
-				if (type == "dj") {	
-					return;
-				}															  
-				App.ubarV.postcheck(e);
+				}		
+
+				App.ibarV.postcheck(e);
 			};
 
 		// 一个固定端或定向约束只能与一根杆连接

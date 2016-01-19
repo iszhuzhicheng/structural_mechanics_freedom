@@ -1,81 +1,12 @@
-@charset "utf-8";
-/* CSS Document */
-.ownanimate{
-	-webkit-animation-duration:0.5s;
-	animation-duration:0.5s;
-	-webkit-animation-fill-mode:both;
-	animation-fill-mode:both;
-	animation-name:ownfadeIn;
-}
-
-@keyframes ownfadeIn{
-	from{
-		opacity:0
-	}
-
-	100%{
-		opacity:1
-	}
-}
-
-.ownanimate2{
-	-webkit-animation-duration:0.8s;
-	animation-duration:0.8s;
-	-webkit-animation-fill-mode:both;
-	animation-fill-mode:both;
-	animation-name:ownfadeIn2;
-}
-
-@keyframes ownfadeIn2{
-	from{
-		opacity:0
-	}
-
-	100%{
-		opacity:0.7
-	}
-}
-
-html{
-	margin:0;
-	padding:0;
-	width:100%;
-	height:100%;
-}
-
-body{
-	margin:0;
-	padding:0;
-	width:100%;
-	height:100%;
-	background-size:auto;
-}
-
-.wrap{
-	position: absolute;
-	display: none;
-	width:100%;
-	height:100%;
-	margin:0;
-	padding:0;
-
-}
-
-#canvas{
-	display:block;
-	background:url("../img/canvas2.png") repeat 0 0;
-	position:relative;
-	top:-4000px;
-	left:-4000px;
-	cursor:crosshair;
-}
-
+/*	Index
+ *		canvas ................... 8
+ *  	componentbar ............ 35
+ *  	resultbox ............... 85
+ *  	inputbar ............... 129
+ *  	calbutton .............. 194
+ */
 #canvaswrap{
 	display:none;
-}
-
-#canvaswrap.init{
-	display:block;
 	position: absolute;
 	border:2px solid #f3b3c1;
 	border-radius: 5px;
@@ -90,6 +21,64 @@ body{
 	height:520px;
 	overflow:hidden;
 	cursor:crosshair;
+}
+#canvas{
+	display:block;
+	background:url("../img/canvas2.png") repeat 0 0;
+	position:relative;
+	top:-4000px;
+	left:-4000px;
+	cursor:crosshair;
+}
+
+#componentbar{
+	height:40px;	
+	width:480px;	
+	display:none;
+	position:absolute;
+	top:580px;	
+	left:38px;	
+}
+#componentbar div{
+	display:inline-block;
+	margin-left: 5px;
+	cursor:pointer;
+}
+#componentbar #dj{
+	padding: 0 11px;
+  	line-height: 34px;
+}
+#componentbar #gdd{
+	padding: 0 12px;
+  	line-height: 43px;
+}
+#componentbar #mirror{
+	padding: 0 10px;
+	line-height: 45px;
+}
+#componentbar #dxj,
+#componentbar #linebar,
+#componentbar #move{
+	padding: 0 8px;
+  	line-height: 45px;
+}
+#componentbar #hdj,
+#componentbar #gdj{
+	padding: 0 3px;
+  	line-height: 50px;
+}
+#componentbar #dj img{
+	width: 45%;
+}
+#componentbar #gdd img{
+	width: 65%;
+}
+#componentbar div img{
+	cursor: pointer;
+	width:80%;
+}
+#componentbar div.active{
+	background-color: #eee;
 }
 
 #resultbox{
@@ -111,7 +100,6 @@ body{
 	border-bottom-left-radius: 0px;
 	-webkit-border-bottom-left-radius: 0px;
 }
-
 #resultbox p{
 	font-family: monospace;
 	margin:0px;
@@ -127,7 +115,6 @@ body{
 	text-align:left;
 	word-wrap:break-word;
 }
-
 #resultbox .whole{
 	font-family: monospace;
 	padding-bottom:3px;
@@ -138,38 +125,26 @@ body{
 	line-height: 1.4;
 }
 	
-#elementbar{
-	display:none;
-	position:absolute;
-	top:580px;	
-	left:38px;	
-	height:40px;	
-	width:400px;	
-}		
-			
-#utilitybar{
+#inputbar{
 	display:none;
 	position:absolute;
 	top:590px;
 	width:400px;
 	height:100px;
-	left:410px;	
+	left:450px;	
 }
-
-#utilitybar .txt{
+#inputbar .txt{
 	position:relative;
 	display: inline-block;
 	width:25%;
 }
-
-#utilitybar .txt:first-child{
+#inputbar .txt:first-child{
 	margin-right: 70px;
 }
-
-#utilitybar .txt input{
+#inputbar .txt input{
 	background-color: rgba(0,0,0,0);
 	border: 1px solid transparent;
-	font-size:14em;
+	font-size:12px;
 	color:#000;
 	-webkit-border-radius: 4px;
     -moz-border-radius: 4px;
@@ -183,18 +158,15 @@ body{
     transition:background-color 0.2s ease-out,border-color 0.2s ease-out;
     cursor:text;
 }
-
-#utilitybar .txt input:hover{
+#inputbar .txt input:hover{
 	background-color:rgba(255, 255, 255, 0.1);
 	text-shadow:none;
 }
-
-#utilitybar .txt input:focus{
+#inputbar .txt input:focus{
 	background-color:rgba(255, 255, 255, 0.1);
 	border-color:#488a6f;
 }
-
-#utilitybar .txt label{
+#inputbar .txt label{
 	top:9px;
 	height:20px;
 	cursor:text;
@@ -203,82 +175,26 @@ body{
 	width:18%;
 	left: 15%;
 }
-
-#utilitybar .txt label.inputangle{
+#inputbar .txt label.inputangle{
 	background:url("../img/inputangle.png") no-repeat;
 	background-size:contain;
 	opacity:0.4
 }
-
-#utilitybar .txt label.inputline{
+#inputbar .txt label.inputline{
 	background:url("../img/line.png") no-repeat;
 	background-size:contain;
 	opacity:0.6
 }
-
-#utilitybar .txt :first-child{
+#inputbar .txt :first-child{
 	margin-right:2%;
 	margin-bottom:7%;
 }
-	
-#elementbar div{
-	display:inline-block;
-	margin-left: 3px;
-	cursor:pointer;
-}
 
-#elementbar #dj{
-	padding: 0 11px;
-  	line-height: 34px;
-}
-
-#elementbar #gdd{
-	padding: 0 12px;
-  	line-height: 43px;
-}
-
-#elementbar #mirror{
-	padding: 0 10px;
-	line-height: 45px;
-}
-#elementbar #dxj,
-#elementbar #linebar,
-#elementbar #move{
-	padding: 0 8px;
-  	line-height: 45px;
-}
-
-#elementbar #hdj,
-#elementbar #gdj{
-	padding: 0 3px;
-  	line-height: 50px;
-}
-
-#elementbar #dj img{
-	width: 45%;
-}
-
-#elementbar #gdd img{
-	width: 65%;
-}
-
-#elementbar div img{
-	cursor: pointer;
-	width:80%;
-}
-
-#elementbar div.active{
-	background-color: #eee;
-}
-
-#calcubutton{
+#calbutton{
+	font-family: "Tahoma" "Geneva";
 	display:none;
 	position:absolute;
 	top: 7px;
 	left:897px;
 	z-index: 5;
-}
-
-#calcubutton.active{
-	cursor: pointer;
 }

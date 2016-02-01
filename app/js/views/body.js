@@ -5,6 +5,13 @@ App.Views.body = Backbone.View.extend({
 		"keyup":"main"
 	},
 
+	initialize: function(){
+		["canvV","calbuttonV","resultV","cbarV","ibarV"]
+		.forEach(function(v){
+			App[v].$el.css("display","block")
+		})
+	},
+
 	main: function(e){
 		// 如果keyup对象不是body，退出函数
 		if (e.target.id !== "") return

@@ -8,12 +8,6 @@ App.Views.ibar = Backbone.View.extend({
 	},
 	
 	initialize: function(){
-		var initanime = function(){
-			this.$el.css("display","block"); 
-		}.bind(this)
-
-		setTimeout(initanime,100)
-		
 		this.listenTo(App.factoryM,"change:type",this.main)
 		this.main()
 	},
@@ -78,12 +72,12 @@ App.Views.ibar = Backbone.View.extend({
 				if (factory.get("type") !== "linebar") 
 					factory.set("angle",value)
 				else 
-					angle = value			
+					angle = Number(value.toFixed(0))			
 			} else {
 				while (value < 0) 
 					value = Math.abs(value)	
 				
-				barlength = value                  
+				barlength = Number(value.toFixed(0))                  
 			} 
 	  })
 	   
@@ -110,5 +104,9 @@ App.Views.ibar = Backbone.View.extend({
     }    
 											 
 	  App.factoryM.drawelement()
+	},
+
+	clean:function(){
+		this.$el.find("input").val("")
 	}
 })

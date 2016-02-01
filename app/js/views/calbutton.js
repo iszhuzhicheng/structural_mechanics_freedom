@@ -1,18 +1,10 @@
 App.Views.calbutton = Backbone.View.extend({
 	el:$("#calbutton"),
 
-	initialize:function(){
-		var initanime = function(){
-			this.$el.css("display","block")
-		}.bind(this)
-
-		setTimeout(initanime,100)
-	},
-
 	events:{
 		"click":"calculate"
 	},
-
+	
 	//正在显示中
 	viewing:false,
 

@@ -2,9 +2,14 @@ App.Views.cbar = Backbone.View.extend({
 	el: $("#componentbar"),
 	
 	events: {
-		"click div:not(.active)" : "main",
+		"click div:not(.active)" : "main"
 	},
 	
+	initialize: function(){
+		this.listenTo(App.factoryM,"change:type",this.ui);
+		this.ui();
+	},
+
 	main: function(e){
 		var id
 			, isClick = e.type === "click"
@@ -37,16 +42,5 @@ App.Views.cbar = Backbone.View.extend({
 			.addClass("active")
 			.siblings()
 			.removeClass("active");
-	},
-
-	initialize: function(){
-  	var initanime = function(){
-			this.$el.css("display","block"); 
-		}.bind(this)
-
-		setTimeout(initanime,100)
-
-		this.listenTo(App.factoryM,"change:type",this.ui);
-		this.ui();
 	}
 })

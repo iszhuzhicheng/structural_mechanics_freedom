@@ -2,8 +2,8 @@ App.Collections.single = Backbone.Collection.extend({
 	model:App.Models.single,
 	
 	nextOrder: function(){
-		if (!this.length) return 0;
-		return this.last().get("order") + 1;
+		if (!this.length) return 0
+		return this.last().get("order") + 1
 	},
 	
 	comparator: 'order',
@@ -14,11 +14,11 @@ App.Collections.single = Backbone.Collection.extend({
 			_.each(arr1,function(value1){
 			  _.each(arr2,function(value2){
 				  if (value1 !== value2) {
-					var subarr = [];
+					var subarr = []
 					subarr.push(value1);
 					subarr.push(value2);
 					if (strict) {
-						subarr.reverse();
+						subarr.reverse()
 						if (
 						  !_.some(arr,function(sarr){
 						   	  return _.isEqual(sarr,subarr);
@@ -31,9 +31,9 @@ App.Collections.single = Backbone.Collection.extend({
 						arr.push(subarr);
 					}
 				  }
-			  });
-			});
-			return arr;
+			  })
+			})
+			return arr
 		}
 	},
 	
@@ -818,20 +818,9 @@ App.Collections.single = Backbone.Collection.extend({
 			return {
 				freedegree:free,
 				constrdegree:constr,
-				c:plate,
-				fontcolor:ramdomColor()
+				c:plate
 			};
-		});
-				
-		//App.test(plates);
-
-		// 上色定位最小单元的编号
-		var teams = _.map(plates,function(plate){
-			var team = _.uniq(_.flatten(_.pluck(plate["c"],"components"))); 
-			team.push(plate["fontcolor"]);
-			return team;
-		});	
-
+		})
 
 		//定位
 		rawdata = _.map(rawdata,function(singlesny){
@@ -851,18 +840,7 @@ App.Collections.single = Backbone.Collection.extend({
 				singlesny.set("signx",signx);			 	
 				singlesny.set("signy",signy);
 			}
-			return singlesny;
-
-		});
-
-		// 上色
-		_.each(teams,function(team){
-			rawdata = _.map(rawdata,function(singlesny){
-				if (_.contains(team,singlesny.get("order"))) {
-					singlesny.set("fontcolor",team[team.length-1]);
-				}
-				return singlesny;
-			})
+			return singlesny
 		});
 
 		var textarrs = _.pluck(plates,"c");
@@ -884,100 +862,38 @@ App.Collections.single = Backbone.Collection.extend({
 				}
 			});
 			return raw;
-		});
+		})
 		
 		// 绘制
 		_.each(rawdata,function(singlesny){
 			var text = singlesny.get("drawtext"),
 				order = singlesny.get("order"),
 				signx = singlesny.get("signx"),
-				signy = singlesny.get("signy"),
-				fontcolor = singlesny.get("fontcolor");
+				signy = singlesny.get("signy")
 
 			if (typeof text !== "undefined") {
-				App.canvV.signDraw(text,order,signx,signy,fontcolor);		
+				App.canvV.signDraw(text,order,signx,signy);		
 			}			
-		});
-
-		function ramdomColor(){
-			var colors = [0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'];
-
-			var fontcolor;
-
-			var sum = 0;
-
-			function sumIt(fontcolorarr){
-				_.each(fontcolorarr,function(color){
-					if (color == "a") {
-						sum += 10;
-					}
-					else if (color == "b") {
-						sum += 11;
-					} 
-					else if (color == "c") {
-						sum  += 12;
-					}
-					else if (color == "d") {
-						sum += 13;
-					}
-					else if (color == "e") {
-						sum += 14;
-					} 
-					else if (color == "f") {
-						sum += 15;
-					} 
-					else {
-						sum += color;
-					}
-				});
-				return sum;
-			};
-
-			while (sum < 53) {
-				sum = 0;
-				var fontcolorarr = _.sample(colors,6);
-									
-				sum = sumIt(fontcolorarr);
-
-				if (sum >= 53) {
-					fontcolor = getIt(fontcolorarr);
-				}
-			}
-
-			function getIt(fontcolorarr){
-				var color = "";
-
-				for (var i=0;i<fontcolorarr.length;i++) {
-					color += String(fontcolorarr[i]);
-				};
-
-				return color;
-			}
-
-			return "#" + fontcolor;
-		};
+		})
 
 		plates = _.map(plates,function(plate){
 			var already = 0;
 			plate.c = _.map(plate.c,function(constru){
-				constru.textcomp = [];
+				constru.textcomp = []
 				_.each(constru.components,function(comp,index,list){
-					constru.textcomp.push(index+already);
-					if (index == list.length-1) {
-						already = index + already + 1;
-					}
+					constru.textcomp.push(index+already)
+					if (index == list.length-1)
+						already = index + already + 1
 				})
-				return constru;
+				return constru
 			})
-			return plate;
-		});
+			return plate
+		})
 
-		//App.test(plates);
-
-		this.resultDisplay(plates);
+		this.resultDisplay(plates)
 	},
 
 	resultDisplay: function(plates){
-		App.resultV.enter(plates);
+		App.resultV.enter(plates)
 	}
-});	
+})

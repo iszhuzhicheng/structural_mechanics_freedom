@@ -1,10 +1,18 @@
 /*	Index
- *		canvas ................... 8
- *  	componentbar ............ 35
- *  	resultbox ............... 85
- *  	inputbar ............... 129
- *  	calbutton .............. 194
+ *		canvas .................. 15
+ *  	componentbar ............ 50
+ *  	resultbox .............. 100
+ *  	inputbar ............... 145
+ *  	calbutton .............. 200
  */
+body{
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* IE/Edge */
+  user-select: none;     
+}
 #canvaswrap{
 	display:none;
 	position: absolute;
@@ -122,7 +130,11 @@
 	font-size:15px;
 	margin-top:15px;
 	margin-bottom:0px;
+	color: royalblue;
 	line-height: 1.4;
+}
+#resultbox p{
+	color:seagreen;
 }
 	
 #inputbar{
@@ -147,8 +159,8 @@
 	font-size:12px;
 	color:#000;
 	-webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 6px;
+  -moz-border-radius: 4px;
+  border-radius: 6px;
 	outline: none;
 	height:25px;
 	width:100%;

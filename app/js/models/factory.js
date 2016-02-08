@@ -1,28 +1,28 @@
 App.Models.factory = Backbone.Model.extend({
 	defaults: {
-		"type":"gdj",
-		"category":"constr"
+			"type":"gdj"
+		,	"category":"constr"
 	},					
 
 	georule: {
-		"constr":["x","y","angle"],
-		"bar":["x","y","x2","y2"],
-		"other":[]
+			"constr":["x","y","angle"]
+		,	"bar":["x","y","x2","y2"]
+		,	"other":[]
 	},
 
 	newrule: {
-		"dj":"constr",
-		"gdj":"constr",
-		"hdj":"constr",
-		"gdd":"constr",
-		"dxj":"constr",
-		"linebar":"bar",
-		"move":"other",
-		"mirror":"constr"
+			"dj":"constr"
+		,	"gdj":"constr"
+		,	"hdj":"constr"
+		,	"gdd":"constr"
+		,	"dxj":"constr"
+		,	"linebar":"bar"
+		,	"move":"other"
+		,	"mirror":"constr"
 	},
 
 	initialize: function(){
-		this.on("change:type",this.clearAtrrs);				
+		this.on("change:type",this.clearAtrrs)	
 	},
 
 	changeType: function(type){
@@ -35,8 +35,8 @@ App.Models.factory = Backbone.Model.extend({
 		  , georule = this.georule
 
 		return {
-			"category" : newrule[type],
-			"geodata" : georule[newrule[type]]
+			"category" : newrule[type]
+		,	"geodata" : georule[newrule[type]]
 		}
 	},
 	
@@ -68,7 +68,7 @@ App.Models.factory = Backbone.Model.extend({
 					, x2 = model.get("x2")
 					, y2 = model.get("y2")
 
-				return !App.geoRegion(x1,x2,y1,y2,x,y,5,5) ? false : true								
+				return !App.canvV.tools.region(x,y,x1,y1,x2,y2,6,6) ? false : true								
 			}
 		});
 
@@ -123,17 +123,16 @@ App.Models.factory = Backbone.Model.extend({
 			, retr = this.retrRule(type)
 			, geodata = retr["geodata"]
 			, category = retr["category"]
-			, pass = _.every(geodata,this.passMaker.bind(this))
 			, geobj = {
-					type:type,
-					category:category
+					type:type
+				,	category:category
 				}
 			, isgh = (type == "gdj"||type == "hdj")
 			, isconstr = (category == "constr")
 			, k = isgh ? Math.tan((this.get("angle") - 90)/180*Math.PI) : Math.tan((this.get("angle"))/180*Math.PI)
 			, k = App.kSimilar(k)
-
-		if (!pass) return 
+													 															
+		if (!_.every(geodata,this.passMaker.bind(this))) return 
 
 		App.ibarV.clean()
 
@@ -159,12 +158,9 @@ App.Models.factory = Backbone.Model.extend({
 			return
 		}
 
-		var passline = this.passlineMaker.bind(this)(geobj.x,geobj.y,geobj.x2,geobj.y2)
+		if (!this.passlineMaker.bind(this)(geobj.x,geobj.y,geobj.x2,geobj.y2)) return 
 
-		if (!passline) return 
-
-		geobj.k = (geobj.y2-geobj.y)/(geobj.x2-geobj.x)
-		geobj.k = App.kSimilar(geobj.k)
+		geobj.k = App.kSimilar((geobj.y2-geobj.y)/(geobj.x2-geobj.x))
 		geobj.b = geobj.y - geobj.x*geobj.k
 
 		App.singleC.create(geobj)

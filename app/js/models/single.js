@@ -3,6 +3,6 @@ App.Models.single = Backbone.Model.extend({
 		return {
 			order: App.singleC.nextOrder(),
 			connects:[],
-		};	
+		}
 	}
-});
+})

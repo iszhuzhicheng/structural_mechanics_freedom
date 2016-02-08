@@ -89,8 +89,8 @@ App.Views.ibar = Backbone.View.extend({
 	   	
 	    if (factory.get("x2")) {
 		    factory.set({
-			    "x":factory.get("x2"),
-			    "y":factory.get("y2")
+			    "x":factory.get("x2")
+			  , "y":factory.get("y2")
 		    })
 		  
 		    x2 = factory.get("x") + kx*barlength

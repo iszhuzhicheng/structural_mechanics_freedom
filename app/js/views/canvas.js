@@ -8,23 +8,17 @@ App.Views.canv = Backbone.View.extend({
 		this.drawlib = App.canvdrawV.draw.bind(this)()	
 	},
 
-	setxy: function(model,x,y){
-		return {
-			"x":model.get(x)
-		,	"y":model.get(y)
-		}
-	},
-
 	presolve: function(newmodel){
-		var xy
-			, i = 0
+		var i = 0
 			, models = App.singleC.models
 			, l  = models.length
-
-		if (newmodel.get("category") == "constr") 
-			xy = this.setxy(newmodel,"x","y")
-		else 
-			xy = this.setxy(newmodel,"x2","y2")
+			, xy = newmodel.get("category") == "constr" ? {
+				"x":newmodel.get("x")
+			,	"y":newmodel.get("y")
+			} : {
+				"x":newmodel.get("x2")
+			,	"y":newmodel.get("y2")
+			}
 	
 		App.factoryM.set(xy)
 
@@ -32,7 +26,7 @@ App.Views.canv = Backbone.View.extend({
 			this.$el.find("#canvas").removeLayer('sign'+i)
 
 		App.calbuttonV.viewing = false
-		this.ConnectSolve(newmodel)
+		this.connectSolve(newmodel)
 		this.isCalculate(l,models)
 	},
 
@@ -40,8 +34,6 @@ App.Views.canv = Backbone.View.extend({
 	isCalculate: function(l,models){
 		var isCalculate = false
 			, i = 0
-		
-		App.classTrigger("#calcubutton","bounceInUp",true)
 	
 		for (;i<l;i++) {
 			if (models[i].get("type") == "linebar"){
@@ -56,7 +48,112 @@ App.Views.canv = Backbone.View.extend({
 			App.calbuttonV.leave()
 	},
 
-	ConnectSolve: function(newmodel,isExist){
+	tools:{
+			disconnect: function(model1,connects1,order1,model2,connects2,order2){
+				model1.set("connects",_.filter(connects1,function(component){
+					return component !== order1
+				}))
+
+				model2.set("connects",_.filter(connects2,function(component){
+					return component !== order2
+				}))
+			}
+		, connect: function(connect1,order1,connect2,order2){
+				if (!_.contains(connect1,order2)) 
+					connect1.push(order2)
+			
+				if (!_.contains(connect2,order1)) 
+					connect2.push(order1)
+		}
+		, p2pdistance: function(x1,y1,x2,y2){
+				return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+		}
+		, p2ldistance: function(k,b,newx,newy){
+			return Math.abs((newx - newy/k + b/k)/Math.sqrt(1+1/(k*k)))
+		}
+		, isp2l: function(x,y,x2,y2,k,b,newx,newy,d){
+			return this.region(newx,newy,x,y,x2,y2,d+2,d+2)&&this.p2ldistance(k,b,newx,newy) <= d+2
+		}
+		, b2bhead: function(x,y,x2,y2,newx,newy,newx2,newy2,d){
+				return this.p2pdistance(x,y,newx,newy) <= d ||
+						 this.p2pdistance(x2,y2,newx,newy) <= d ||
+						 this.p2pdistance(x,y,newx2,newy2) <= d ||						 
+						 this.p2pdistance(x2,y2,newx2,newy2) <= d
+		}
+		, region: function(x,y,regionx1,regiony1,regionx2,regiony2,dx,dy){
+				var maxX = regionx1 >= regionx2 ? regionx1 : regionx2
+					, minX = maxX == regionx1 ? regionx2 : regionx1
+					, maxY = regiony1 >= regiony2 ? regiony1 : regiony2
+					, minY = maxY == regiony1 ? regiony2 : regiony1
+
+			return x<=maxX+dx&&y<=maxY+dy&&x>=minX-dx&&y>=minY-dy
+		}
+	},
+
+	c2b: function(x,y,order,connects,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel){
+		if ((x==newx&&y==newy)||(x==newx2&&y==newy2))
+			this.tools.connect(connects,order,newconnects,neworder)
+		else 
+			this.tools.disconnect(model,connects,order,newmodel,newconnects,neworder)
+	},
+
+	b2b: function(x,y,x2,y2,k,b,order,connects,type,category,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel,isExist,isnew){
+		if (this.tools.b2bhead(x,y,x2,y2,newx,newy,newx2,newy2,0))	{
+			this.tools.connect(connects,order,newconnects,neworder)
+		}
+		else {
+			if (isExist) {
+				this.tools.disconnect(model,connects,order,newmodel,newconnects,neworder)
+			}
+			else if (this.tools.b2bhead(x,y,x2,y2,newx,newy,newx2,newy2,1.5)
+				||!(this.tools.region(newx,newy,x,y,x2,y2,0,0)
+					||this.tools.region(newx2,newy2,x,y,x2,y2,0,0))) {
+				return
+			}
+			else {	
+				var isnew = this.tools.region(newx,newy,x,y,x2,y2,0,0)
+
+				model.set({
+					"x2":x,
+					"y2":y
+				})
+
+				App.singleC.add({
+						"type":type
+					,	"category":category
+					, "x":isnew ? newx : newx2
+					, "y":isnew ? newy : newy2
+					,	"x2":x2
+					,	"y2":y2
+					,	"k":k
+					,	"b":b	
+				},{silent:true})
+
+				// 对杆件连接再处理的杆件不做杆身重合判断
+				this.connectSolve(App.singleC.at(order),true)
+				this.connectSolve(App.singleC.at(neworder + 1),true)
+
+				// 一根杆与两根杆的杆身相连时的情况
+				if (App.singleC.models.length - 2 > neworder) 
+					this.connectSolve(App.singleC.at(neworder + 2),true)
+			}
+		}
+	},
+	
+	b2c : function(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel){
+		if (
+				// 杆身相连
+				this.tools.isp2l(x,y,x2,y2,k,b,newx,newy,6)&&
+				this.offset.constr.result&&
+				order == this.offset.constr.order||
+				// 杆端相连
+				((x==newx&&y==newy)||(x2==newx&&y2==newy))
+				) {
+			this.tools.connect(connects,order,newconnects,neworder)						
+		}
+	},
+
+	connectSolve: function(newmodel,isExist){
 		var neworder = newmodel.get("order")
 			, newcategory = newmodel.get("category")
 			, newconnects = newmodel.get("connects")
@@ -68,6 +165,7 @@ App.Views.canv = Backbone.View.extend({
 			, newy2 = newmodel.get("y2")
 			, constrs = []
 
+		// 第一轮处理
 		_.each(App.singleC.models,function(model){
 			var category = model.get("category")
 				,	order = model.get("order")
@@ -80,255 +178,98 @@ App.Views.canv = Backbone.View.extend({
 				, y = model.get("y")
 				, x2 = model.get("x2")
 				, y2 = model.get("y2")
-				, vline = {
-						k:App.kSimilar(-1/k)
-					,	b: newy + newx/k
-					}
-				, dx = 6/Math.sqrt(1 + vline.k*vline.k)
-				, dy = 6*vline.k/Math.sqrt(1 + vline.k*vline.k)
 
 			if (order == neworder) return
 
-			if (category == "constr"&&newcategory == "bar") {
-					
-				if ((x==newx&&y==newy)||(x==newx2&&y==newy2))	{
-					if (!_.contains(connects,neworder)) 
-						connects.push(neworder);
-				
-					if (!_.contains(newconnects,order)) 
-						newconnects.push(order);
-				}
-				else {
-					newmodel.set("connects",_.filter(newconnects,function(component){
-						return component !== order
-					}))
-
-					model.set("connects",_.filter(connects,function(component){
-						return component !== neworder
-					}))
-				}
-			}
-			if (category == "bar"&&newcategory == "bar") {				
-				// 防止杆端重合
-				var isnthead = function(){
-						var dx1 = Math.abs(x - newx)
-							, dy1 = Math.abs(y - newy)
-							, dx2 = Math.abs(x2 - newx2)
-							, dy2 = Math.abs(y2 - newy2)
-						
-						if ((dx1<1&&dy1<1)||(dx2<1&&dy2<1)) return false
-
-						var dx1 = Math.abs(x2 - newx)
-							, dy1 = Math.abs(y2 - newy)
-							, dx2 = Math.abs(x - newx2)
-							, dy2 = Math.abs(y - newy2)
-
-						return (dx1<1&&dy1<1)||(dx2<1&&dy2<1) ? false : true
-				} , scale = function(x,y){
-						//值域与作用域， 允许5像素以内的误差				
-						var maxX = x > x2 ? x : x2
-							, minX = x > x2 ? x2 : x
-							, maxY = y > y2 ? y : y2
-							, minY = y > y2 ? y2 : y
-
-						return !(x<maxX+5&&x>minX-5&&y<maxY+5&&y>minY) ? false : true
-				} , barbody = function(nx,ny){
-						var c = Math.abs(k*x+b-y)
-							, obj = {
-									"type":type
-								,	"category":category
-								,	"x":nx
-								,	"y":ny
-								,	"x2":x2
-								,	"y2":y2
-								,	"k":k
-								,	"b":b	
-							} 
-							, offset = offsetByk(k)
-
-						if (c<offset&&isnthead()&&scale(nx,ny)&&this.offset.bar) {
-							this.offset.bar = false
-							model.set({
-								"x2":x,
-								"y2":y
-							})
-							
-							if (isExist) return 	
-
-							App.singleC.add(obj,{silent:true})
-
-							// 对杆件连接再处理的杆件不做杆身重合判断
-							this.ConnectSolve(App.singleC.at(order),true)
-							this.ConnectSolve(App.singleC.at(neworder + 1),true)
-
-							//一根杆与两根杆的杆身相连时的情况
-							if (App.singleC.models.length - 2 > neworder) 
-								this.ConnectSolve(App.singleC.at(neworder + 2),true)
-						}
-				}.bind(this)
-				
-				if ((x==newx&&y==newy)||(x==newx2&&y==newy2)||
-					(x2==newx&&y2==newy)||(x2==newx2&&y2==newy2))	{
-					if (!_.contains(model.get("connects"),newmodel.get("order"))) 
-						model.get("connects").push(newmodel.get("order"));
-
-					if (!_.contains(newmodel.get("connects"),model.get("order"))) 
-						newmodel.get("connects").push(model.get("order"));
-
-					return;
-				}
-				else {
-					if (!isExist) {
-						barbody(newx,newy)
-						barbody(newx2,newy2);	
-					} 					
-					else {
-						//构件不再相连时，从connects中删去。
-						newmodel.set("connects",_.filter(newmodel.get("connects"),function(order){
-							return order !== model.get("order");
-						}));
-						
-						model.set("connects",_.filter(model.get("connects"),function(order){
-							return order !== newmodel.get("order");
-						}));
-						
-						return
-					}
-				}
-			}	
-			if (category == "bar"&&newcategory == "constr") {				
-				var bodybar = function(px,py,m){
-						var maxX = x > x2 ? x : x2
-							, minX = x > x2 ? x2 : x
-							, maxY = y > y2 ? y : y2
-							, minY = y > y2 ? y2 : y
-
-						if (!(px<maxX+5&&px>minX-5&&py<maxY+5&&py>minY)) return false;
-						
-						var c = Math.abs(k*px+b-py)
-							, offset = offsetByk(k)
-						
-						//约束还要黏在杆上面同时该杆是点击时的那个点才能算是连接着的
-						if (c<offset&&this.offset.constr.result&&order == this.offset.constr.order) {
-
-							if (!_.contains(model.get("connects"),newmodel.get("order"))) {
-								model.get("connects").push(newmodel.get("order"))
-							}
-					
-							if (!_.contains(newmodel.get("connects"),model.get("order"))) {
-								newmodel.get("connects").push(model.get("order"))
-							}
-							
-							return true;
-						} else {
-							return false;
-						}
-				}.bind(this)
-					
-				//约束和杆身连接
-				if (bodybar(newx+dx,newy+dy)||bodybar(newx-dx,newy-dy)) return;
-				
-				//约束与杆端相连
-				if ((x==newx&&y==newy)||(x2==newx&&y2==newy))	{
-
-					if (!_.contains(model.get("connects"),newmodel.get("order"))) {
-						model.get("connects").push(newmodel.get("order"));
-					}
-					
-					if (!_.contains(newmodel.get("connects"),model.get("order"))) {
-						newmodel.get("connects").push(model.get("order"));
-					}
-					
-					return
-				}
-			}	
+			if (category == "constr"&&newcategory == "bar") 
+				this.c2b(x,y,order,connects,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel)
+			else if (category == "bar"&&newcategory == "bar") 
+				this.b2b(x,y,x2,y2,k,b,order,connects,type,category,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel,isExist)
+			else if (category == "bar"&&newcategory == "constr")
+				this.b2c(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel)		
 		}.bind(this))
-		
-		//如果新model是杆，遍历它的连接件，如果有约束，得到那个约束的连接件数组，
-		//将其中的model的连接件数组中的该新model删去，同时把它们从该新model中删去。
-		if (newmodel.get("connects").length>0&&newcategory == "bar") {
-			for (var i=0;i<newconnects.length;i++){
-				if (App.singleC.at(newconnects[i]).get("category") == "constr") {
+
+		// 第二轮处理
+		// 将新杆所连的和它连在同一个约束上的杆去掉
+		if (newcategory == "bar") {
+			// 经过第一轮处理，newmodel已发生变化
+			newconnects = newmodel.get("connects")
+
+			_.each(newconnects,function(connect){
+				if (App.singleC.at(connect).get("category") == "constr") {
 					constrs.push({
-						collect:App.singleC.at(newconnects[i]).get("connects"),
-						order:App.singleC.at(newconnects[i]).get("order")
-					});
-				}
-			}
-			
-			if (constrs.length > 0) {
-				for (var j=0;j<constrs.length;j++){
-					var constrconnects = constrs[j]["collect"]
-						, controrder = constrs[j]["order"]
-						
-					for (var i=0;i<constrconnects.length;i++){
-						var currentconnects = App.singleC.at(constrconnects[i]).get("connects")
-														
-						_.each(currentconnects,function(num){
-							var model = App.singleC.at(num)
-								, order = model.get("order")
-								, category = model.get("category")
-							if (category == "bar"&&_.contains(model.get("connects"),controrder)){								
-								currentconnects = _.filter(currentconnects,function(num){
-									return num !== order
-								})
-
-								App.singleC.at(constrconnects[i]).set("connects",currentconnects)
-							}
-						})
-					}
-				}
-			}
-		}
-		else if (newconnects.length>0&&newcategory == "constr") {
-			//如果是约束，遍历它的连接件，如果有多个杆件，就将它们从彼此的连接件数组中删去。
-			_.each(newconnects,function(num){
-				var model = App.singleC.at(num)
-					, order = model.get("order")
-					, currentconnects = model.get("connects")
-					, preconnects = _.filter(newconnects,function(num){
-						return num !== order;
+						connects:App.singleC.at(connect).get("connects")
+					,	order:App.singleC.at(connect).get("order")
 					})
-					, currentcollects = _.filter(currentconnects,function(num){
-						return !_.contains(preconnects,num)
-					})
-
-					model.set("connects",currentconnects);
+				}
 			})
-		}
-		
-		if (isExist) return
 
-		this.draw(newmodel)
+			_.each(constrs,function(constr){
+        var constrconnects = constr["connects"]
+          , controrder = constr["order"]
 
-		//随着k增大，偏移的误差也随着增大	
-		function offsetByk(k) {
-			return 40 * Math.sqrt(Math.sqrt(Math.abs(k)));
+        _.each(constrconnects,function(constrconnect){
+          var currentconnects = App.singleC.at(constrconnect).get("connects")
+
+          _.each(currentconnects,function(currentconnect){
+            var currentmodel = App.singleC.at(currentconnect)
+              , currentcategory = currentmodel.get('category')
+
+            if (currentcategory == "bar"&&
+              _.contains(currentmodel.get("connects"),controrder)
+              ){
+              App.singleC.at(constrconnect).set("connects",_.filter(currentconnects,function(connect){
+                return connect !== currentconnect
+              }))
+            }
+          })
+        })
+      })		
+		// 将约束的连接件从彼此的连接件中删去	
+		} else if (newcategory == "constr") {
+			_.each(newconnects,function(connect){
+				var connectmodel = App.singleC.at(connect)
+					, preconnects = _.filter(newconnects,function(preconnect){
+						return preconnect !== connectmodel.get("order")
+					})
+
+					connectmodel.set("connects",_.filter(connectmodel.get("connects"),function(currentconnect){
+						return !_.contains(preconnects,currentconnect)
+					}))
+			})	
 		}
+
+		if (!isExist) this.draw(newmodel)
 	},
-	
+		
 	draw: function(model){
 		var models = _.map(App.singleC.models,function(model){
-			return [model.get("order"),model.get("connects"),model.get("x"),model.get("y"),model.get("x2"),model.get("y2")]
+			return [
+				  model.get("order")
+				, model.get("connects")
+				, model.get("x")
+				, model.get("y")
+				, model.get("x2")
+				, model.get("y2")
+			]
 		});
 
 		this.drawlib[model.get("type")](model)
 	},
 	
 	events:{
-		"click canvas" : "setCoor",
+		"click canvas" : "setCoor"
 	},
 
 	offset:{
 		constr:{
-			result:false,
-			order:null
-		},
-		bar:false
+			result:false
+		,	order:null
+		}
 	},
 
 	setCoor: function(e){
-		if ($("canvas").hasClass("moving")) return ;
+		if ($("canvas").hasClass("moving")) return 
 
 		var factory = App.factoryM
 			, leftpos = this.$el.css("left").indexOf("px")
@@ -343,222 +284,175 @@ App.Views.canv = Backbone.View.extend({
 			, Y = e.pageY - this.canvas.position().top-tops
 			, type = factory.get("type")
 			, category = factory.get("category")
+			, type = factory.get("type")
 			, coinarr = []
-			, distance = function(x1,x2,y1,y2,l){
-				var distance = Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
-				if (distance >= l) {
-					return false
-				} else {
-					return true
-				}
-			}
+			// 防止定向铰和固定端连接在多根杆上
+			, bartime = 0
 			// 可复用于重合时，将坐标设置为一致，为连接件判断做准备
 			, coorSet = function(x,y){
-
-				if (factory.get("x")&& type == "linebar"){
+				if (factory.get("x")&&type == "linebar"){
 					factory.set({
-						"x2":x,
-						"y2":y
+						"x2":x
+					,	"y2":y
 					})
-					return
-				} else {
-					//设定约束的坐标或直线的第一个点
+				} 
+				// 设定约束的坐标或直线的第一个点
+				else {					
 					factory.set({	
-						"x":x,
-						"y":y
-					});
+						"x":x
+					,	"y":y
+					})
 				}		
-
-				App.ibarV.postcheck(e);
+				App.ibarV.postcheck(e)
 			}
-
-		// 一个固定端或定向约束只能与一根杆连接
-		if(_.some(App.singleC.models,function(model,index,models){
-			if (model.get("type") == "gdd"||model.get("type") == "dxj") {							
-				// 是否已连接杆件 
-				return _.some(model.get("connects"),function(connect){
-					if (models[connect].get("type") == "linebar") {
-						if (distance(model.get("x"),X,model.get("y"),Y,5)||(
-							factory.get("type") == "linebar"
-							&&
-							!distance(factory.get("x"),X,factory.get("y"),Y,5)
-							&&
-							distance(model.get("x"),factory.get("x"),model.get("y"),factory.get("y"),5)
-						)){
-							return true
-						} else {
-							return false
-						}
-					} else {
+			this.offset.constr.order = null
+			this.offset.constr.result = false
+				
+		if (
+			_.some(App.singleC.models,function(model){
+				// 防止两约束重合
+				if (model.get("category") == category&&
+						category == "constr"&&
+						this.tools.p2pdistance(model.get("x"),model.get("y"),X,Y) < 10) {
+					return true
+				} 
+				// 防止多根杆连接在定向铰和固定端上
+				else if (category == "bar"&&
+						(
+							model.get("type") == "gdd"||
+							model.get("type") == "dxj"
+						)&&						
+						(
+							this.tools.p2pdistance(X,Y,model.get("x"),model.get("y")) < 5||
+							this.tools.p2pdistance(factory.get("x"),factory.get("y"),model.get("x"),model.get("y")) < 5
+						)&&
+						model.get("connects").length > 0												
+				){
+					return true
+				} 
+				// 防止定向铰和固定端连接在多根杆上
+				else if (model.get("category") == "bar"&&
+						(
+							type == "gdd"||
+							type == "dxj"
+						)&&
+						(
+							this.tools.p2pdistance(X,Y,model.get("x"),model.get("y")) < 5||
+							this.tools.p2pdistance(X,Y,model.get("x2"),model.get("y2")) < 5
+						)
+				){
+					bartime++
+					if (bartime > 1) {
+						return true
+					} 
+					else {
 						return false
 					}
-				})
-			} else {
-				return false
-			}
-		})) {
-			return
-		};
-
-		//初始化offset constr
-		this.offset.constr.order = null;
-		this.offset.constr.result = false;
-		
-		// 防止两约束相交
-		if (App.singleC.models.length > 0) {
-			var passcard = _.every(App.singleC.models,function(model){
-				var x1 = model.get("x"),
-					y1 = model.get("y"),
-					d1 = distance(X,x1,Y,y1,10);
-				
-				if (model.get("category") == category&&category == "constr"&&d1) {
-					return false;
-				} else {
-					return true;
 				}
-				
-			});
-		} else {
-			var passcard = true;
-		}
-		
-		// 如果两约束重合了就返回
-		if (!passcard) return;
+				else {
+					return false
+				}
+		}.bind(this))) return
 		
 		_.each(App.singleC.models,function(model){
-			var x1 = model.get("x"),
-				y1 = model.get("y"),
-				d1 = distance(X,x1,Y,y1,5),
-				category = model.get("category"),
-				order = model.get("order"),
-				connects = model.get("connects"),
-				x2,
-				y2,
-				d2;
-			
-			if (model.get("type") == "linebar") {
-				x2 = model.get("x2");
-				y2 = model.get("y2");
-				d2 = distance(X,x2,Y,y2,5);
-			};
-			
-			// 若重合非两约束式重合
+			var x1 = model.get("x")
+				, y1 = model.get("y")
+				, d1 = this.tools.p2pdistance(x1,y1,X,Y) < 5 
+				, category = model.get("category")
+				, order = model.get("order")
+				, connects = model.get("connects")
+				, x2 = model.get("x2")
+				, y2 = model.get("y2")
+				, d2 = model.get("x2") ? this.tools.p2pdistance(x2,y2,X,Y) < 5 : undefined
+				, coinobj = {}
+
 			if (d1||d2) {
-				var coinobj = {};
-				// 约束或杆件的顶端与之重合
-				if (d1) {
-					coinobj.x = x1,
-					coinobj.y = y1
-				// 杆件的末端与之重合
-				} else if (d2) {
-					coinobj.x = x2,
-					coinobj.y = y2
-				}   
-				coinobj.category = category;
-				coinobj.order = order;
-				coinarr.push(coinobj);
-			};
-		}.bind(this));
+				// 约束或杆件的顶端或末端与之重合 
+				coinobj.x = d1 ? x1 : x2
+				coinobj.y = d1 ? y1 : y2 
+				coinobj.category = category
+				coinobj.order = order
+				coinarr.push(coinobj)
+			}
+		}.bind(this))
 		
+		// 此次点击与多个坐标接近，点击无效
+		if (coinarr.length > 0) {
+			var maxx = _.max(coinarr,function(model){
+				return model.x
+			}).x
+				, minx = _.min(coinarr,function(model){
+				return model.x
+			}).x
+				, maxy = _.max(coinarr,function(model){
+				return model.y
+			}).y
+				, miny = _.min(coinarr,function(model){
+				return model.y
+			}).y
+			
+			if (maxx==minx&&maxy==miny){
+				coorSet(coinarr[0].x,coinarr[0].y)
+				factory.drawelement() 
+			}
+		}
 		// 若重合非顶端式重合
 		// 通过计算一点到一根直线的垂直距离
 		// 判断是否为杆身重合
-		if (coinarr.length == 0) {
-			var times = 0,
-				newline,
-				pointx,
-				pointy,
-				preventConnect = false;
+		else {
+			// 此次点击与n根杆身接近
+			var n = 0
+				, pointx
+				, pointy
+				, preventConnect = false
 				
 			_.each(App.singleC.models,function(model){
-				if (model.get("category") !== "bar") return;
-				
-				//if (type=="gdd"||type=="dxj") return;
-				
+				if (model.get("category") !== "bar") return
+
 				var k = model.get("k")
 					, b = model.get("b")
 					, x1 = model.get("x")	
 					, x2 = model.get("x2")
 					, y1 = model.get("y")
 					, y2 = model.get("y2")
-					, k = App.kSimilar(k)
 
-				if (!App.geoRegion(x1,x2,y1,y2,X,Y,5,5)) return false
+				if (!this.tools.region(X,Y,x1,y1,x2,y2,6,6)) return false
 
-				times++
-				newline = {
-					k:App.kSimilar(-1/k),
-					b:Y + X/k
-			 	}
-
-			 	// 垂线交点坐标;	 		 
-			 	pointx = (newline.b - b)/(k - newline.k);
-				pointy = pointx * k + b;
-
-				// 杆端与杆身相连，偏移杆端
-				if (type == "linebar") {
-					this.offset.bar = true
-				}
+				n++
+			 	// 垂线交点坐标 
+			 	pointx = (Y + X/k - b)/(k +1/k)
+				pointy = pointx * k + b
 				 
 				// 约束与杆身连接 偏移约束
-				if (_.contains(["gdj","hdj","dj"],type)) {
-					this.offset.constr.order = model.get("order");
-					this.offset.constr.result = true;
-					var dx = 6/Math.sqrt(1 + newline.k*newline.k),
-						dy = 6*newline.k/Math.sqrt(1 + newline.k*newline.k);
+				if (_.contains(["gdj","hdj","dj"],type)) {					
+					var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
+						, dy = 6*(-1/k)/Math.sqrt(1 + (-1/k)*(-1/k))
 					
-					if (pointx > X)	{
-						pointx = pointx - dx;
-						pointy = pointy - dy;
-					} else {
-						pointx = pointx + dx;
-						pointy = pointy + dy;
-					}
-				};
-				// 防止定向支座和固定端与杆身相连
-				if (_.contains(["gdd","dxj"],type)) {
-					preventConnect = true;	
+					pointx = pointx > X ? pointx - dx : pointx + dx
+					pointy = pointy > Y ? pointy - dy : pointy + dy
+					this.offset.constr.order = model.get("order")
+					this.offset.constr.result = true
 				}
+				// 防止定向支座和固定端与杆身相连
+				if (_.contains(["gdd","dxj"],type)) 
+					preventConnect = true
 					
-			}.bind(this));
+			}.bind(this))
 			
-			//防止定向支座和固定端与杆身相连
-			if (preventConnect) return;
+			if (preventConnect) return
 			
 			//此次点击与多根杆身接近，点击无效
-			if (times > 1) return;
+			if (n > 1) return
 			
-			if (times == 1) {
-				coorSet(Number(pointx.toFixed(0)),Number(pointy.toFixed(0)));
-				factory.drawelement();
-			} else {
+			if (n == 1) {
+				coorSet(Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
+				factory.drawelement()
+			} 
+			else {
 				coorSet(X,Y)
 				factory.drawelement()
-				return;	
 			}
 		}
-
-		// 此次点击与多个坐标接近，点击无效
-		
-		var maxx = _.max(coinarr,function(model){
-			return model.x;
-		}).x,
-			minx = _.min(coinarr,function(model){
-			return model.x;
-		}).x,
-			maxy = _.max(coinarr,function(model){
-			return model.y;
-		}).y,
-			miny = _.min(coinarr,function(model){
-			return model.y;
-		}).y;
-		
-		if (maxx !== minx || maxy !== miny) {
-			return false;			
-		}
-		
-		coorSet(coinarr[0].x,coinarr[0].y);	    
-		factory.drawelement();      
 	},
 		
 	movable: function(index,value){
@@ -576,18 +470,17 @@ App.Views.canv = Backbone.View.extend({
 		}	
 	}, 
 
-	signDraw: function(text,order,signx,signy,signcolor){
-		var canvas = $(this.canvas)
-
-		canvas.drawText({
+	signDraw: function(text,order,signx,signy){
+		$(this.canvas).drawText({
 			layer:true
 		,	name:"sign" + order
 		,	visible:true
-		,	fillStyle:signcolor
-		,	x:signx,y:signy
+		,	fillStyle:"seagreen"
+		,	x:signx
+		, y:signy
 		,	fontSize:14
 		,	fontFamily: 'Verdana, sans-serif'
 		,	text:text
 		})
 	}
-});
+})

@@ -9,28 +9,24 @@ App.Views.calbutton = Backbone.View.extend({
 	viewing:false,
 
 	calculate:function(){
-		if (!this.$el.hasClass("btn-danger")) return false
+		if (!this.$el.hasClass("btn-danger")) return
 
 		if (!this.viewing) {
 			this.$el.removeClass("btn-danger")
 					.addClass("btn-primary")
 
-			this.viewing = true;
+			this.viewing = true
 			App.singleC.calculate()
 		}
 	},
 
 	enter:function(){
-		if (!this.$el.hasClass("btn-danger")) {
-			this.$el.addClass("btn-danger")
-					.removeClass("btn-primary")
-		}
+		this.$el.addClass("btn-danger")
+						.removeClass("btn-primary")
 	},
 
 	leave:function(){
-		if (this.$el.hasClass("btn-danger")) {
-			this.$el.removeClass("btn-danger")
-					.addClass("btn-primary")
-		}
+		this.$el.removeClass("btn-danger")
+						.addClass("btn-primary")
 	}
-});
+})

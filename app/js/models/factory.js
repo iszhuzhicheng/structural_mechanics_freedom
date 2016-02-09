@@ -115,7 +115,7 @@ App.Models.factory = Backbone.Model.extend({
 			return _.intersection(this.barbar(x1,y1),this.barconstr(x2,y2)).length > 0 ? false : true
 		} 
 
-		return true;
+		return true
 	},
 
 	drawelement: function(){
@@ -153,8 +153,9 @@ App.Models.factory = Backbone.Model.extend({
 				"x":geobj.x,
 				"y":geobj.y
 			})
-
+			App.test(App.singleC.models)
 			App.singleC.create(geobj)
+			
 			return
 		}
 
@@ -162,7 +163,8 @@ App.Models.factory = Backbone.Model.extend({
 
 		geobj.k = App.kSimilar((geobj.y2-geobj.y)/(geobj.x2-geobj.x))
 		geobj.b = geobj.y - geobj.x*geobj.k
-
+		
 		App.singleC.create(geobj)
+
 	}
 })

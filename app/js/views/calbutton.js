@@ -16,6 +16,7 @@ App.Views.calbutton = Backbone.View.extend({
 					.addClass("btn-primary")
 
 			this.viewing = true
+
 			App.singleC.calculate()
 		}
 	},

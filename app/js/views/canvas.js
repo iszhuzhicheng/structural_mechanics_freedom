@@ -13,11 +13,11 @@ App.Views.canv = Backbone.View.extend({
 			, models = App.singleC.models
 			, l  = models.length
 			, xy = newmodel.get("category") == "constr" ? {
-				"x":newmodel.get("x")
-			,	"y":newmodel.get("y")
+					"x":newmodel.get("x")
+				,	"y":newmodel.get("y")
 			} : {
-				"x":newmodel.get("x2")
-			,	"y":newmodel.get("y2")
+					"x":newmodel.get("x2")
+				,	"y":newmodel.get("y2")
 			}
 	
 		App.factoryM.set(xy)
@@ -26,7 +26,7 @@ App.Views.canv = Backbone.View.extend({
 			this.$el.find("#canvas").removeLayer('sign'+i)
 
 		App.calbuttonV.viewing = false
-		this.connectSolve(newmodel)
+		this.connectSolve(newmodel,false)
 		this.isCalculate(l,models)
 	},
 
@@ -51,11 +51,11 @@ App.Views.canv = Backbone.View.extend({
 	tools:{
 			disconnect: function(model1,connects1,order1,model2,connects2,order2){
 				model1.set("connects",_.filter(connects1,function(component){
-					return component !== order1
+					return component !== order2
 				}))
 
 				model2.set("connects",_.filter(connects2,function(component){
-					return component !== order2
+					return component !== order1
 				}))
 			}
 		, connect: function(connect1,order1,connect2,order2){
@@ -98,10 +98,12 @@ App.Views.canv = Backbone.View.extend({
 	},
 
 	b2b: function(x,y,x2,y2,k,b,order,connects,type,category,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel,isExist,isnew){
+		// 杆端相连
 		if (this.tools.b2bhead(x,y,x2,y2,newx,newy,newx2,newy2,0))	{
 			this.tools.connect(connects,order,newconnects,neworder)
 		}
 		else {
+			// 杆身相连时，前杆会被断开，所以要从其连接件中删去原来连接的杆
 			if (isExist) {
 				this.tools.disconnect(model,connects,order,newmodel,newconnects,neworder)
 			}
@@ -114,8 +116,8 @@ App.Views.canv = Backbone.View.extend({
 				var isnew = this.tools.region(newx,newy,x,y,x2,y2,0,0)
 
 				model.set({
-					"x2":x,
-					"y2":y
+						"x2":isnew ? newx : newx2
+					,	"y2":isnew ? newy : newy2
 				})
 
 				App.singleC.add({
@@ -134,8 +136,9 @@ App.Views.canv = Backbone.View.extend({
 				this.connectSolve(App.singleC.at(neworder + 1),true)
 
 				// 一根杆与两根杆的杆身相连时的情况
-				if (App.singleC.models.length - 2 > neworder) 
+				if (App.singleC.models.length - 2 > neworder){ 
 					this.connectSolve(App.singleC.at(neworder + 2),true)
+				}
 			}
 		}
 	},
@@ -189,6 +192,8 @@ App.Views.canv = Backbone.View.extend({
 				this.b2c(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel)		
 		}.bind(this))
 
+		if (isExist) return 
+					
 		// 第二轮处理
 		// 将新杆所连的和它连在同一个约束上的杆去掉
 		if (newcategory == "bar") {
@@ -239,10 +244,11 @@ App.Views.canv = Backbone.View.extend({
 			})	
 		}
 
-		if (!isExist) this.draw(newmodel)
+		this.draw(newmodel)
 	},
 		
 	draw: function(model){
+		
 		var models = _.map(App.singleC.models,function(model){
 			return [
 				  model.get("order")
@@ -353,7 +359,7 @@ App.Views.canv = Backbone.View.extend({
 					return false
 				}
 		}.bind(this))) return
-		
+
 		_.each(App.singleC.models,function(model){
 			var x1 = model.get("x")
 				, y1 = model.get("y")
@@ -396,10 +402,10 @@ App.Views.canv = Backbone.View.extend({
 				factory.drawelement() 
 			}
 		}
+		else {
 		// 若重合非顶端式重合
 		// 通过计算一点到一根直线的垂直距离
 		// 判断是否为杆身重合
-		else {
 			// 此次点击与n根杆身接近
 			var n = 0
 				, pointx
@@ -416,7 +422,8 @@ App.Views.canv = Backbone.View.extend({
 					, y1 = model.get("y")
 					, y2 = model.get("y2")
 
-				if (!this.tools.region(X,Y,x1,y1,x2,y2,6,6)) return false
+				if (this.tools.p2ldistance(k,b,X,Y) > 2||
+					!this.tools.region(X,Y,x1,y1,x2,y2,4,4)) return 
 
 				n++
 			 	// 垂线交点坐标 
@@ -441,15 +448,15 @@ App.Views.canv = Backbone.View.extend({
 			
 			if (preventConnect) return
 			
-			//此次点击与多根杆身接近，点击无效
+			// 此次点击与多根杆身接近，点击无效
 			if (n > 1) return
-			
+				
 			if (n == 1) {
 				coorSet(Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
 				factory.drawelement()
 			} 
 			else {
-				coorSet(X,Y)
+				coorSet(Number(X.toFixed(0)),Number(Y.toFixed(0)))
 				factory.drawelement()
 			}
 		}

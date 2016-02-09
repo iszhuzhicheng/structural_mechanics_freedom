@@ -3,6 +3,7 @@ App.Collections.single = Backbone.Collection.extend({
 	
 	nextOrder: function(){
 		if (!this.length) return 0
+
 		return this.last().get("order") + 1
 	},
 	
@@ -10,7 +11,7 @@ App.Collections.single = Backbone.Collection.extend({
 
 	initialize: function(){
 		_.combine = function(arr1,arr2,strict){
-			var arr = [];
+			var arr = []
 			_.each(arr1,function(value1){
 			  _.each(arr2,function(value2){
 				  if (value1 !== value2) {
@@ -38,42 +39,36 @@ App.Collections.single = Backbone.Collection.extend({
 	},
 	
 	calculate: function(){
-
 		// 为了编号
-		var rawdata = App.singleC.models;
-
-		// App.test(rawdata);
-
-		var bars = this.where({"category":"bar"}),
-			that = this,
+		var rawdata = App.singleC.models
+		// App.test(rawdata)
+		var bars = this.where({"category":"bar"})
+			, that = this
 			// 合成更大刚片的函数数组
-			
-			Cals = [
+			Cals = [			
 			   // 杆杆刚接的
 			   function(plates,i,j){
 
 				  var newplate = plates[i],
 				  	  nextplate = plates[i+j];
-				 
-				  // 1、新刚片的连接件中有下一个刚片的组件
-				  // 2、	新刚片的连接件当中的定向支座和固定端连接着下一个刚片的组件 
-
+				 		
+				  // 新刚片的连接件中有下一个刚片的组件
+				  // 新刚片的连接件当中的定向支座和固定端连接着下一个刚片的组件 
 				  if (
 					  _.some(newplate.connects,function(order){
-						
+							
 						  if (_.contains(nextplate.components,order)) {
-							  return true;
+							  return true
 						  } else if (_.contains(["gdd","dxj"],that.at(order).get("type"))&&
 						  	  _.contains(that.at(order).get("connects"),nextplate.components[0])) {
-							  return true;
-						  };
+							  return true
+						  }
 					  })	
 				  ){
 					  // var connects = _.intersection(newplate.components,nextplate.connects);
-					  var union = false;
-
+					  var union = false
 					  
-					// if (connects.length >= 1) {
+							// if (connects.length >= 1) {
 						  var nextcoors = [
 							  [that.at(nextplate.components[0]).get("x"),that.at(nextplate.components[0]).get("y")],
 							  [that.at(nextplate.components[0]).get("x2"),that.at(nextplate.components[0]).get("y2")]
@@ -141,14 +136,13 @@ App.Collections.single = Backbone.Collection.extend({
 					  delete newplate.k;
 
 					  // 将下一个刚片从刚片数组中去掉
-					  plates.splice(i+j,1);
+					  plates.splice(i+j,1)
 
 				  };
 				  return plates;
-
 			  },
 			  
-			  //一单铰、一链杆
+			  // 一单铰、一链杆
 			  function(plates,i,j){
 			
 				  // 将connects和compontents中的单铰都计入。
@@ -163,8 +157,6 @@ App.Collections.single = Backbone.Collection.extend({
 				  var chaindjs = selfchaindjMaker(newplatedj),
 				  	  constrplates = [];
 
-				  
-				 
 			  	  _.each(plates,function(plate){
 				      	  
 				   	  if (!_.isEqual(plate.components,_.union(plate.components,newplate.components))){
@@ -280,9 +272,9 @@ App.Collections.single = Backbone.Collection.extend({
 								   //connects减去共有单铰和单铰链上的单铰
 								   newplate.connects = _.filter(newplate.connects,function(order){
 									   if (_.contains(chaindj,order)||order == commondj) {
-										   return false;
+										   return false
 									   } else {
-										   return true;
+										   return true
 									   }
 								   });
 								   
@@ -297,14 +289,15 @@ App.Collections.single = Backbone.Collection.extend({
 								   //开启防重模式，筛去单铰相同但顺序相反的单铰对
 								   chaindjs = selfchaindjMaker(newplatedj);
 								   
-								   return;
+								   return
 							   }
-						   });
+						   })
 						   
 					  }
-				  });
-				   //从plates中移除多余约束的链杆
-				  plates = platesFilter();
+				  })
+
+				  //从plates中移除多余约束的链杆
+				  plates = platesFilter()
 
 				  //没有链杆存在，退出本轮计算
 				  if (!isChain) {
@@ -449,8 +442,6 @@ App.Collections.single = Backbone.Collection.extend({
 				  	});
 				  });
 
-				  //App.test(threes);
-
 				  // 不够构成三链杆相连
 				  if (threes.length < 3) {
 				  	return plates;
@@ -552,14 +543,14 @@ App.Collections.single = Backbone.Collection.extend({
 
 				function makedj(p) {
 					return _.union(
-				    	_.filter(p.connects,function(order){
-					  		if (that.at(order).get("type") == "dj") return true;
-				  	    }),
-					    _.filter(p.components,function(order){
-					  	    if (that.at(order).get("type") == "dj") return true;
-				  	    })
-				    );
-				};
+			    	_.filter(p.connects,function(order){
+				  		if (that.at(order).get("type") == "dj") return true;
+			  	  }),
+				    _.filter(p.components,function(order){
+				  	  if (that.at(order).get("type") == "dj") return true;
+			  	  })
+			    )
+				}
 			  }
 		];
 		
@@ -619,27 +610,29 @@ App.Collections.single = Backbone.Collection.extend({
 			plate.dxj = [];
 			plate.platformconstr = 0;
 
-			var allcomps = _.union(plate["components"],plate["connects"]); 
+			var allcomps = _.union(plate["components"],plate["connects"])
 
 			_.each(allcomps,function(component){
 				if (App.singleC.at(component).get("type") == "gdd") {
-					plate.gdd.push(component);
-					plate.platformconstr += 3;
+					plate.gdd.push(component)
+					plate.platformconstr += 3
 				} else if (App.singleC.at(component).get("type") == "gdj") {
-					plate.gdj.push(component);
-					plate.platformconstr += 2;
+					plate.gdj.push(component)
+					plate.platformconstr += 2
 				} else if (App.singleC.at(component).get("type") == "hdj") {
-					plate.hdj.push(component);
-					plate.platformconstr += 1;
+					plate.hdj.push(component)
+					plate.platformconstr += 1
 				} else if (App.singleC.at(component).get("type") == "dxj") {
-					plate.dxj.push(component);
-					plate.platformconstr += 2;
+					plate.dxj.push(component)
+					plate.platformconstr += 2
 				}	
-			});
-
-			plate.IDconnects = [];
-			plate.ID = "A"+index;
-			return plate;
+			})
+			plate.components = _.sortBy(plate.components,function(num){
+				return num
+			})
+			plate.IDconnects = []
+			plate.ID = "A"+index
+			return plate
 		});
 
 		
@@ -694,14 +687,13 @@ App.Collections.single = Backbone.Collection.extend({
 						}	
 					});
 					
-					if (isConnect) { 
-					
+					if (isConnect) { 					
 						// 将此基本刚片push到此独立结构体中 
 						plates[i].push(plates[i+j]);
 						plates.splice(i+j,1);
 						
 						// 重新从后面的第一个基本刚片开始计算
-						j = 1;		
+						j = 1		
 					} else {
 						// 从第j个基本刚片开始计算
 						j += 1;	
@@ -724,7 +716,6 @@ App.Collections.single = Backbone.Collection.extend({
 			}
 			return plates;
 		}
-
 		
 		// 分配共有大地约束
 
@@ -799,7 +790,7 @@ App.Collections.single = Backbone.Collection.extend({
 		});
 		
 		
-		// 进一步包装plates。
+		// 进一步包装plates
 		var plates = _.map(plates,function(plate){
 			var free = 0,
 				constr = 0;
@@ -841,9 +832,11 @@ App.Collections.single = Backbone.Collection.extend({
 				singlesny.set("signy",signy);
 			}
 			return singlesny
-		});
+		})
 
-		var textarrs = _.pluck(plates,"c");
+		App.test(plates)
+
+		var textarrs = _.pluck(plates,"c")
 
 		textarrs = _.map(textarrs,function(textarr){
 			textarr = _.pluck(textarr,"components");
@@ -851,7 +844,7 @@ App.Collections.single = Backbone.Collection.extend({
 			_.each(textarr,function(text){
 				comarr.push.apply(comarr,text)
 			});
-			return comarr;
+			return comarr
 		});
 
 		rawdata = _.map(rawdata,function(raw){
@@ -863,7 +856,6 @@ App.Collections.single = Backbone.Collection.extend({
 			});
 			return raw;
 		})
-		
 		// 绘制
 		_.each(rawdata,function(singlesny){
 			var text = singlesny.get("drawtext"),
@@ -890,10 +882,8 @@ App.Collections.single = Backbone.Collection.extend({
 			return plate
 		})
 
-		this.resultDisplay(plates)
-	},
+		// App.test(plates)
 
-	resultDisplay: function(plates){
 		App.resultV.enter(plates)
 	}
 })

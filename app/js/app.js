@@ -27,9 +27,9 @@ window.App = {
 				},false)
 
 				image.addEventListener("error",function(){		
-					resolve(arg+"_unloaded")	
+			 		resolve(arg+"_unloaded")	
 				},false)
-			})
+			})	
 		})).then(function(imgs){
 			var unloads = _.filter(imgs,function(img){
 				return /_unloaded/.test(img)																															
@@ -47,6 +47,6 @@ window.App = {
 	}
 
 ,	test: function(obj){
-		alert(JSON.stringify(obj))
+		console.log(JSON.stringify(obj))
 	}
 }

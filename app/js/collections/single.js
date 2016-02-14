@@ -834,8 +834,6 @@ App.Collections.single = Backbone.Collection.extend({
 			return singlesny
 		})
 
-		App.test(plates)
-
 		var textarrs = _.pluck(plates,"c")
 
 		textarrs = _.map(textarrs,function(textarr){

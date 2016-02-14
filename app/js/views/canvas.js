@@ -25,27 +25,8 @@ App.Views.canv = Backbone.View.extend({
 		for (;i<l-1;i++)
 			this.$el.find("#canvas").removeLayer('sign'+i)
 
-		App.calbuttonV.viewing = false
 		this.connectSolve(newmodel,false)
-		this.isCalculate(l,models)
-	},
-
-	//当collection中有杆件存在 打开计算功能 没有就关闭
-	isCalculate: function(l,models){
-		var isCalculate = false
-			, i = 0
-	
-		for (;i<l;i++) {
-			if (models[i].get("type") == "linebar"){
-				isCalculate = true
-				break
-			}
-		}	
-
-		if (isCalculate) 
-			App.calbuttonV.enter()
-		else 
-			App.calbuttonV.leave()
+		App.calbuttonV.enter()
 	},
 
 	tools:{
@@ -88,6 +69,13 @@ App.Views.canv = Backbone.View.extend({
 
 			return x<=maxX+dx&&y<=maxY+dy&&x>=minX-dx&&y>=minY-dy
 		}
+		, coorSet: function(e,factory,x,y){
+			if (factory.get("x")&&factory.get("type") == "linebar")
+				factory.set({"x2":x,"y2":y})		
+			else
+				factory.set({"x":x,"y":y})
+			App.ibarV.postcheck(e)
+		}
 	},
 
 	c2b: function(x,y,order,connects,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel){
@@ -102,45 +90,7 @@ App.Views.canv = Backbone.View.extend({
 		if (this.tools.b2bhead(x,y,x2,y2,newx,newy,newx2,newy2,0))	{
 			this.tools.connect(connects,order,newconnects,neworder)
 		}
-		else {
-			// 杆身相连时，前杆会被断开，所以要从其连接件中删去原来连接的杆
-			if (isExist) {
-				this.tools.disconnect(model,connects,order,newmodel,newconnects,neworder)
-			}
-			else if (this.tools.b2bhead(x,y,x2,y2,newx,newy,newx2,newy2,1.5)
-				||!(this.tools.region(newx,newy,x,y,x2,y2,0,0)
-					||this.tools.region(newx2,newy2,x,y,x2,y2,0,0))) {
-				return
-			}
-			else {	
-				var isnew = this.tools.region(newx,newy,x,y,x2,y2,0,0)
-
-				model.set({
-						"x2":isnew ? newx : newx2
-					,	"y2":isnew ? newy : newy2
-				})
-
-				App.singleC.add({
-						"type":type
-					,	"category":category
-					, "x":isnew ? newx : newx2
-					, "y":isnew ? newy : newy2
-					,	"x2":x2
-					,	"y2":y2
-					,	"k":k
-					,	"b":b	
-				},{silent:true})
-
-				// 对杆件连接再处理的杆件不做杆身重合判断
-				this.connectSolve(App.singleC.at(order),true)
-				this.connectSolve(App.singleC.at(neworder + 1),true)
-
-				// 一根杆与两根杆的杆身相连时的情况
-				if (App.singleC.models.length - 2 > neworder){ 
-					this.connectSolve(App.singleC.at(neworder + 2),true)
-				}
-			}
-		}
+		// 杆身相连
 	},
 	
 	b2c : function(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel){
@@ -203,8 +153,8 @@ App.Views.canv = Backbone.View.extend({
 			_.each(newconnects,function(connect){
 				if (App.singleC.at(connect).get("category") == "constr") {
 					constrs.push({
-						connects:App.singleC.at(connect).get("connects")
-					,	order:App.singleC.at(connect).get("order")
+							connects:App.singleC.at(connect).get("connects")
+						,	order:App.singleC.at(connect).get("order")
 					})
 				}
 			})
@@ -243,23 +193,11 @@ App.Views.canv = Backbone.View.extend({
 					}))
 			})	
 		}
-
 		this.draw(newmodel)
+		//App.test(App.singleC.models)
 	},
 		
 	draw: function(model){
-		
-		var models = _.map(App.singleC.models,function(model){
-			return [
-				  model.get("order")
-				, model.get("connects")
-				, model.get("x")
-				, model.get("y")
-				, model.get("x2")
-				, model.get("y2")
-			]
-		});
-
 		this.drawlib[model.get("type")](model)
 	},
 	
@@ -292,37 +230,24 @@ App.Views.canv = Backbone.View.extend({
 			, category = factory.get("category")
 			, type = factory.get("type")
 			, coinarr = []
-			// 防止定向铰和固定端连接在多根杆上
+			// 定向铰和固定端连接在n根杆上
 			, bartime = 0
-			// 可复用于重合时，将坐标设置为一致，为连接件判断做准备
-			, coorSet = function(x,y){
-				if (factory.get("x")&&type == "linebar"){
-					factory.set({
-						"x2":x
-					,	"y2":y
-					})
-				} 
-				// 设定约束的坐标或直线的第一个点
-				else {					
-					factory.set({	
-						"x":x
-					,	"y":y
-					})
-				}		
-				App.ibarV.postcheck(e)
-			}
-			this.offset.constr.order = null
-			this.offset.constr.result = false
+			// 点击与n跟杆接近
+			, n = 0
+			, pointx
+			, pointy
+
+		this.offset.constr.order = null
+		this.offset.constr.result = false
 				
 		if (
 			_.some(App.singleC.models,function(model){
-				// 防止两约束重合
 				if (model.get("category") == category&&
 						category == "constr"&&
 						this.tools.p2pdistance(model.get("x"),model.get("y"),X,Y) < 10) {
+					// 防止两约束重合
 					return true
-				} 
-				// 防止多根杆连接在定向铰和固定端上
+				} 				
 				else if (category == "bar"&&
 						(
 							model.get("type") == "gdd"||
@@ -334,9 +259,9 @@ App.Views.canv = Backbone.View.extend({
 						)&&
 						model.get("connects").length > 0												
 				){
+					// 防止多根杆连接在定向铰和固定端上
 					return true
-				} 
-				// 防止定向铰和固定端连接在多根杆上
+				} 				
 				else if (model.get("category") == "bar"&&
 						(
 							type == "gdd"||
@@ -347,119 +272,71 @@ App.Views.canv = Backbone.View.extend({
 							this.tools.p2pdistance(X,Y,model.get("x2"),model.get("y2")) < 5
 						)
 				){
+					// 防止定向铰和固定端连接在多根杆上
 					bartime++
-					if (bartime > 1) {
+					if (bartime > 1) 
 						return true
-					} 
-					else {
+					else 
 						return false
-					}
 				}
-				else {
+				else 
 					return false
-				}
 		}.bind(this))) return
-
+			
 		_.each(App.singleC.models,function(model){
-			var x1 = model.get("x")
-				, y1 = model.get("y")
-				, d1 = this.tools.p2pdistance(x1,y1,X,Y) < 5 
-				, category = model.get("category")
-				, order = model.get("order")
-				, connects = model.get("connects")
+			var k = model.get("k")
+				, b = model.get("b")
+				, x1 = model.get("x")	
 				, x2 = model.get("x2")
+				, y1 = model.get("y")
 				, y2 = model.get("y2")
+				, d1 = this.tools.p2pdistance(x1,y1,X,Y) < 5 
 				, d2 = model.get("x2") ? this.tools.p2pdistance(x2,y2,X,Y) < 5 : undefined
-				, coinobj = {}
+				, coinx = d1 ? x1 : x2
+				, coiny = d1 ? y1 : y2 
 
-			if (d1||d2) {
-				// 约束或杆件的顶端或末端与之重合 
-				coinobj.x = d1 ? x1 : x2
-				coinobj.y = d1 ? y1 : y2 
-				coinobj.category = category
-				coinobj.order = order
-				coinarr.push(coinobj)
+			if (d1||d2){
+				this.tools.coorSet(e,factory,coinx,coiny)
+				factory.drawelement() 
+				n = 2
 			}
+
+			if (this.tools.p2ldistance(k,b,X,Y) > 2||
+					!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||
+					model.get("category") !== "bar"||
+					n > 1) return 
+
+			n++
+
+		 	// 垂线交点坐标 
+		 	pointx = (Y + X/k - b)/(k +1/k)
+			pointy = pointx * k + b
+			 
+			// 约束与杆身连接 偏移约束
+			if (_.contains(["gdj","hdj","dj"],type)) {					
+				var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
+					, dy = 6*(-1/k)/Math.sqrt(1 + (-1/k)*(-1/k))
+				
+				pointx = pointx > X ? pointx - dx : pointx + dx
+				pointy = pointy > Y ? pointy - dy : pointy + dy
+				this.offset.constr.order = model.get("order")
+				this.offset.constr.result = true
+			}
+
+			// 防止定向支座和固定端与杆身相连
+			if (_.contains(["gdd","dxj"],type)) 
+				n = 2
+				
 		}.bind(this))
 		
-		// 此次点击与多个坐标接近，点击无效
-		if (coinarr.length > 0) {
-			var maxx = _.max(coinarr,function(model){
-				return model.x
-			}).x
-				, minx = _.min(coinarr,function(model){
-				return model.x
-			}).x
-				, maxy = _.max(coinarr,function(model){
-				return model.y
-			}).y
-				, miny = _.min(coinarr,function(model){
-				return model.y
-			}).y
-			
-			if (maxx==minx&&maxy==miny){
-				coorSet(coinarr[0].x,coinarr[0].y)
-				factory.drawelement() 
-			}
-		}
-		else {
-		// 若重合非顶端式重合
-		// 通过计算一点到一根直线的垂直距离
-		// 判断是否为杆身重合
-			// 此次点击与n根杆身接近
-			var n = 0
-				, pointx
-				, pointy
-				, preventConnect = false
-				
-			_.each(App.singleC.models,function(model){
-				if (model.get("category") !== "bar") return
+		if (n > 1) return
 
-				var k = model.get("k")
-					, b = model.get("b")
-					, x1 = model.get("x")	
-					, x2 = model.get("x2")
-					, y1 = model.get("y")
-					, y2 = model.get("y2")
+		if (n == 1) 
+			this.tools.coorSet(e,factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
+		else 
+			this.tools.coorSet(e,factory,Number(X.toFixed(0)),Number(Y.toFixed(0)))
 
-				if (this.tools.p2ldistance(k,b,X,Y) > 2||
-					!this.tools.region(X,Y,x1,y1,x2,y2,4,4)) return 
-
-				n++
-			 	// 垂线交点坐标 
-			 	pointx = (Y + X/k - b)/(k +1/k)
-				pointy = pointx * k + b
-				 
-				// 约束与杆身连接 偏移约束
-				if (_.contains(["gdj","hdj","dj"],type)) {					
-					var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
-						, dy = 6*(-1/k)/Math.sqrt(1 + (-1/k)*(-1/k))
-					
-					pointx = pointx > X ? pointx - dx : pointx + dx
-					pointy = pointy > Y ? pointy - dy : pointy + dy
-					this.offset.constr.order = model.get("order")
-					this.offset.constr.result = true
-				}
-				// 防止定向支座和固定端与杆身相连
-				if (_.contains(["gdd","dxj"],type)) 
-					preventConnect = true
-					
-			}.bind(this))
-			
-			if (preventConnect) return
-			
-			// 此次点击与多根杆身接近，点击无效
-			if (n > 1) return
-				
-			if (n == 1) {
-				coorSet(Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
-				factory.drawelement()
-			} 
-			else {
-				coorSet(Number(X.toFixed(0)),Number(Y.toFixed(0)))
-				factory.drawelement()
-			}
-		}
+		factory.drawelement()
 	},
 		
 	movable: function(index,value){
@@ -479,15 +356,15 @@ App.Views.canv = Backbone.View.extend({
 
 	signDraw: function(text,order,signx,signy){
 		$(this.canvas).drawText({
-			layer:true
-		,	name:"sign" + order
-		,	visible:true
-		,	fillStyle:"seagreen"
-		,	x:signx
-		, y:signy
-		,	fontSize:14
-		,	fontFamily: 'Verdana, sans-serif'
-		,	text:text
+				layer:true
+			,	name:"sign" + order
+			,	visible:true
+			,	fillStyle:"seagreen"
+			,	x:signx
+			, y:signy
+			,	fontSize:14
+			,	fontFamily: 'Verdana, sans-serif'
+			,	text:text
 		})
 	}
 })

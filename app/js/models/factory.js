@@ -134,6 +134,8 @@ App.Models.factory = Backbone.Model.extend({
 													 															
 		if (!_.every(geodata,this.passMaker.bind(this))) return 
 
+		App.test(App.factoryM)
+	
 		App.ibarV.clean()
 
 		_.extend(geobj,
@@ -150,8 +152,8 @@ App.Models.factory = Backbone.Model.extend({
 			this.changeType("linebar")
 
 			this.set({
-				"x":geobj.x,
-				"y":geobj.y
+					"x":geobj.x
+				,	"y":geobj.y
 			})
 			App.test(App.singleC.models)
 			App.singleC.create(geobj)
@@ -165,6 +167,5 @@ App.Models.factory = Backbone.Model.extend({
 		geobj.b = geobj.y - geobj.x*geobj.k
 		
 		App.singleC.create(geobj)
-
 	}
 })

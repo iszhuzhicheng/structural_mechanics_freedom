@@ -10,15 +10,7 @@ App.Views.calbutton = Backbone.View.extend({
 
 	calculate:function(){
 		if (!this.$el.hasClass("btn-danger")) return
-
-		if (!this.viewing) {
-			this.$el.removeClass("btn-danger")
-					.addClass("btn-primary")
-
-			this.viewing = true
-
-			App.singleC.calculate()
-		}
+		App.singleC.calculate()
 	},
 
 	enter:function(){

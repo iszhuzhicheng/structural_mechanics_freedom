@@ -134,8 +134,6 @@ App.Models.factory = Backbone.Model.extend({
 													 															
 		if (!_.every(geodata,this.passMaker.bind(this))) return 
 
-		App.test(App.factoryM)
-	
 		App.ibarV.clean()
 
 		_.extend(geobj,
@@ -155,7 +153,6 @@ App.Models.factory = Backbone.Model.extend({
 					"x":geobj.x
 				,	"y":geobj.y
 			})
-			App.test(App.singleC.models)
 			App.singleC.create(geobj)
 			
 			return

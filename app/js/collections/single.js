@@ -640,7 +640,7 @@ App.Collections.single = Backbone.Collection.extend({
 		//获得由基本大刚片组成的独立结构体
 	    plates = platesCenter(plates);
 
-	    function platesCenter(plates){
+	  function platesCenter(plates){
 			var i = 0;
 			
 			if (plates.length === 0) {

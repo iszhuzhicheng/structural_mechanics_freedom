@@ -70,11 +70,11 @@ App.Views.canv = Backbone.View.extend({
 			return x<=maxX+dx&&y<=maxY+dy&&x>=minX-dx&&y>=minY-dy
 		}
 		, coorSet: function(e,factory,x,y){
-			if (factory.get("x")&&factory.get("type") == "linebar")
-				factory.set({"x2":x,"y2":y})		
-			else
-				factory.set({"x":x,"y":y})
-			App.ibarV.postcheck(e)
+				if (factory.get("x")&&factory.get("type") == "linebar")
+					factory.set({"x2":x,"y2":y})		
+				else
+					factory.set({"x":x,"y":y})
+				App.ibarV.postcheck(e)
 		}
 	},
 
@@ -144,7 +144,6 @@ App.Views.canv = Backbone.View.extend({
 
 		if (isExist) return 
 					
-		// 第二轮处理
 		// 将新杆所连的和它连在同一个约束上的杆去掉
 		if (newcategory == "bar") {
 			// 经过第一轮处理，newmodel已发生变化
@@ -194,7 +193,7 @@ App.Views.canv = Backbone.View.extend({
 			})	
 		}
 		this.draw(newmodel)
-		//App.test(App.singleC.models)
+		// App.test(App.singleC.models)
 	},
 		
 	draw: function(model){
@@ -228,7 +227,6 @@ App.Views.canv = Backbone.View.extend({
 			, Y = e.pageY - this.canvas.position().top-tops
 			, type = factory.get("type")
 			, category = factory.get("category")
-			, type = factory.get("type")
 			, coinarr = []
 			// 定向铰和固定端连接在n根杆上
 			, bartime = 0
@@ -236,6 +234,9 @@ App.Views.canv = Backbone.View.extend({
 			, n = 0
 			, pointx
 			, pointy
+			// 端部重合
+			, coincide = false
+			, preventdraw = false
 
 		this.offset.constr.order = null
 		this.offset.constr.result = false
@@ -274,6 +275,7 @@ App.Views.canv = Backbone.View.extend({
 				){
 					// 防止定向铰和固定端连接在多根杆上
 					bartime++
+
 					if (bartime > 1) 
 						return true
 					else 
@@ -289,29 +291,37 @@ App.Views.canv = Backbone.View.extend({
 				, x1 = model.get("x")	
 				, x2 = model.get("x2")
 				, y1 = model.get("y")
+				, order = model.get("order")
 				, y2 = model.get("y2")
 				, d1 = this.tools.p2pdistance(x1,y1,X,Y) < 5 
 				, d2 = model.get("x2") ? this.tools.p2pdistance(x2,y2,X,Y) < 5 : undefined
 				, coinx = d1 ? x1 : x2
 				, coiny = d1 ? y1 : y2 
 
-			if (d1||d2){
-				this.tools.coorSet(e,factory,coinx,coiny)
-				factory.drawelement() 
-				n = 2
+			// 端部重合
+			if (d1||d2){	
+				// 设置坐标
+				if (!coincide){	
+					coincide = true
+					this.tools.coorSet(e,factory,coinx,coiny)
+				}
+				// 添加连接件
+				if (category == "constr") {
+					//alert(order)
+				}
 			}
 
 			if (this.tools.p2ldistance(k,b,X,Y) > 2||
 					!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||
 					model.get("category") !== "bar"||
-					n > 1) return 
+					coincide) return 
 
 			n++
 
 		 	// 垂线交点坐标 
 		 	pointx = (Y + X/k - b)/(k +1/k)
 			pointy = pointx * k + b
-			 
+						 
 			// 约束与杆身连接 偏移约束
 			if (_.contains(["gdj","hdj","dj"],type)) {					
 				var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
@@ -325,11 +335,10 @@ App.Views.canv = Backbone.View.extend({
 
 			// 防止定向支座和固定端与杆身相连
 			if (_.contains(["gdd","dxj"],type)) 
-				n = 2
-				
+				preventdraw = true
 		}.bind(this))
 		
-		if (n > 1) return
+		if (n > 1||preventdraw||coincide) return
 
 		if (n == 1) 
 			this.tools.coorSet(e,factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))

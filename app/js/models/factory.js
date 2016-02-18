@@ -5,7 +5,7 @@ App.Models.factory = Backbone.Model.extend({
 	},					
 
 	georule: {
-			"constr":["x","y","angle","order"]
+			"constr":["x","y","angle","order","connects"]
 		,	"bar":["x","y","x2","y2","order"]
 		,	"other":[]
 	},
@@ -131,7 +131,7 @@ App.Models.factory = Backbone.Model.extend({
 			, isconstr = (category == "constr")
 			, k = isgh ? Math.tan((this.get("angle") - 90)/180*Math.PI) : Math.tan((this.get("angle"))/180*Math.PI)
 			, k = App.kSimilar(k)
-													 															
+    													 															
 		if (!_.every(geodata,this.passMaker.bind(this))) return 
 
 		App.ibarV.clean()
@@ -144,8 +144,7 @@ App.Models.factory = Backbone.Model.extend({
 			)
 		)
 		
-		if (isconstr) {
-			
+		if (isconstr) {			
 			geobj.k = k
 																					 
 			this.changeType("linebar")
@@ -154,12 +153,13 @@ App.Models.factory = Backbone.Model.extend({
 					"x":geobj.x
 				,	"y":geobj.y
 			})
-
+			
+			App.test(App.singleC.models)
 			App.singleC.create(geobj)
 		}
 
 		if (!this.passlineMaker.bind(this)(geobj.x,geobj.y,geobj.x2,geobj.y2)) return 
-
+		App.test(App.singleC.models)
 		geobj.k = App.kSimilar((geobj.y2-geobj.y)/(geobj.x2-geobj.x))
 		geobj.b = geobj.y - geobj.x*geobj.k
 		

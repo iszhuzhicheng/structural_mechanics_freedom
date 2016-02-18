@@ -30,30 +30,21 @@ App.Views.canv = Backbone.View.extend({
 	},
 
 	tools:{
-			disconnect: function(model1,connects1,order1,model2,connects2,order2){
-				model1.set("connects",_.filter(connects1,function(component){
-					return component !== order2
-				}))
+		connect: function(connect1,order1,connect2,order2){
+			if (!_.contains(connect1,order2))
+				connect1.push(order2)
 
-				model2.set("connects",_.filter(connects2,function(component){
-					return component !== order1
-				}))
-			}
-		, connect: function(connect1,order1,connect2,order2){
-				if (!_.contains(connect1,order2)) 
-					connect1.push(order2)
-			
-				if (!_.contains(connect2,order1)) 
-					connect2.push(order1)
+			if (!_.contains(connect2,order1))
+				connect2.push(order1)
 		}
 		, p2pdistance: function(x1,y1,x2,y2){
 				return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
 		}
 		, p2ldistance: function(k,b,newx,newy){
-			return Math.abs((newx - newy/k + b/k)/Math.sqrt(1+1/(k*k)))
+				return Math.abs((newx - newy/k + b/k)/Math.sqrt(1+1/(k*k)))
 		}
 		, isp2l: function(x,y,x2,y2,k,b,newx,newy,d){
-			return this.region(newx,newy,x,y,x2,y2,d+2,d+2)&&this.p2ldistance(k,b,newx,newy) <= d+2
+				return this.region(newx,newy,x,y,x2,y2,d+2,d+2)&&this.p2ldistance(k,b,newx,newy) <= d+2
 		}
 		, b2bhead: function(x,y,x2,y2,newx,newy,newx2,newy2,d){
 				return this.p2pdistance(x,y,newx,newy) <= d ||
@@ -80,8 +71,6 @@ App.Views.canv = Backbone.View.extend({
 	c2b: function(x,y,order,connects,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel){
 		if ((x==newx&&y==newy)||(x==newx2&&y==newy2))
 			this.tools.connect(connects,order,newconnects,neworder)
-		else 
-			this.tools.disconnect(model,connects,order,newmodel,newconnects,neworder)
 	},
 
 	b2b: function(x,y,x2,y2,k,b,order,connects,type,category,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel,isExist,isnew){
@@ -90,24 +79,6 @@ App.Views.canv = Backbone.View.extend({
 			this.tools.connect(connects,order,newconnects,neworder)
 		}
 		// 杆身相连
-	},
-	
-	b2c : function(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel){
-		if ((x==newx&&y==newy)||(x2==newx&&y2==newy)){
-		
-		}
-
-		if (
-				// 杆身相连
-				this.tools.isp2l(x,y,x2,y2,k,b,newx,newy,6)&&
-				this.offset.constr.result&&
-				order == this.offset.constr.order||
-				// 杆端相连
-				((x==newx&&y==newy)||(x2==newx&&y2==newy))
-				) {
-			this.tools.connect(connects,order,newconnects,neworder)				
-		}
-
 	},
 
 	connectSolve: function(newmodel,isExist){
@@ -142,8 +113,6 @@ App.Views.canv = Backbone.View.extend({
 				this.c2b(x,y,order,connects,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel)
 			else if (category == "bar"&&newcategory == "bar") 
 				this.b2b(x,y,x2,y2,k,b,order,connects,type,category,model,newx,newy,newx2,newy2,neworder,newconnects,newmodel,isExist)
-			else if (category == "bar"&&newcategory == "constr")
-				this.b2c(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel)		
 		}.bind(this))
 
 		if (isExist) return 
@@ -183,19 +152,6 @@ App.Views.canv = Backbone.View.extend({
           })
         })
       })		
-
-		// 将约束的连接件从彼此的连接件中删去	
-		} else if (newcategory == "constr") {
-			_.each(newconnects,function(connect){
-				var connectmodel = App.singleC.at(connect)
-					, preconnects = _.filter(newconnects,function(preconnect){
-						return preconnect !== connectmodel.get("order")
-					})
-
-					connectmodel.set("connects",_.filter(connectmodel.get("connects"),function(currentconnect){
-						return !_.contains(preconnects,currentconnect)
-					}))
-			})	
 		}
 		this.draw(newmodel)
 		// App.test(App.singleC.models)
@@ -207,13 +163,6 @@ App.Views.canv = Backbone.View.extend({
 	
 	events:{
 		"click canvas" : "setCoor"
-	},
-
-	offset:{
-		constr:{
-			result:false
-		,	order:null
-		}
 	},
 
 	setCoor: function(e){
@@ -254,9 +203,7 @@ App.Views.canv = Backbone.View.extend({
 			// 端部重合
 			, coincide = false
 			, preventdraw = false
-
-		this.offset.constr.order = null
-		this.offset.constr.result = false
+			, inputs = App.ibarV.$el.find("input")
 				
 		if (
 			_.some(App.singleC.models,function(model){
@@ -319,19 +266,34 @@ App.Views.canv = Backbone.View.extend({
 
 			// 端部重合
 			if (d1||d2){				
+				
 				if (!coincide){
-					this.tools.coorSet(factory,coinx,coiny)		
+					this.tools.coorSet(factory,coinx,coiny)	
 					coincide = true
 				}
 
 				// 添加连接件
 				if (newcategory == "constr") {
-					
-				}
+					this.tools.connect(connects,order,newconnects,neworder)	
+				}				
 			}
 
 			if (coincide&&index == list.length - 1) {				
-				App.ibarV.postcheck(e)
+
+				if (newcategory == "constr") {
+					_.each(newconnects,function(connect){
+						var connectmodel = App.singleC.at(connect)
+							, preconnects = _.filter(newconnects,function(preconnect){
+								return preconnect !== connect
+							})
+
+							connectmodel.set("connects",_.filter(connectmodel.get("connects"),function(currentconnect){
+								return !_.contains(preconnects,currentconnect)
+							}))
+					})	
+				}			
+
+				App.ibarV.post(inputs)
 			}
 
 			if (this.tools.p2ldistance(k,b,X,Y) > 2||
@@ -351,8 +313,8 @@ App.Views.canv = Backbone.View.extend({
 				
 				pointx = pointx > X ? pointx - dx : pointx + dx
 				pointy = pointy > Y ? pointy - dy : pointy + dy
-				this.offset.constr.order = order
-				this.offset.constr.result = true
+
+				this.tools.connect(connects,order,newconnects,neworder)	
 			}
 
 			// 防止定向支座和固定端与杆身相连

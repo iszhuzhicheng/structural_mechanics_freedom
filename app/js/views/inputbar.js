@@ -25,13 +25,15 @@ App.Views.ibar = Backbone.View.extend({
 		else if (category == "other")
 			this.$el.empty()
 	},
+
+	isntend:true,
 	
 	postcheck: function(e){		
 		var inputs = this.$el.find("input")
 			, type = App.factoryM.get("type")
 			, isntConstr = App.factoryM.retrRule(type)["category"] !== "constr"
 
-		if ((e.which !== 83 &&e.type == "keyup")||inputs.length == 0) return ; 
+		if ((e.which !== 83 &&e.type == "keyup")||inputs.length == 0) return 
 
 		if (e.which == 83 &&(e.target.id == "angle"||e.target.id == "line")) {
 			var length = $("#"+e.target.id).val().length
@@ -58,7 +60,7 @@ App.Views.ibar = Backbone.View.extend({
 		var factory = App.factoryM
 			,	angle
 			,	barlength
-			
+		
 		_.each(inputs,function(input,key){
 			var value = Number($(input).val())
 

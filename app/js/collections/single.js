@@ -1,12 +1,6 @@
 App.Collections.single = Backbone.Collection.extend({
 	model:App.Models.single,
 	
-	nextOrder: function(){
-		if (!this.length) return 0
-
-		return this.last().get("order") + 1
-	},
-	
 	comparator: 'order',
 
 	initialize: function(){

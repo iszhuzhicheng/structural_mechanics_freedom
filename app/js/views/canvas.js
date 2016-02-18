@@ -69,12 +69,11 @@ App.Views.canv = Backbone.View.extend({
 
 			return x<=maxX+dx&&y<=maxY+dy&&x>=minX-dx&&y>=minY-dy
 		}
-		, coorSet: function(e,factory,x,y){
+		, coorSet: function(factory,x,y){
 				if (factory.get("x")&&factory.get("type") == "linebar")
 					factory.set({"x2":x,"y2":y})		
 				else
 					factory.set({"x":x,"y":y})
-				App.ibarV.postcheck(e)
 		}
 	},
 
@@ -94,6 +93,10 @@ App.Views.canv = Backbone.View.extend({
 	},
 	
 	b2c : function(x,y,x2,y2,k,b,order,connects,model,newx,newy,neworder,newconnects,newmodel){
+		if ((x==newx&&y==newy)||(x2==newx&&y2==newy)){
+		
+		}
+
 		if (
 				// 杆身相连
 				this.tools.isp2l(x,y,x2,y2,k,b,newx,newy,6)&&
@@ -102,8 +105,9 @@ App.Views.canv = Backbone.View.extend({
 				// 杆端相连
 				((x==newx&&y==newy)||(x2==newx&&y2==newy))
 				) {
-			this.tools.connect(connects,order,newconnects,neworder)						
+			this.tools.connect(connects,order,newconnects,neworder)				
 		}
+
 	},
 
 	connectSolve: function(newmodel,isExist){
@@ -179,6 +183,7 @@ App.Views.canv = Backbone.View.extend({
           })
         })
       })		
+
 		// 将约束的连接件从彼此的连接件中删去	
 		} else if (newcategory == "constr") {
 			_.each(newconnects,function(connect){
@@ -214,6 +219,14 @@ App.Views.canv = Backbone.View.extend({
 	setCoor: function(e){
 		if ($("canvas").hasClass("moving")) return 
 
+		if (App.singleC.models.length == 0) 
+			App.factoryM.set("order",0)
+		else 
+			App.factoryM.set("order",App.singleC.last().get("order") + 1)
+
+		if (!App.factoryM.get("connects")) 
+			App.factoryM.set("connects",[])
+
 		var factory = App.factoryM
 			, leftpos = this.$el.css("left").indexOf("px")
 			, toppos = this.$el.css("top").indexOf("px")
@@ -225,8 +238,12 @@ App.Views.canv = Backbone.View.extend({
 			// 此次点击的坐标
 			, X = e.pageX - this.canvas.position().left-left
 			, Y = e.pageY - this.canvas.position().top-tops
-			, type = factory.get("type")
-			, category = factory.get("category")
+			, newx = factory.get("x")
+			, newy = factory.get("y")
+			, neworder = factory.get("order")
+			, newtype = factory.get("type")
+			, newcategory = factory.get("category")
+			, newconnects = factory.get("connects")
 			, coinarr = []
 			// 定向铰和固定端连接在n根杆上
 			, bartime = 0
@@ -243,37 +260,37 @@ App.Views.canv = Backbone.View.extend({
 				
 		if (
 			_.some(App.singleC.models,function(model){
-				if (model.get("category") == category&&
-						category == "constr"&&
-						this.tools.p2pdistance(model.get("x"),model.get("y"),X,Y) < 10) {
-					// 防止两约束重合
+				var category = model.get("category")
+				  , type = model.get("type")
+				  , x1 = model.get("x")	
+					, x2 = model.get("x2")
+					, y1 = model.get("y")
+					, y2 = model.get("y2")
+
+				// 防止两约束重合
+				if (category == "constr"&&newcategory == "constr"&&this.tools.p2pdistance(x1,y1,X,Y) < 10) {					
 					return true
 				} 				
-				else if (category == "bar"&&
+
+				// 防止多根杆连接在定向铰和固定端上
+				else if (newcategory == "bar"&&
+						(type == "gdd"||type == "dxj")&&						
 						(
-							model.get("type") == "gdd"||
-							model.get("type") == "dxj"
-						)&&						
-						(
-							this.tools.p2pdistance(X,Y,model.get("x"),model.get("y")) < 5||
-							this.tools.p2pdistance(factory.get("x"),factory.get("y"),model.get("x"),model.get("y")) < 5
-						)&&
-						model.get("connects").length > 0												
-				){
-					// 防止多根杆连接在定向铰和固定端上
+							this.tools.p2pdistance(X,Y,x1,y1) < 5||
+							this.tools.p2pdistance(newx,newy,x1,y1) < 5
+						)&&model.get("connects").length > 0												
+				){					
 					return true
 				} 				
+
+				// 防止定向铰和固定端连接在多根杆上
 				else if (model.get("category") == "bar"&&
+						(newtype == "gdd"||newtype == "dxj")&&
 						(
-							type == "gdd"||
-							type == "dxj"
-						)&&
-						(
-							this.tools.p2pdistance(X,Y,model.get("x"),model.get("y")) < 5||
-							this.tools.p2pdistance(X,Y,model.get("x2"),model.get("y2")) < 5
+							this.tools.p2pdistance(X,Y,x1,y1) < 5||
+							this.tools.p2pdistance(X,Y,x2,y2) < 5
 						)
-				){
-					// 防止定向铰和固定端连接在多根杆上
+				){					
 					bartime++
 
 					if (bartime > 1) 
@@ -285,37 +302,42 @@ App.Views.canv = Backbone.View.extend({
 					return false
 		}.bind(this))) return
 			
-		_.each(App.singleC.models,function(model){
+		_.each(App.singleC.models,function(model,index,list){
 			var k = model.get("k")
 				, b = model.get("b")
 				, x1 = model.get("x")	
 				, x2 = model.get("x2")
 				, y1 = model.get("y")
-				, order = model.get("order")
 				, y2 = model.get("y2")
 				, d1 = this.tools.p2pdistance(x1,y1,X,Y) < 5 
 				, d2 = model.get("x2") ? this.tools.p2pdistance(x2,y2,X,Y) < 5 : undefined
+				, order = model.get("order")
+				, category = model.get("category") 
+				, connects = model.get("connects")
 				, coinx = d1 ? x1 : x2
-				, coiny = d1 ? y1 : y2 
+		  	, coiny = d1 ? y1 : y2
 
 			// 端部重合
-			if (d1||d2){	
-				// 设置坐标
-				if (!coincide){	
+			if (d1||d2){				
+				if (!coincide){
+					this.tools.coorSet(factory,coinx,coiny)		
 					coincide = true
-					this.tools.coorSet(e,factory,coinx,coiny)
 				}
+
 				// 添加连接件
-				if (category == "constr") {
-					//alert(order)
+				if (newcategory == "constr") {
+					
 				}
+			}
+
+			if (coincide&&index == list.length - 1) {				
+				App.ibarV.postcheck(e)
 			}
 
 			if (this.tools.p2ldistance(k,b,X,Y) > 2||
 					!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||
-					model.get("category") !== "bar"||
+					category !== "bar"||
 					coincide) return 
-
 			n++
 
 		 	// 垂线交点坐标 
@@ -323,28 +345,30 @@ App.Views.canv = Backbone.View.extend({
 			pointy = pointx * k + b
 						 
 			// 约束与杆身连接 偏移约束
-			if (_.contains(["gdj","hdj","dj"],type)) {					
+			if (_.contains(["gdj","hdj","dj"],newtype)) {					
 				var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
 					, dy = 6*(-1/k)/Math.sqrt(1 + (-1/k)*(-1/k))
 				
 				pointx = pointx > X ? pointx - dx : pointx + dx
 				pointy = pointy > Y ? pointy - dy : pointy + dy
-				this.offset.constr.order = model.get("order")
+				this.offset.constr.order = order
 				this.offset.constr.result = true
 			}
 
 			// 防止定向支座和固定端与杆身相连
-			if (_.contains(["gdd","dxj"],type)) 
+			if (_.contains(["gdd","dxj"],newtype)) 
 				preventdraw = true
+
 		}.bind(this))
 		
 		if (n > 1||preventdraw||coincide) return
 
 		if (n == 1) 
-			this.tools.coorSet(e,factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
+			this.tools.coorSet(factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
 		else 
-			this.tools.coorSet(e,factory,Number(X.toFixed(0)),Number(Y.toFixed(0)))
-
+			this.tools.coorSet(factory,Number(X.toFixed(0)),Number(Y.toFixed(0)))
+		
+		App.ibarV.postcheck(e)
 		factory.drawelement()
 	},
 		

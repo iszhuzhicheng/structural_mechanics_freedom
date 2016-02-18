@@ -69,9 +69,9 @@ App.Views.ibar = Backbone.View.extend({
 				while (value > 360) 
 					value -= 360
 				
-				if (factory.get("type") !== "linebar") 
+				if (factory.get("type") !== "linebar")
 					factory.set("angle",value)
-				else 
+			  else 
 					angle = Number(value.toFixed(0))			
 			} else {
 				while (value < 0) 
@@ -102,7 +102,7 @@ App.Views.ibar = Backbone.View.extend({
 		    "y2":y2
 	    })
     }    
-											 
+
 	  App.factoryM.drawelement()
 	},
 

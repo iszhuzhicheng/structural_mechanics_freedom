@@ -5,8 +5,8 @@ App.Models.factory = Backbone.Model.extend({
 	},					
 
 	georule: {
-			"constr":["x","y","angle"]
-		,	"bar":["x","y","x2","y2"]
+			"constr":["x","y","angle","order"]
+		,	"bar":["x","y","x2","y2","order"]
 		,	"other":[]
 	},
 
@@ -145,17 +145,17 @@ App.Models.factory = Backbone.Model.extend({
 		)
 		
 		if (isconstr) {
+			
 			geobj.k = k
-																							 
+																					 
 			this.changeType("linebar")
 
 			this.set({
 					"x":geobj.x
 				,	"y":geobj.y
 			})
+
 			App.singleC.create(geobj)
-			
-			return
 		}
 
 		if (!this.passlineMaker.bind(this)(geobj.x,geobj.y,geobj.x2,geobj.y2)) return 

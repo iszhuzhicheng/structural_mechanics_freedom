@@ -23,10 +23,10 @@ body{
 	-webkit-border-top-right-radius: 0px;
 	border-bottom-right-radius: 0px;
 	-webkit-border-bottom-right-radius: 0px;
-	top:40px;
-	left:45px;
-	width:850px;
-	height:520px;
+	top:30px;
+	left:35px;
+	width:860px;
+	height:560px;
 	overflow:hidden;
 	cursor:crosshair;
 }
@@ -44,8 +44,8 @@ body{
 	width:480px;	
 	display:none;
 	position:absolute;
-	top:580px;	
-	left:38px;	
+	top:610px;	
+	left:28px;	
 }
 #componentbar div{
 	display:inline-block;
@@ -54,7 +54,7 @@ body{
 }
 #componentbar #dj{
 	padding: 0 11px;
-  	line-height: 34px;
+  line-height: 34px;
 }
 #componentbar #gdd{
 	padding: 0 12px;
@@ -68,12 +68,12 @@ body{
 #componentbar #linebar,
 #componentbar #move{
 	padding: 0 8px;
-  	line-height: 45px;
+  line-height: 45px;
 }
 #componentbar #hdj,
 #componentbar #gdj{
 	padding: 0 3px;
-  	line-height: 50px;
+  line-height: 50px;
 }
 #componentbar #dj img{
 	width: 45%;
@@ -97,10 +97,10 @@ body{
 	z-index: 3;
 	overflow-x: hidden;
 	overflow-y:auto;
-	top:40px;
-	height:520px;
+	top:30px;
+	height:560px;
 	left:897px;
-	width:313px;
+	width:323px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-top-left-radius: 0px;
@@ -136,11 +136,10 @@ body{
 #resultbox p{
 	color:seagreen;
 }
-	
 #inputbar{
 	display:none;
 	position:absolute;
-	top:590px;
+	top:615px;
 	width:400px;
 	height:100px;
 	left:450px;	
@@ -167,8 +166,8 @@ body{
 	margin-left:5%;
 	padding-left: 38px;
 	-webkit-transition:background-color 0.2s ease-out,border-color 0.2s ease-out;
-    transition:background-color 0.2s ease-out,border-color 0.2s ease-out;
-    cursor:text;
+  transition:background-color 0.2s ease-out,border-color 0.2s ease-out;
+  cursor:text;
 }
 #inputbar .txt input:hover{
 	background-color:rgba(255, 255, 255, 0.1);

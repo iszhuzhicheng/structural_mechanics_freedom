@@ -856,7 +856,7 @@ App.Collections.single = Backbone.Collection.extend({
 				signy = singlesny.get("signy")
 
 			if (typeof text !== "undefined") {
-				App.canvV.signDraw(text,order,signx,signy);		
+				App.canvV.drawlib.signDraw(text,order,signx,signy);		
 			}			
 		})
 

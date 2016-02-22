@@ -6,7 +6,7 @@ App.Views.body = Backbone.View.extend({
 	},
 
 	initialize: function(){
-		["canvV","calbuttonV","resultV","cbarV","ibarV"]
+		["canvV","resultV","cbarV","ibarV"]
 		.forEach(function(v){
 			App[v].$el.css("display","block")
 		})

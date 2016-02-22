@@ -30,6 +30,7 @@ App.Views.ibar = Backbone.View.extend({
 	
 	postcheck: function(e){		
 		var inputs = this.$el.find("input")
+			,	factory = App.factoryM
 			, type = App.factoryM.get("type")
 			, isntConstr = App.factoryM.retrRule(type)["category"] !== "constr"
 
@@ -53,55 +54,44 @@ App.Views.ibar = Backbone.View.extend({
 			else return true
 		}
 
-		this.post(inputs)
+		this.post(inputs,e)
 	},
 	
 	post: function(inputs){
 		var factory = App.factoryM
-			,	angle
-			,	barlength
-		
-		_.each(inputs,function(input,key){
-			var value = Number($(input).val())
+			,	angle = Number($(inputs[0]).val().toFixed(0))
+			,	barlength	= Number($(inputs[1]).val().toFixed(0))
 
-			if (input.id == "angle") {
-				while (value < 0) 
-					value += 360
-				
-				while (value > 360) 
-					value -= 360
-				
-				if (factory.get("type") !== "linebar")
-					factory.set("angle",value)
-			  else 
-					angle = Number(value.toFixed(0))			
-			} else {
-				while (value < 0) 
-					value = Math.abs(value)	
-				
-				barlength = Number(value.toFixed(0))                  
-			} 
-	  })
-	   
+		while (angle < 0) 
+			angle += 360
+
+		while (value > 360) 
+			value -= 360
+
+		if (factory.get("type") !== "linebar") factory.set("angle",value)
+
+		while (value < 0) 
+			barlength = Math.abs(barlength)	
+					
 	  if (factory.get("type") == "linebar") {
 	    var kx = Math.cos(Math.PI*angle/180)
 		    , ky = Math.sin(Math.PI*angle/180)
 		    , x2 = factory.get("x") + kx*barlength
 		    , y2 = factory.get("y") + ky*barlength
-	   	
-	    if (factory.get("x2")) {
+
+	    if (factory.get("x2")) {	    	 			
 		    factory.set({
 			    "x":factory.get("x2")
 			  , "y":factory.get("y2")
 		    })
-		  
+		  	
 		    x2 = factory.get("x") + kx*barlength
 		    y2 = factory.get("y") + ky*barlength
 	    }
 	   	
 	    factory.set({
-		    "x2":x2,
-		    "y2":y2
+		    "x2":x2
+		  , "y2":y2
 	    })
     }    
 

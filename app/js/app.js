@@ -11,7 +11,6 @@ window.App = {
 					this.ibarV = new this.Views.ibar()
 					this.canvdrawV = new this.Views.canvdraw()
 					this.canvV = new this.Views.canv()
-					this.calbuttonV = new this.Views.calbutton()
 					this.resultV = new this.Views.result()
 					this.bodyV = new this.Views.body()
 			}.bind(this)

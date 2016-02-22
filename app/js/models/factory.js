@@ -6,7 +6,7 @@ App.Models.factory = Backbone.Model.extend({
 
 	georule: {
 			"constr":["x","y","angle","order","connects"]
-		,	"bar":["x","y","x2","y2","order"]
+		,	"bar":["x","y","x2","y2","order","connects"]
 		,	"other":[]
 	},
 
@@ -154,12 +154,11 @@ App.Models.factory = Backbone.Model.extend({
 				,	"y":geobj.y
 			})
 			
-			App.test(App.singleC.models)
 			App.singleC.create(geobj)
 		}
 
 		if (!this.passlineMaker.bind(this)(geobj.x,geobj.y,geobj.x2,geobj.y2)) return 
-		App.test(App.singleC.models)
+		
 		geobj.k = App.kSimilar((geobj.y2-geobj.y)/(geobj.x2-geobj.x))
 		geobj.b = geobj.y - geobj.x*geobj.k
 		

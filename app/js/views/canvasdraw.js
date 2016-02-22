@@ -38,6 +38,20 @@ App.Views.canvdraw = Backbone.View.extend({
       }
     
     return {
+      signDraw: function(text,order,x,y){
+        canvas.drawText({
+            layer:true
+          , name:"sign" + order
+          , visible:true
+          , fillStyle:"seagreen"
+          , x:x
+          , y:y
+          , fontSize:14
+          , fontFamily: 'Verdana, sans-serif'
+          , text:text
+        })
+      },
+
       dj: function(model){
         var x = model.get("x")
           , y = model.get("y")

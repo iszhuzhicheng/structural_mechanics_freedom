@@ -24,8 +24,7 @@ App.Views.canv = Backbone.View.extend({
 		this.drawlib[newmodel.get("type")](newmodel)
 		App.singleC.calculate()
 
-		for (;i<l-1;i++)
-			this.$el.find("#canvas").removeLayer('sign'+i)
+		for (;i<l-1;i++) this.$el.find("#canvas").removeLayer('sign'+i)
 	},
 
 	tools:{
@@ -61,14 +60,14 @@ App.Views.canv = Backbone.View.extend({
 					factory.set({"x2":x,"y2":y})		
 				else
 					factory.set({"x":x,"y":y})
-		}
+		}	
 	},
 		
 	events:{
 		"click canvas" : "setCoor"
 	},
 
-	setCoor: function(e){
+	setCoor: function(e,X,Y){
 		if ($("canvas").hasClass("moving")) return 
 
 		if (App.singleC.models.length == 0) 
@@ -82,13 +81,14 @@ App.Views.canv = Backbone.View.extend({
 			, leftpos = this.$el.css("left").indexOf("px")
 			, toppos = this.$el.css("top").indexOf("px")
 			, borderpos = this.$el.css("border-width").indexOf("px")
+			, angle = Number(Number($("#angle").val()).toFixed(0))
 			, borderwidth = Number(this.$el.css("border-width").slice(0,borderpos))
 			// 画布的left偏移等于其父元素的left偏移加上边框宽度
 			, left = Number(Number(this.$el.css("left").slice(0,leftpos)).toFixed(0)) + borderwidth
 			, top = Number(Number(this.$el.css("top").slice(0,toppos)).toFixed(0)) + borderwidth
 			// 此次点击的坐标
-			, X = e.type == "click" ? e.pageX - this.canvas.position().left-left : ""
-			, Y = e.type == "click" ? e.pageY - this.canvas.position().top-top : ""
+			, X = e.type == "click" ? e.pageX - this.canvas.position().left-left : X
+			, Y = e.type == "click" ? e.pageY - this.canvas.position().top-top : Y
 			, newx = factory.get("x")
 			, newy = factory.get("y")
 			, neworder = factory.get("order")
@@ -105,10 +105,9 @@ App.Views.canv = Backbone.View.extend({
 			// 端部重合
 			, coincide = false
 			, preventdraw = false
-			, inputs = App.ibarV.$el.find("input")
 
-		App.test(App.factoryM)
-				
+		factory.set("angle",angle)
+
 		if (
 			_.some(App.singleC.models,function(model){
 				var category = model.get("category")
@@ -171,33 +170,30 @@ App.Views.canv = Backbone.View.extend({
 		  	, commonconnects
 
 			// 端部重合
-			if (d1||d2){													
+			if (d1||d2){
+
 				if (!coincide){
 					this.tools.coorSet(factory,coinx,coiny)	
 					coincide = true
 				}
 
 				// 添加连接件
-				if (newcategory == "constr") {
-					this.tools.connect(connects,order,newconnects,neworder)	
-				}											
+				if (newcategory == "constr") this.tools.connect(connects,order,newconnects,neworder)												
 			}
 
-			if (coincide&&index == list.length - 1) {				
+			// 切断杆
+			if (coincide&&index == list.length - 1&&newcategory == "constr") {				
+				
+				_.each(newconnects,function(connect){
+					var connectmodel = App.singleC.at(connect)
+						, preconnects = _.filter(newconnects,function(preconnect){
+							return preconnect !== connect
+						})
 
-				if (newcategory == "constr") {
-					_.each(newconnects,function(connect){
-						var connectmodel = App.singleC.at(connect)
-							, preconnects = _.filter(newconnects,function(preconnect){
-								return preconnect !== connect
-							})
-
-						connectmodel.set("connects",_.filter(connectmodel.get("connects"),function(currentconnect){
-							return !_.contains(preconnects,currentconnect)
-						}))
-					})	
-				}			
-				App.ibarV.post(inputs)
+					connectmodel.set("connects",_.filter(connectmodel.get("connects"),function(currentconnect){
+						return !_.contains(preconnects,currentconnect)
+					}))
+				})	
 			}
 
 			if (newcategory == "bar") {
@@ -220,10 +216,10 @@ App.Views.canv = Backbone.View.extend({
 				}
 			}
 
-			if (this.tools.p2ldistance(k,b,X,Y) > 2||
-					!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||
-					category !== "bar"||
-					coincide) return 
+			// 约束与杆身相连
+			if (this.tools.p2ldistance(k,b,X,Y) > 2||!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||
+					category !== "bar"||newcategory == "bar"||coincide) return
+
 			n++	
 
 		 	// 垂线交点坐标 
@@ -234,7 +230,7 @@ App.Views.canv = Backbone.View.extend({
 			if (_.contains(["gdj","hdj","dj"],newtype)) {					
 				var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
 					, dy = 6*(-1/k)/Math.sqrt(1 + (-1/k)*(-1/k))
-				
+																							
 				pointx = pointx > X ? pointx - dx : pointx + dx
 				pointy = pointy > Y ? pointy - dy : pointy + dy
 
@@ -242,20 +238,15 @@ App.Views.canv = Backbone.View.extend({
 			}
 
 			// 防止定向支座和固定端与杆身相连
-			if (_.contains(["gdd","dxj"],newtype)) 
-				preventdraw = true
+			if (_.contains(["gdd","dxj"],newtype)) preventdraw = true
 
 		}.bind(this))
+	
+		if (n > 1||preventdraw) return
 
-		if (n > 1||preventdraw||coincide) return
+		if (n == 1) this.tools.coorSet(factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
+		else this.tools.coorSet(factory,Number(X.toFixed(0)),Number(Y.toFixed(0)))
 
-		if (n == 1)
-			this.tools.coorSet(factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
-		else
-			this.tools.coorSet(factory,Number(X.toFixed(0)),Number(Y.toFixed(0)))
-		
-		App.test(App.factoryM)
-		App.ibarV.postcheck(e)
 		factory.drawelement()
 	},
 		

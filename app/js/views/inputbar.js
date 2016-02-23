@@ -54,48 +54,39 @@ App.Views.ibar = Backbone.View.extend({
 			else return true
 		}
 
-		this.post(inputs,e)
+		this.post(e)
 	},
-	
-	post: function(inputs){
+		
+	post: function(e){
 		var factory = App.factoryM
-			,	angle = Number($(inputs[0]).val().toFixed(0))
-			,	barlength	= Number($(inputs[1]).val().toFixed(0))
+			,	angle = Number(Number($("#angle").val()).toFixed(0))
+			,	barlength	= Number(Number($("#line").val()).toFixed(0))
 
-		while (angle < 0) 
-			angle += 360
+		while (angle < 0) angle += 360
 
-		while (value > 360) 
-			value -= 360
+		while (angle > 360) angle -= 360
 
-		if (factory.get("type") !== "linebar") factory.set("angle",value)
+		if (factory.get("type") !== "linebar") factory.set("angle",angle)
 
-		while (value < 0) 
-			barlength = Math.abs(barlength)	
-					
-	  if (factory.get("type") == "linebar") {
-	    var kx = Math.cos(Math.PI*angle/180)
-		    , ky = Math.sin(Math.PI*angle/180)
-		    , x2 = factory.get("x") + kx*barlength
-		    , y2 = factory.get("y") + ky*barlength
+		while (barlength < 0) barlength = Math.abs(barlength)	
+															
+    var kx = Math.cos(Math.PI*angle/180)
+	    , ky = Math.sin(Math.PI*angle/180)
+	    , x2 = factory.get("x") + kx*barlength
+	    , y2 = factory.get("y") + ky*barlength
 
-	    if (factory.get("x2")) {	    	 			
-		    factory.set({
-			    "x":factory.get("x2")
-			  , "y":factory.get("y2")
-		    })
-		  	
-		    x2 = factory.get("x") + kx*barlength
-		    y2 = factory.get("y") + ky*barlength
-	    }
-	   	
+    if (factory.get("x2")) {	    	 			
+
 	    factory.set({
-		    "x2":x2
-		  , "y2":y2
+		    "x":factory.get("x2")
+		  , "y":factory.get("y2")
 	    })
-    }    
+	  		
+	    x2 = factory.get("x") + kx*barlength
+	    y2 = factory.get("y") + ky*barlength
+    }	    
 
-	  App.factoryM.drawelement()
+    App.canvV.setCoor(e,x2,y2)
 	},
 
 	clean:function(){

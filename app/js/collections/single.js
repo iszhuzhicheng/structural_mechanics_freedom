@@ -35,7 +35,7 @@ App.Collections.single = Backbone.Collection.extend({
 	calculate: function(){
 		// 为了编号
 		var rawdata = App.singleC.models
-		// App.test(rawdata)
+		App.test(rawdata)
 		var bars = this.where({"category":"bar"})
 			, that = this
 			// 合成更大刚片的函数数组

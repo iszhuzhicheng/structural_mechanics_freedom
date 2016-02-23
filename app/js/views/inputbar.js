@@ -69,14 +69,14 @@ App.Views.ibar = Backbone.View.extend({
 		if (factory.get("type") !== "linebar") factory.set("angle",angle)
 
 		while (barlength < 0) barlength = Math.abs(barlength)	
-															
+																				
     var kx = Math.cos(Math.PI*angle/180)
 	    , ky = Math.sin(Math.PI*angle/180)
 	    , x2 = factory.get("x") + kx*barlength
 	    , y2 = factory.get("y") + ky*barlength
 
     if (factory.get("x2")) {	    	 			
-
+    		
 	    factory.set({
 		    "x":factory.get("x2")
 		  , "y":factory.get("y2")

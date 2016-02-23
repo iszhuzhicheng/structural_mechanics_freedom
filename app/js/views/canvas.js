@@ -19,7 +19,7 @@ App.Views.canv = Backbone.View.extend({
 					"x":newmodel.get("x2")
 				,	"y":newmodel.get("y2")
 			}
-
+		
 		App.factoryM.set(xy)
 		this.drawlib[newmodel.get("type")](newmodel)
 		App.singleC.calculate()
@@ -33,6 +33,7 @@ App.Views.canv = Backbone.View.extend({
 			if (!_.contains(connect2,order1)) connect2.push(order1)	
 		}
 		, p2pdistance: function(x1,y1,x2,y2){
+				if (x1==null||y1==null||x2==null||y2==null) return Infinity
 				return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
 		}
 		, p2ldistance: function(k,b,newx,newy){
@@ -102,8 +103,10 @@ App.Views.canv = Backbone.View.extend({
 			, n = 0
 			, pointx
 			, pointy
-			// 端部重合
+			// 约束端部重合
 			, coincide = false
+			// 杆端端部重合
+			, barcide = false
 			, preventdraw = false
 
 		factory.set("angle",angle)
@@ -169,20 +172,19 @@ App.Views.canv = Backbone.View.extend({
 		  	// 处理由于约束存在而造成的杆件断开
 		  	, commonconnects
 
-			// 端部重合
-			if (d1||d2){
+			// 约束与杆端部重合
+			if ((d1||d2)&&newcategory == "constr"){
 
 				if (!coincide){
 					this.tools.coorSet(factory,coinx,coiny)	
 					coincide = true
 				}
 
-				// 添加连接件
-				if (newcategory == "constr") this.tools.connect(connects,order,newconnects,neworder)												
+				this.tools.connect(connects,order,newconnects,neworder)												
 			}
 
 			// 切断杆
-			if (coincide&&index == list.length - 1&&newcategory == "constr") {				
+			if (coincide&&index == list.length - 1) {				
 				
 				_.each(newconnects,function(connect){
 					var connectmodel = App.singleC.at(connect)
@@ -198,8 +200,8 @@ App.Views.canv = Backbone.View.extend({
 
 			if (newcategory == "bar") {
 
-				// 端部相连
-				if (this.tools.b2bhead(x1,y1,x2,y2,newx,newy,X,Y,0)) {
+				// 杆端部相连
+				if (this.tools.b2bhead(x1,y1,x2,y2,newx,newy,X,Y,5)) {
 
 					// bar和newbar连在了同一个约束上，那不添加到彼此的连接件上
 					if (category == "bar"&&
@@ -209,30 +211,44 @@ App.Views.canv = Backbone.View.extend({
 									, y1 = App.singleC.at(connect).get("y")
 
 								if (category == "constr"&&this.tools.b2bhead(x1,y1,null,null,newx,newy,X,Y,0)) return true																			
-						}.bind(this))) return 			
+							}.bind(this))
+					) return 							
+
+					if (this.tools.b2bhead(x1,y1,null,null,null,null,X,Y,5)){
+						X = x1
+						Y = y1
+					} else if (this.tools.b2bhead(x2,y2,null,null,null,null,X,Y,5)){
+						X = x2
+						Y = y2
+					}
 
 					this.tools.connect(connects,order,newconnects,neworder)
 					factory.set("connects",newconnects)
 				}
 			}
 
-			// 约束与杆身相连
-			if (this.tools.p2ldistance(k,b,X,Y) > 2||!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||
-					category !== "bar"||newcategory == "bar"||coincide) return
-
-			n++	
-
+			// 点到杆的距离 作用域与值域范围 约束端部重合 杆端部重合
+			if (this.tools.p2ldistance(k,b,X,Y) > 4||!this.tools.region(X,Y,x1,y1,x2,y2,4,4)||coincide||barcide) return
+			
 		 	// 垂线交点坐标 
-		 	pointx = (Y + X/k - b)/(k +1/k)
-			pointy = pointx * k + b
-						 
+		 	pointx = Number(((Y + X/k - b)/(k +1/k)).toFixed(0))
+			pointy = Number((pointx * k + b).toFixed(0))
+
+			if (newcategory == "bar"){
+				X = pointx
+				Y = pointy
+				this.tools.connect(connects,order,newconnects,neworder)
+			}
+												 
 			// 约束与杆身连接 偏移约束
-			if (_.contains(["gdj","hdj","dj"],newtype)) {					
+			if (_.contains(["gdj","hdj","dj"],newtype)) {	
+				n++
+
 				var dx = 6/Math.sqrt(1 + (-1/k)*(-1/k))
 					, dy = 6*(-1/k)/Math.sqrt(1 + (-1/k)*(-1/k))
 																							
-				pointx = pointx > X ? pointx - dx : pointx + dx
-				pointy = pointy > Y ? pointy - dy : pointy + dy
+				X = pointx > X ? pointx - dx : pointx + dx
+				Y = pointy > Y ? pointy - dy : pointy + dy
 
 				this.tools.connect(connects,order,newconnects,neworder)	
 			}
@@ -241,11 +257,10 @@ App.Views.canv = Backbone.View.extend({
 			if (_.contains(["gdd","dxj"],newtype)) preventdraw = true
 
 		}.bind(this))
-	
+																								
 		if (n > 1||preventdraw) return
 
-		if (n == 1) this.tools.coorSet(factory,Number(pointx.toFixed(0)),Number(pointy.toFixed(0)))
-		else this.tools.coorSet(factory,Number(X.toFixed(0)),Number(Y.toFixed(0)))
+		this.tools.coorSet(factory,X,Y)
 
 		factory.drawelement()
 	},

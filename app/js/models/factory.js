@@ -132,8 +132,6 @@ App.Models.factory = Backbone.Model.extend({
 			, k = isgh ? Math.tan((this.get("angle") - 90)/180*Math.PI) : Math.tan((this.get("angle"))/180*Math.PI)
 			, k = App.kSimilar(k)
 
-		App.test(this)
-
 		if (!_.every(geodata,this.passMaker.bind(this))) return 
 
 		App.ibarV.clean()

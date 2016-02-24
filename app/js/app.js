@@ -44,7 +44,7 @@ window.App = {
 
 		return Number(k.toFixed(4))
 	}
-	
+
 ,	test: function(obj){
 		console.log(JSON.stringify(obj))
 	}

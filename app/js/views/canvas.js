@@ -3,14 +3,14 @@ App.Views.canv = Backbone.View.extend({
 
   initialize: function() {
     this.listenTo(App.factoryM, "change:type", this.movable)
-    this.listenTo(App.singleC, "add", this.presolve)
+    this.listenTo(App.drawC, "add", this.presolve)
     this.canvas = this.$el.find("canvas")
     this.drawlib = App.canvdrawV.draw.bind(this)()
   },
 
   presolve: function(newmodel) {
     var i = 0
-      , models = App.singleC.models
+      , models = App.drawC.models
       , l = models.length
       , xy = newmodel.get("category") == "constr" ? {
         "x": newmodel.get("x")
@@ -22,8 +22,8 @@ App.Views.canv = Backbone.View.extend({
 
     App.factoryM.set(xy)
     this.drawlib[newmodel.get("type")](newmodel)
-    App.calculate(newmodel)
-      //for (; i < l - 1; i++) this.$el.find("#canvas").removeLayer('sign' + i)
+
+    //for (; i < l - 1; i++) this.$el.find("#canvas").removeLayer('sign' + i)
   },
 
   tools: {
@@ -76,10 +76,10 @@ App.Views.canv = Backbone.View.extend({
   setCoor: function(e, X, Y) {
     if ($("canvas").hasClass("moving")) return
 
-    if (App.singleC.models.length == 0)
+    if (App.drawC.models.length == 0)
       App.factoryM.set("order", 0)
     else
-      App.factoryM.set("order", App.singleC.last().get("order") + 1)
+      App.factoryM.set("order", App.drawC.last().get("order") + 1)
 
     App.factoryM.set("connects", [])
 
@@ -116,7 +116,7 @@ App.Views.canv = Backbone.View.extend({
     factory.set("angle", angle)
 
     if (
-      _.some(App.singleC.models, function(model) {
+      _.some(App.drawC.models, function(model) {
         var category = model.get("category")
           , type = model.get("type")
           , x1 = model.get("x")
@@ -158,7 +158,7 @@ App.Views.canv = Backbone.View.extend({
           return false
       }.bind(this))) return
 
-    _.each(App.singleC.models, function(model, index, list) {
+    _.each(App.drawC.models, function(model, index, list) {
       var k = model.get("k")
         , b = model.get("b")
         , x1 = model.get("x")
@@ -190,7 +190,7 @@ App.Views.canv = Backbone.View.extend({
       if (coincide && index == list.length - 1) {
 
         _.each(newconnects, function(connect) {
-          var connectmodel = App.singleC.at(connect)
+          var connectmodel = App.drawC.at(connect)
             , preconnects = _.filter(newconnects, function(preconnect) {
               return preconnect !== connect
             })
@@ -209,9 +209,9 @@ App.Views.canv = Backbone.View.extend({
           // bar和newbar连在了同一个约束上，那不添加到彼此的连接件上
           if (category == "bar" &&
             _.some(connects, function(connect) {
-              var category = App.singleC.at(connect).get("category")
-                , x1 = App.singleC.at(connect).get("x")
-                , y1 = App.singleC.at(connect).get("y")
+              var category = App.drawC.at(connect).get("category")
+                , x1 = App.drawC.at(connect).get("x")
+                , y1 = App.drawC.at(connect).get("y")
 
               if (category == "constr" && this.tools.b2bhead(x1, y1, null, null, newx, newy, X, Y, 0)) return true
             }.bind(this))

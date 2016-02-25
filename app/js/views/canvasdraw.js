@@ -63,7 +63,7 @@ App.Views.canvdraw = Backbone.View.extend({
         whiteArc(x, y)
 
         _.each(model.get("connects"), function(num) {
-          if (App.singleC.models[num].get("category") == "bar" &&
+          if (App.drawC.models[num].get("category") == "bar" &&
             model.get("type") !== "gdd" &&
             model.get("type") !== "dxj") {
             blackArc(x, y);
@@ -80,12 +80,12 @@ App.Views.canvdraw = Backbone.View.extend({
         drawline(x1, y1, x2, y2)
 
         _.each(model.get("connects"), function(num) {
-          var x = App.singleC.models[num].get("x")
-            , y = App.singleC.models[num].get("y")
+          var x = App.drawC.models[num].get("x")
+            , y = App.drawC.models[num].get("y")
 
-          if (App.singleC.models[num].get("category") == "constr" &&
-            App.singleC.models[num].get("type") !== "gdd" &&
-            App.singleC.models[num].get("type") !== "dxj") {
+          if (App.drawC.models[num].get("category") == "constr" &&
+            App.drawC.models[num].get("type") !== "gdd" &&
+            App.drawC.models[num].get("type") !== "dxj") {
             blackArc(x, y)
           }
         })
@@ -132,7 +132,7 @@ App.Views.canvdraw = Backbone.View.extend({
         drawline(lx51, ly51, lx52, ly52, "#5a4283")
 
         _.each(model.get("connects"), function(num) {
-          if (App.singleC.models[num].get("category") == "bar") {
+          if (App.drawC.models[num].get("category") == "bar") {
             blackArc(x, y)
           }
         })
@@ -174,7 +174,7 @@ App.Views.canvdraw = Backbone.View.extend({
         drawline(lx51, ly51, lx52, ly52, "#5a4283")
 
         _.each(model.get("connects"), function(num) {
-          if (App.singleC.models[num].get("category") == "bar")
+          if (App.drawC.models[num].get("category") == "bar")
             blackArc(x, y);
         })
       },

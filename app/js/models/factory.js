@@ -63,7 +63,7 @@ App.Models.factory = Backbone.Model.extend({
 
   // 防止在连在同一根杆上的约束与该杆杆身间再添加新杆
   barbar: function(x, y) {
-    var bar = _.filter(App.singleC.models, function(model) {
+    var bar = _.filter(App.drawC.models, function(model) {
       if (model.get("category") == "bar") {
         var x1 = model.get("x")
           , y1 = model.get("y")
@@ -83,7 +83,7 @@ App.Models.factory = Backbone.Model.extend({
 
   // 防止在连在同一根杆上的约束间再添加新杆
   barconstr: function(x, y) {
-    var constr = _.find(App.singleC.models, function(model) {
+    var constr = _.find(App.drawC.models, function(model) {
       var category = model.get("category")
         , x1 = model.get("x")
         , y1 = model.get("y")
@@ -95,7 +95,7 @@ App.Models.factory = Backbone.Model.extend({
   },
 
   passlineMaker: function(x1, y1, x2, y2) {
-    var pass = _.every(App.singleC.models, function(model) {
+    var pass = _.every(App.drawC.models, function(model) {
       if (model.get("category") == "constr") return true
 
       var mx1 = model.get("x")
@@ -156,7 +156,7 @@ App.Models.factory = Backbone.Model.extend({
         , "y": geobj.y
       })
 
-      App.singleC.create(geobj)
+      App.drawC.create(geobj)
     }
 
     if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2)) return
@@ -164,6 +164,6 @@ App.Models.factory = Backbone.Model.extend({
     geobj.k = App.kSimilar((geobj.y2 - geobj.y) / (geobj.x2 - geobj.x))
     geobj.b = geobj.y - geobj.x * geobj.k
 
-    App.singleC.create(geobj)
+    App.drawC.create(geobj)
   }
 })

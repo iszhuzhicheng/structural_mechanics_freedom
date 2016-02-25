@@ -22,9 +22,8 @@ App.Views.canv = Backbone.View.extend({
 
     App.factoryM.set(xy)
     this.drawlib[newmodel.get("type")](newmodel)
-    App.singleC.calculate()
-
-    for (; i < l - 1; i++) this.$el.find("#canvas").removeLayer('sign' + i)
+    App.calculate(newmodel)
+      //for (; i < l - 1; i++) this.$el.find("#canvas").removeLayer('sign' + i)
   },
 
   tools: {
@@ -238,6 +237,7 @@ App.Views.canv = Backbone.View.extend({
       pointx = Number(((Y + X / k - b) / (k + 1 / k)).toFixed(0))
       pointy = Number((pointx * k + b).toFixed(0))
 
+      // 杆身相连
       if (newcategory == "bar") {
         X = pointx
         Y = pointy

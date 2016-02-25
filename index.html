@@ -48,26 +48,6 @@
   <div id="inputbar" class="animated zoomInUp">
   </div>
 
-<script type="text/template" class="ibar_tmpl">
-<%if (type == "Angle"){%>
-<div class="txt">
-<input type="text" id="angle" placeholder="angle" />
-<label for="angle" class="inputangle"></label>
-</div>  
-
-<%} else if (type == "Line&Angle") {%>
-<div class="txt">
-<input type="text" id="angle" placeholder="angle"/>
-<label for="angle" class="inputangle"></label>
-</div>
-
-<div class="txt">
-<input type="text" id="line" placeholder="line"/>
-<label for="line" class="inputline"></label>
-</div>
-<%}%>
-</script>
-
 <script type="text/template" class="result_box">
 <% _.each(rc,function(plate,index){ %>
 <%   var free = plate["freedegree"]; %>
@@ -131,7 +111,12 @@
 <script src="vendor/jcanvas/jcanvas.min.js"></script>
 <script src="vendor/underscore/underscore-min.js"></script>
 <script src="vendor/backbone/backbone-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
 <script src="app/js/app.js"></script>
+<script src="app/js/calculate.js"></script>
+<script type="text/babel" src="app/js/input.js"></script>
 <script src="app/js/models/factory.js"></script>	
 <script src="app/js/models/single.js"></script>
 <script src="app/js/collections/single.js"></script>

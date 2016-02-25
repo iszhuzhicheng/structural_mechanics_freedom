@@ -1,33 +1,16 @@
 App.Views.ibar = Backbone.View.extend({
   el: $("#inputbar"),
 
-  template: _.template($('.ibar_tmpl').html()),
-
   events: {
     "keyup": "postcheck"
   },
 
   initialize: function() {
     this.listenTo(App.factoryM, "change:type", this.main)
-    this.main()
   },
 
   main: function(index, type) {
-    if (!type)
-      var type = App.factoryM.get("type")
-
-    var category = App.factoryM.retrRule(type)["category"]
-
-    if (category == "constr" && type !== "dj")
-      this.$el.html(this.template({
-        type: "Angle"
-      }))
-    else if (category == "bar")
-      this.$el.html(this.template({
-        type: "Line&Angle"
-      }))
-    else if (category == "other")
-      this.$el.empty()
+    App.InputRendered.typeChange(type)
   },
 
   isntend: true,

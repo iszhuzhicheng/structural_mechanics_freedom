@@ -1,22 +1,20 @@
 /**
- * @license jCanvas v15.06.17
+ * @license jCanvas v15.12.12
  * Copyright 2015 Caleb Evans
  * Released under the MIT license
  */
 (function( jQuery, global, factory ) {
 
 	if ( typeof module === 'object' && typeof module.exports === 'object' ) {
-		module.exports = global.document ?
-			factory( global, true ) :
-			function( jQuery, w ) {
-				return factory( jQuery, w );
-			};
+		module.exports = function( jQuery, w ) {
+			return factory( jQuery, w );
+		};
 	} else {
 		factory( jQuery, global );
 	}
 
 // Pass this if window is not defined yet
-}( typeof window !== 'undefined' ? window.$ : {}, typeof window !== 'undefined' ? window : this, function( $, window ) {
+}( typeof window !== 'undefined' ? window.jQuery : {}, typeof window !== 'undefined' ? window : this, function( $, window ) {
 
 var document = window.document,
     Image = window.Image,
@@ -896,7 +894,7 @@ $.fn.setLayer = function setLayer( layerId, props ) {
 						} else if ( propValue.indexOf( '-=' ) === 0 ) {
 							// Decrement numbers prefixed with -=
 							layer[ propName ] -= parseFloat( propValue.substr( 2 ) );
-						} else if ( !isNaN( propValue ) && isNumeric( propValue ) ) {
+						} else if ( !isNaN( propValue ) && isNumeric( propValue ) && propName !== 'text' ) {
 							// Convert numeric values as strings to numbers
 							layer[ propName ] = parseFloat( propValue );
 						} else {
@@ -3880,8 +3878,8 @@ $.fn.drawImage = function drawImage( args ) {
 		} else {
 			// Show entire image if no crop region is defined
 
-			// Position/transform image if necessary
 			_transformShape( canvas, ctx, params, params.width, params.height );
+			_setGlobalProps( canvas, ctx, params );
 
 			// Draw image on canvas
 			ctx.drawImage(
@@ -4048,7 +4046,7 @@ $.fn.createPattern = function createPattern( args ) {
 			if ( img.complete || imgCtx ) {
 				onload();
 			} else {
-				img.onload = onload();
+				img.onload = onload;
 				// Fix onload() bug in IE9
 				img.src = img.src;
 			}

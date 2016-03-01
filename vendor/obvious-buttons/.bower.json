@@ -1,0 +1,14 @@
+{
+  "name": "obvious-buttons",
+  "homepage": "https://github.com/skidding/obvious-buttons",
+  "_release": "2215836be8",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "2215836be85e4d0d34d258169108533618342045"
+  },
+  "_source": "git://github.com/skidding/obvious-buttons.git",
+  "_target": "*",
+  "_originalSource": "skidding/obvious-buttons",
+  "_direct": true
+}

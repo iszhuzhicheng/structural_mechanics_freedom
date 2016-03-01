@@ -2,131 +2,74 @@
 <html>
 <head>
 <meta charset="utf-8">
-<script src="vendor/pace.js"></script>
-<link rel="stylesheet" media="screen" href="app/css/pace.css" />
-<link rel="stylesheet" media="screen" href="app/css/obvious-buttons.css" />
-<link rel="stylesheet" media="screen" href="app/css/animate.css" />
-<link rel="stylesheet" media="screen" href="app/css/zyd.css" />
+<script src="vendor/PACE/pace.min.js"></script>
+<link rel="stylesheet" media="screen" href="vendor/PACE/themes/silver/pace-theme-loading-bar.css" />
+<link rel="stylesheet" media="screen" href="vendor/obvious-buttons/src/obvious-buttons.css" />
+<link rel="stylesheet" media="screen" href="vendor/animate.css/animate.min.css" />
+<link rel="stylesheet" media="screen" href="app/app.css" />
 <title>结构自由度||漢成精工</title>
 </head>
 
 <body>    
-  <div id="resultbox" class="animated bounceInUp">
-  </div>
-  
-  <div id="canvaswrap" class="animated bounceInDown">
-      <canvas id="canvas" width="8000" height="8000"></canvas>
-  </div>
+<div id="resultbox" class="animated bounceInUp">
+</div>
 
-  <div id="componentbar" class="animated fadeInLeftBig">
-      <div id="gdj" class="btn btn-inline">
-        <img src="app/img/gdj.png"/>
-      </div>
-      <div id="hdj" class="btn btn-inline">
-        <img src="app/img/hdj.png"/>
-      </div>
-      <div id="gdd" class="btn btn-inline">
-        <img src="app/img/gdd.png"/>
-      </div>
-      <div id="dxj" class="btn btn-inline">
-          <img src="app/img/dxj.png"/>
-      </div>
-      <div id="dj" class="btn btn-inline">
-        <img src="app/img/d.png"/>
-      </div>
-      <div id="linebar" class="btn btn-inline">
-        <img src="app/img/linebar.png"/>
-      </div>
-      <div id="move" class="btn btn-inline">
-        <img src="app/img/move.png"/>
-      </div>
-      <div id="mirror" class="btn btn-inline">
-        <img src="app/img/mirror.png"/>
-      </div>
-  </div>
+<div id="canvaswrap" class="animated bounceInDown">
+    <canvas id="canvas" width="8000" height="8000"></canvas>
+</div>
 
-  <div id="inputbar" class="animated zoomInUp">
-  </div>
+<div id="componentbar" class="animated fadeInLeftBig">
+    <div id="gdj" class="btn btn-inline">
+      <img src="app/img/gdj.png"/>
+    </div>
+    <div id="hdj" class="btn btn-inline">
+      <img src="app/img/hdj.png"/>
+    </div>
+    <div id="gdd" class="btn btn-inline">
+      <img src="app/img/gdd.png"/>
+    </div>
+    <div id="dxj" class="btn btn-inline">
+        <img src="app/img/dxj.png"/>
+    </div>
+    <div id="dj" class="btn btn-inline">
+      <img src="app/img/d.png"/>
+    </div>
+    <div id="linebar" class="btn btn-inline">
+      <img src="app/img/linebar.png"/>
+    </div>
+    <div id="move" class="btn btn-inline">
+      <img src="app/img/move.png"/>
+    </div>
+    <div id="mirror" class="btn btn-inline">
+      <img src="app/img/mirror.png"/>
+    </div>
+</div>
 
-<script type="text/template" class="result_box">
-<% _.each(rc,function(plate,index){ %>
-<%   var free = plate["freedegree"]; %>
-<%   var constr = plate["constrdegree"]; %>
-    <p class = "whole">
-<%   if (free > 0&&constr == 0){ %>
-    结构<%-index%>是可变体系，结构自由度是<%- free %>
-<%   }else if (constr > 0&&free == 0){%>
-    结构<%-index%>是超静定结构，多余约束数是<%- constr %>
-<%   }else if (free == 0&&constr == 0){%>
-    结构<%-index%>是静定结构。
-<%   } else if (free > 0&&constr>0){%>
-    结构<%-index%>既是超静定结构,同时也是可变体系，其中多余约束数是<%- constr %>,结构自由度是<%- free %>
-<%   } %>
-    </p>
-<%   _.each(plate.c,function(c){%>
-<%     var cs = "基本大刚片 ";%>
-
-<%     _.each(c.textcomp,function(num,numindex,numlist){ %>
-<%       cs += String(num) %>
-<%       if (numindex !== numlist.length -1) { %>
-<%         cs += ","; %>   
-<%       } else { %>
-<%         cs += " "; %>
-<%       } %>
-<%     }); %>
-    
-<%     if (c.innercontrs.length == 0){ %>
-<%       cs += "无内部约束" %>    
-<%     } else { %>
-<%       var chainbarNum=0; %>
-<%       var rigidbarNum=0; %>
-<%       var innerconstrs=0; %>
-<%       _.each(c.innercontrs,function(innercontr,index){ %>
-<%         if (innercontr.type == "chainbar") { %>
-<%           chainbarNum += 1 %>
-<%           innerconstrs += 1 %>
-<%         } else if (innercontr.type == "rigidbar"){ %>
-<%           rigidbarNum += 1 %>
-<%           innerconstrs += 3 %>
-<%         }%>
-<%       });%>
-<%       cs += "内部约束数为" + innerconstrs + "，其中包括"; %> 
-<%       if (chainbarNum > 0&&rigidbarNum>0){ %>
-<%         cs += chainbarNum + "根链杆和" + rigidbarNum + "刚接杆"; %>
-<%       } else if (chainbarNum > 0&&rigidbarNum==0){ %>
-<%         cs += chainbarNum + "根链杆" %>
-<%       } else if (chainbarNum == 0&&rigidbarNum > 0){%>
-<%         cs += rigidbarNum + "根刚接杆" %>
-<%       }%>  
-<%     } %>
-    <p style="color:<%- plate.fontcolor%>"><%- cs %></p>
-<%   });%>
-
-<% }); %>
-</script>
+<div id="inputbar" class="animated zoomInUp">
+</div>
 
 <script src="vendor/jquery/dist/jquery.min.js"></script>
 <script src="vendor/jquery-ui/jquery-ui.min.js"></script>
-<script src="vendor/jquery-ui/jquery.ui.touch-punch.min.js"></script>
+<script src="vendor/jqueryui-touch-punch/jquery.ui.touch-punch.min.js"></script>
 <script src="vendor/jcanvas/jcanvas.min.js"></script>
 <script src="vendor/underscore/underscore-min.js"></script>
 <script src="vendor/backbone/backbone-min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
-<script src="app/js/app.js"></script>
+<script src="vendor/react/react.min.js"></script>
+<script src="vendor/react/react-dom.min.js"></script>
+<script src="vendor/browser.min/index.js"></script>
+<script src="app/app.js"></script>
 <script type="text/babel" src="app/js/views/input.js"></script>
-<script src="app/js/models/factory.js"></script>	
-<script src="app/js/models/draw.js"></script>
-<script src="app/js/models/calculate.js"></script>
-<script src="app/js/collections/draw.js"></script>
-<script src="app/js/collections/calculate.js"></script>
-<script src="app/js/views/body.js"></script>
-<script src="app/js/views/componentbar.js"></script>
-<script src="app/js/views/inputbar.js"></script>
-<script src="app/js/views/canvasdraw.js"></script>
-<script src="app/js/views/canvas.js"></script>
-<script src="app/js/views/result.js"></script>
+<script src="app/models/factory.js"></script>	
+<script src="app/models/draw.js"></script>
+<script src="app/models/calculate.js"></script>
+<script src="app/collections/draw.js"></script>
+<script src="app/collections/calculate.js"></script>
+<script src="app/views/body.js"></script>
+<script src="app/views/componentbar.js"></script>
+<script src="app/views/inputbar.js"></script>
+<script src="app/views/canvasdraw.js"></script>
+<script src="app/views/canvas.js"></script>
+<script src="app/views/result.js"></script>
 <script>
 App.start()
 </script>

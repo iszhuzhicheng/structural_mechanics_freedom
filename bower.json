@@ -1,24 +1,24 @@
 {
-  "name": "zyd",
-  "version": "1.0.0",
-  "homepage": "https://github.com/ZhouHansen/ZhouHansen.github.io",
-  "directory": "~/ZhouHansen.github.io/vendor",
+  "name": "structural_mechanics_freedom",
+  "homepage": "https://github.com/ZhouHansen/structural_mechanics_freedom",
   "authors": [
-    "ZhouHansen <308114274@qq.com>"
+    "周汉成 <308114274@qq.com>"
   ],
-  "description": "\"这是我的第一个bower\"",
+  "description": "结构力学自由度计算工具",
+  "main": "app",
+  "moduleType": [],
   "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
   "dependencies": {
-    "jquery": "~2.1.4",
-    "underscore": "~1.8.3",
-    "jcanvas": "15.06.17",
-    "jquery-ui": "~1.11.4"
+    "jquery": "^2.2.1",
+    "jcanvas": "^15.12.12",
+    "jqueryui-touch-punch": "furf/jquery-ui-touch-punch",
+    "backbone": "^1.2.3",
+    "react": "^0.14.7",
+    "bowser": "browser#^1.0.0",
+    "obvious-buttons": "skidding/obvious-buttons",
+    "animate.css": "daneden/animate.css#^3.5.1",
+    "Browser": "browser.js#^0.1.2",
+    "browser.min": "https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.min.js",
+    "PACE": "HubSpot/pace#^1.0.2"
   }
 }

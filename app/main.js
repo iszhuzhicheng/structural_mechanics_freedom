@@ -21,7 +21,7 @@ window.App = {
         var image = new Image()
 
         image.src = "http://zhouhansen.github.io/structural_mechanics_freedom/img/" + arg + ".png"
-
+        
         image.addEventListener("load", function() {
           resolve(arg)
         }, false)

@@ -3,7 +3,7 @@ define(['app/model/calulate','app/collection/draw','app/view/canvas'],function(c
   return new (Backbone.Collection.extend({
     model: calulateM,
 
-    url:'http://zhouhansen.github.io/structural_mechanics_freedom/app.json',
+    url:'http://m.yxgapp.com/d/mooc/GetFocusCourseList.json',
 
     comparator: 'id',
 

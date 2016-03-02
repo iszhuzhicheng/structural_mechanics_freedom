@@ -31,7 +31,7 @@ body{
 }
 #canvas{
 	display:block;
-	background:url("../img/canvas2.png") repeat 0 0;
+	background:url("img/canvas2.png") repeat 0 0;
 	position:relative;
 	top:-4000px;
 	left:-4000px;
@@ -186,12 +186,12 @@ body{
 	left: 15%;
 }
 #inputbar .txt label.inputangle{
-	background:url("../img/inputangle.png") no-repeat;
+	background:url("img/inputangle.png") no-repeat;
 	background-size:contain;
 	opacity:0.4
 }
 #inputbar .txt label.inputline{
-	background:url("../img/line.png") no-repeat;
+	background:url("img/line.png") no-repeat;
 	background-size:contain;
 	opacity:0.6
 }

@@ -1,8 +1,9 @@
 define(['app/model/calulate','app/collection/draw','app/view/canvas'],function(calulateM,drawC,canvas){
+
   return new (Backbone.Collection.extend({
     model: calulateM,
 
-    url:'http://zhouhansen.github.io/structural_mechanics_freedom/app/collection/calculate.js',
+    url:'http://zhouhansen.github.io/structural_mechanics_freedom/app.json',
 
     comparator: 'id',
 

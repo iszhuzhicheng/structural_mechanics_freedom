@@ -17,9 +17,13 @@ requirejs.config({
 })
 
 requirejs(["xdomain","pace","jquery","underscore","backbone","browser","jcanvas","jqueryui"],function(xdomain,pace){
+
+  xdomain.slaves({
+    "http://api.aigolife.com/smf": "/proxy.html"
+  })
   
   var preloadImages = ['canvas2', "d", "dxj", "gdd", "gdj", "hdj", "inputangle", "line", "linebar", "mirror", "move"]
-  
+
   pace.start()
   
   Promise.all(preloadImages.map(function(arg) {

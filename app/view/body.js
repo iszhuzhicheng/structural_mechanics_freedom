@@ -15,7 +15,7 @@ define(['./canvas','./resultbox','./componentbar','./inputbar','app/collection/c
       })
 
       $.ajax({
-        url: "http://api.aigolife.com/kt03/GetUserLinkList.json?username=425296516@qq.com&token=12sdfads",
+        url: "http://api.aigolife.com/smf/getsome.json",
         type: 'GET',
         success: function(data) {
           alert(1)

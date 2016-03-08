@@ -1,3 +1,6 @@
-define(function(){
-  return Backbone.Model.extend({})
+define([],function(){
+
+  return Backbone.Model.extend({
+    url: '../result.json'
+  })
 })

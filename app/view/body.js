@@ -1,5 +1,7 @@
-define(['./canvas','./result','./componentbar','./inputbar'],function(canvas,result,componentbar,inputbar){
+define(['./canvas','./resultbox','./componentbar','./inputbar','app/collection/calculate'],function(canvas,resultbox,componentbar,inputbar){
+
   new (Backbone.View.extend({
+    
     el: document.body,
 
     events: {
@@ -7,9 +9,17 @@ define(['./canvas','./result','./componentbar','./inputbar'],function(canvas,res
     },
 
     initialize: function() {
-      [canvas, result, componentbar, inputbar]
+      [canvas, resultbox, componentbar, inputbar]
       .forEach(function(v) {
         v.$el.css("display", "block")
+      })
+
+      $.ajax({
+        url: "http://api.aigolife.com/kt03/GetUserLinkList.json?username=425296516@qq.com&token=12sdfads",
+        type: 'GET',
+        success: function(data) {
+          alert(1)
+        }
       })
     },
 

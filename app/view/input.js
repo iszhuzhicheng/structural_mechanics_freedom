@@ -1,4 +1,5 @@
 define(['react','reactdom'],function(React,ReactDOM){
+  
   var Input = React.createClass({
       displayName: "Input",
 

@@ -1,5 +1,7 @@
-define(['app/collection/draw','app/view/canvasdraw','app/model/factory'],function(drawC,canvasdraw,factory){
+define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC,canvasdraw,factory){
+
   return new (Backbone.View.extend({
+
     el: $("#canvaswrap"),
 
     initialize: function() {
@@ -57,17 +59,29 @@ define(['app/collection/draw','app/view/canvasdraw','app/model/factory'],functio
 
         return x <= maxX + dx && y <= maxY + dy && x >= minX - dx && y >= minY - dy
       }
-      , coorSet: function(factory, x, y) {
-        if (factory.get("x") && factory.get("type") == "linebar")
+      , coorSet: function(factory, x, y, angle, barlength) {
+        if (factory.get("x") && factory.get("type") == "linebar") {
           factory.set({
             "x2": x
             , "y2": y
           })
-        else
+        }
+        else {
           factory.set({
             "x": x
             , "y": y
           })
+
+          if (factory.get("type") == "linebar"&&angle&&barlength){
+            var kx = Math.cos(Math.PI * angle / 180)
+              , ky = Math.sin(Math.PI * angle / 180)
+
+            factory.set({
+              "x2": Number((x + kx*barlength).toFixed(0))
+              , "y2": Number((y + ky*barlength).toFixed(0))
+            })
+          }
+        }
       }
       , kSimilar: function(k){
         var k = Math.abs(k) > 9999 ? (k < 0 ? -10000 : 10000) : k
@@ -95,6 +109,7 @@ define(['app/collection/draw','app/view/canvasdraw','app/model/factory'],functio
         , toppos = this.$el.css("top").indexOf("px")
         , borderpos = this.$el.css("border-width").indexOf("px")
         , angle = Number(Number($("#angle").val()).toFixed(0))
+        , barlength = Number(Number($("#line").val()).toFixed(0))
         , borderwidth = Number(this.$el.css("border-width").slice(0, borderpos))
         // 画布的left偏移等于其父元素的left偏移加上边框宽度
         , left = Number(Number(this.$el.css("left").slice(0, leftpos)).toFixed(0)) + borderwidth
@@ -121,7 +136,7 @@ define(['app/collection/draw','app/view/canvasdraw','app/model/factory'],functio
         , preventdraw = false
 
       this.factory.set("angle", angle)
-
+  
       if (
         _.some(drawC.models, function(model) {
           var category = model.get("category")
@@ -273,9 +288,9 @@ define(['app/collection/draw','app/view/canvasdraw','app/model/factory'],functio
 
       if (n > 1 || preventdraw) return
 
-      this.tools.coorSet(this.factory, X, Y)
+      this.tools.coorSet(this.factory, X, Y, angle, barlength)
 
-      factory.drawelement()
+      this.factory.drawelement()
     },
 
     movable: function(index, value) {
@@ -299,5 +314,3 @@ define(['app/collection/draw','app/view/canvasdraw','app/model/factory'],functio
 
   }))()
 })
-
-  

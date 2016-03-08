@@ -1,5 +1,7 @@
 define(['app/model/factory'],function(factory){
+
   return new (Backbone.View.extend({
+    
     el: $("#componentbar"),
 
     events: {

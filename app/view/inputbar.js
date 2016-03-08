@@ -1,5 +1,7 @@
 define(['./input','./canvas'],function(input,canvas){
+
   return new (Backbone.View.extend({
+    
     el: $("#inputbar"),
 
     events: {
@@ -18,7 +20,7 @@ define(['./input','./canvas'],function(input,canvas){
 
     postcheck: function(e) {
       var inputs = this.$el.find("input")
-        , type = canvas.canvas.factory.get("type")
+        , type = canvas.factory.get("type")
         , isntConstr = canvas.factory.retrRule(type)["category"] !== "constr"
 
       if ((e.which !== 83 && e.type == "keyup") || inputs.length == 0) return

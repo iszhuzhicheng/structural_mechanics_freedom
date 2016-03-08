@@ -1,6 +1,9 @@
-define(['app/collection/draw'],function(drawC){
+define(['app/collection/draw','jcanvas'],function(drawC){
+
   return {
+
     draw: function() {
+      
       var canvas = $('#canvas')
         , sin = Math.sin
         , cos = Math.cos

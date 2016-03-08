@@ -1,5 +1,7 @@
 requirejs.config({
+
   baseUrl: 'vendor'
+
   , paths: {
       app: '../app'
       , jquery : 'jquery/dist/jquery.min'
@@ -15,8 +17,8 @@ requirejs.config({
   }
 })
 
-requirejs(["pace","jquery","underscore","backbone","browser","jcanvas","jqueryui"],function(pace){
-  
+requirejs(["pace","jquery","jcanvas","jqueryui","underscore","backbone","browser"],function(pace){
+        
   var preloadImages = ['canvas2', "d", "dxj", "gdd", "gdj", "hdj", "inputangle", "line", "linebar", "mirror", "move"]
 
   pace.start()
@@ -44,6 +46,5 @@ requirejs(["pace","jquery","underscore","backbone","browser","jcanvas","jqueryui
     })
 
     if (unloads.length == 0 || unloads.length == preloadImages.length) requirejs(['app/view/body'])
-  })
-  
+  })  
 })

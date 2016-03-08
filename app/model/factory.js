@@ -1,11 +1,12 @@
 define(['app/collection/draw'],function(drawC){
 
   return new (Backbone.Model.extend({
+    
     defaults: {
       "type": "gdj"
       , "category": "constr"
     },
-
+    
     georule: {
       "constr": ["x", "y", "angle", "order", "connects"]
       , "bar": ["x", "y", "x2", "y2", "order", "connects"]
@@ -107,7 +108,7 @@ define(['app/collection/draw'],function(drawC){
           , y1 = model.get("y")
 
         return category == "constr" && x1 == x && y1 == y
-      })
+      }.bind(this))
 
       return constr ? constr.get("connects") : []
     },
@@ -123,7 +124,7 @@ define(['app/collection/draw'],function(drawC){
 
         return (x1 == mx1 && y1 == my1 && x2 == mx2 && y2 == my2) || (x1 == mx2 && y1 == my2 && x2 == mx1 && y2 == my1) ? false : true
 
-      })
+      }.bind(this))
 
       if (!pass) return false
 

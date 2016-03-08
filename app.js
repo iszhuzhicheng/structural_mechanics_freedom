@@ -12,13 +12,14 @@ requirejs.config({
       , pace : 'PACE/pace.min'
       , react : "react/react.min"
       , reactdom : "react/react-dom.min"
+      , xdomain : "jqpillora/dist/xdomain.min.js"
   }
 })
 
-requirejs(["pace","jquery","underscore","backbone","browser","jcanvas","jqueryui"],function(pace){
+requirejs(["xdomain","pace","jquery","underscore","backbone","browser","jcanvas","jqueryui"],function(xdomain,pace){
   
   var preloadImages = ['canvas2', "d", "dxj", "gdd", "gdj", "hdj", "inputangle", "line", "linebar", "mirror", "move"]
-
+  
   pace.start()
   
   Promise.all(preloadImages.map(function(arg) {

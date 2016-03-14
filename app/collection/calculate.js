@@ -6,14 +6,13 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
     comparator: 'id',
 
     initialize: function() {
-      this.listenTo(drawC, "add", this.captain)
-      this.on("remove", this.mate)
-      this.on("add",this.rest)
+        this.listenTo(drawC, "add", this.captain)
+        this.on("remove", this.mate)
     },
 
     tools: {
       b2bhead: function(x, y, x2, y2, newx, newy, newx2, newy2, d) {
-
+                                  
         return this.p2pdistance(x, y, newx, newy) <= d ||
           this.p2pdistance(x2, y2, newx, newy) <= d ||
           this.p2pdistance(x, y, newx2, newy2) <= d ||
@@ -25,11 +24,6 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
 
         return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
       }
-    },
-
-    rest: function(model){
-      var model = model.toJSON();
-
     },
 
     captain: function(model){
@@ -57,15 +51,14 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
           , in: 0
           , id: this.models.length
         })
-      } else if (model.category == "bar") {
-
-        this.line(model)
+      } else {
+        this[model.type](model)
       }
 
       result.render(this.models)
     },
 
-    line: function(model) {
+    linebar: function(model) {
       
       var linktime = 0
         // 连接的刚片数
@@ -76,53 +69,56 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
         , existedX
         , existedY
         , ids = []
+        , x1 = model.x
+        , y1 = model.y
+        , x2 = model.x2 ? model.x2 : null
+        , y2 = model.y2 ? model.y2 : null          
 
-      _.each(model.connects, function(connectorder) {
-        var x1 = model.x
-          , y1 = model.y
-          , x2 = model.x2 ? model.x2 : null
-          , y2 = model.y2 ? model.y2 : null
+      _.each(this.models, function(calculative) {
 
-        _.each(this.models, function(calculative) {
+        var calculative = calculative.toJSON()
 
-          var calculative = calculative.toJSON()
+        _.each(calculative.c, function(c) {
 
-          _.each(calculative.c, function(c) {
-            var cx1 = c.x1
-              , cy1 = c.y1
-              , cx2 = c.x2 ? c.x2 : null
-              , cy2 = c.y2 ? c.y2 : null
-              , coorx
-              , coory
-                  
-            if (c.order !== connectorder) return
+          var cx1 = c.x1
+            , cy1 = c.y1
+            , cx2 = c.x2 ? c.x2 : null
+            , cy2 = c.y2 ? c.y2 : null
+            , coorx
+            , coory
+                
+          if (!_.contains(model.connects,c.order)) return
 
-            if (changed !== calculative.id) {
-              ids.push(calculative.id)
-              changed = calculative.id
-              ctime++
-            }
+          if (changed !== calculative.id) {
+            ids.push(calculative.id)
+            changed = calculative.id
+            ctime++
+          }
 
-            if (this.tools.b2bhead(x1, y1, null, null, cx1, cy1, cx2, cy2, 0)) {
-              coorx = x1
-              coory = y1
-            } else if (this.tools.b2bhead(x2, y2, null, null, cx1, cy1, cx2, cy2, 0)) {
-              coorx = x2
-              coory = y2
-            }
+          if (this.tools.b2bhead(x1, y1, null, null, cx1, cy1, cx2, cy2, 0)) {
 
-            if (coorx !== existedX || coory !== existedY) {
-              linktime++
-            }
+            coorx = x1
+            coory = y1
+          } else if (this.tools.b2bhead(x2, y2, null, null, cx1, cy1, cx2, cy2, 0)) {
 
-            existedX = coorx
-            existedY = coory
+            coorx = x2
+            coory = y2
+          }
 
-          }.bind(this))
+          if (coorx !== existedX || coory !== existedY ||
+            _.some(model.bodys,function(body){
+              return (body.x1 == cx1 && body.y1 == cy1 && body.x2 == cx2 && body.y2 == cy2) ||
+                     (body.x2 == cx1 && body.y2 == cy1 && body.x1 == cx2 && body.y1 == cy2)
+            })) {
+            linktime++
+          }
+
+          existedX = coorx
+          existedY = coory
+
         }.bind(this))
-      }.bind(this))
-    
-
+      }.bind(this))    
+      
       var m = this.get(ids[0])
         , m_c = m.get("c")
         , m_in = m.get("in")
@@ -141,7 +137,8 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
         m_in += sm_in
 
         this.remove(this.at(ids[1]))
-      } else if (linktime > 1){        
+      } else if (linktime > 1){      
+
         m_in += 3
       }
 
@@ -163,6 +160,10 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
         remove: false
       })                                    
     },  
+
+    dj: function(model){
+
+    },
 
     mate: function() {
       var collection = _.map(this.toJSON(), function(model, index) {

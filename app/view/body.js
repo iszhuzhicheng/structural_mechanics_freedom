@@ -13,14 +13,6 @@ define(['./canvas','./resultbox','./componentbar','./inputbar','app/collection/c
       .forEach(function(v) {
         v.$el.css("display", "block")
       })
-
-      $.ajax({
-        url: "http://api.aigolife.com/smf/getsome.json",
-        type: 'GET',
-        success: function(data) {
-          alert(1)
-        }
-      })
     },
 
     main: function(e) {

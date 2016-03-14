@@ -6,10 +6,10 @@ define(['app/collection/draw'],function(drawC){
       "type": "gdj"
       , "category": "constr"
     },
-    
+        
     georule: {
-      "constr": ["x", "y", "angle", "order", "connects"]
-      , "bar": ["x", "y", "x2", "y2", "order", "connects"]
+      "constr": ["x", "y", "angle", "order", "connects","bodys"]
+      , "bar": ["x", "y", "x2", "y2", "order", "connects","bodys"]
       , "other": []
     },
 
@@ -69,7 +69,7 @@ define(['app/collection/draw'],function(drawC){
         });
       }.bind(this)
 
-      _.each(["x", "x2", "y", "y2", "angle", "barlength"], clear);
+      _.each(["x", "x2", "y", "y2", "angle", "barlength","bodys","connects"], clear);
     },
 
     passMaker: function(geo) {
@@ -176,7 +176,6 @@ define(['app/collection/draw'],function(drawC){
         })
    
         drawC.create(geobj)
-
       }
 
       if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2)) return
@@ -184,6 +183,10 @@ define(['app/collection/draw'],function(drawC){
       geobj.k = this.kSimilar((geobj.y2 - geobj.y) / (geobj.x2 - geobj.x))
       geobj.b = geobj.y - geobj.x * geobj.k
 
+      // console.log(JSON.stringify(geobj))
+
+      this.set("bodys",[])
+      this.set("connects",[])
       drawC.create(geobj)
     }
   }))()

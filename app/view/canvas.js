@@ -103,12 +103,19 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
       else
         this.factory.set("order", drawC.last().get("order") + 1)
 
-      this.factory.set("connects", [])
+      if (!this.factory.get("connects")) {
+        this.factory.set("connects", [])
+      }
+
+      if (!this.factory.get("bodys")) {
+        this.factory.set("bodys", [])
+      }
       
       var leftpos = this.$el.css("left").indexOf("px")
         , toppos = this.$el.css("top").indexOf("px")
         , borderpos = this.$el.css("border-width").indexOf("px")
         , angle = Number(Number($("#angle").val()).toFixed(0))
+        , bodys = this.factory.get("bodys")
         , barlength = Number(Number($("#line").val()).toFixed(0))
         , borderwidth = Number(this.$el.css("border-width").slice(0, borderpos))
         // 画布的left偏移等于其父元素的left偏移加上边框宽度
@@ -179,7 +186,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           } else
             return false
         }.bind(this))) return
-
+      
       _.each(drawC.models, function(model, index, list) {
         var k = model.get("k")
           , b = model.get("b")
@@ -265,6 +272,16 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         if (newcategory == "bar") {
           X = pointx
           Y = pointy
+
+          bodys.push({
+            x1: x1
+            , y1: y1
+            , x2: x2
+            , y2: y2
+          })
+
+          this.factory.set("bodys",bodys)
+
           this.tools.connect(connects, order, newconnects, neworder)
         }
 
@@ -298,6 +315,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         this.canvas.draggable({
           disabled: false
         })
+        
         this.canvas.css({
           cursor: "-moz-grab"
           , cursor: "-webkit-grab"
@@ -306,6 +324,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         this.canvas.draggable({
           disabled: true
         })
+
         this.canvas.css({
           cursor: "crosshair"
         })

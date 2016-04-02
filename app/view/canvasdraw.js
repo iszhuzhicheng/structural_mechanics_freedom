@@ -1,4 +1,4 @@
-define(['app/collection/draw','jcanvas'],function(drawC){
+define(['app/collection/draw'],function(drawC){
 
   return {
 
@@ -143,6 +143,7 @@ define(['app/collection/draw','jcanvas'],function(drawC){
         },
 
         hdj: function(model) {
+
           var x = model.get("x")
             , y = model.get("y")
             , angle = Pi * model.get("angle") / 180
@@ -170,7 +171,7 @@ define(['app/collection/draw','jcanvas'],function(drawC){
             , ly52 = y + 20 * cos(-angle) + 15 * cos(Pi / 2 + angle)
 
           whiteArc(x, y)
-          whiteArc(x2, y2)
+          whiteArc(x2, y2)          
           drawline(lx11, ly11, lx12, ly12, "#5a4283")
           drawline(lx21, ly21, lx22, ly22, "#5a4283")
           drawline(lx31, ly31, lx32, ly32, "#5a4283")

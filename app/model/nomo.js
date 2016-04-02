@@ -1,0 +1,115 @@
+define(['app/collection/draw'],function(drawC){
+
+  return new (Backbone.Model.extend({
+
+    initialize: function() {
+
+        this.listenTo(drawC, "add", this.nomo)
+    },
+
+    instead:{},
+
+    marked:{},
+
+    addEdge: function(p1,p2){
+
+      if (!_.isArray(this.get(p1))) this.set(p1,[])
+      if (!_.isArray(this.get(p2))) this.set(p2,[])
+
+      if (!_.contains(this.get(p1),p2))  this.set(p1,this.get(p1).concat(p2))
+      if (!_.contains(this.get(p2),p1))  this.set(p2,this.get(p2).concat(p1))
+
+      if (!this.marked.hasOwnProperty(p1)) this.marked[p1] = false
+      if (!this.marked.hasOwnProperty(p2)) this.marked[p2] = false
+    },
+
+    nomo: function(model){
+
+      // console.log(JSON.stringify(drawC.models))
+
+      var model = model.toJSON()
+
+      model.p1 = "x" + model.x + "y" + model.y
+      model.p2 = model.x2 ? "x" + model.x2 + "y" + model.y2 : null
+
+      var mp1 = this.instead.hasOwnProperty(model.p1) ? this.instead[model.p1] : model.p1
+        , mp2 = this.instead.hasOwnProperty(model.p2) ? this.instead[model.p2] : model.p2
+
+      if (model.type == "linebar") {
+        
+        if (model.bodys.length == 2) {
+
+          var p1 = this.instead.hasOwnProperty(model.bodys[0].p1) ? this.instead[model.bodys[0].p1] : model.bodys[0].p1
+            , p2 = this.instead.hasOwnProperty(model.bodys[0].p2) ? this.instead[model.bodys[0].p2] : model.bodys[0].p2
+            , p3 = this.instead.hasOwnProperty(model.bodys[1].p1) ? this.instead[model.bodys[1].p1] : model.bodys[1].p1
+            , p4 = this.instead.hasOwnProperty(model.bodys[1].p2) ? this.instead[model.bodys[1].p2] : model.bodys[1].p2
+
+          if (this.get(p1).length <= this.get(p2).length) {
+
+            this.instead[model.bodys[0].p] = p1
+            var remainp1 = p1
+          } else {
+            this.instead[model.bodys[0].p] = p2
+            var remainp1 = p2
+          }
+
+          if (this.get(p3).length <= this.get(p4).length) {
+
+            this.instead[model.bodys[1].p] = p3
+            var remainp2 = p3
+          } else {
+            this.instead[model.bodys[1].p] = p4
+            var remainp2 = p4
+          }
+
+          this.addEdge(remainp1,remainp2)
+        }        
+        else if (model.bodys.length == 1){
+
+          var remainp = mp1 == model.bodys[0].p ? mp2 : mp1
+            , p1 = this.instead.hasOwnProperty(model.bodys[0].p1) ? this.instead[model.bodys[0].p1] : model.bodys[0].p1
+            , p2 = this.instead.hasOwnProperty(model.bodys[0].p2) ? this.instead[model.bodys[0].p2] : model.bodys[0].p2
+            
+          if (this.get(p1).length <= this.get(p2).length) {
+
+            this.instead[model.bodys[0].p] = p1
+            this.addEdge(remainp,p1)
+          } else {
+            this.instead[model.bodys[0].p] = p2
+            this.addEdge(remainp,p2)
+          }
+        } 
+        else {
+          
+          this.addEdge(mp1,mp2)
+        }
+        
+        console.log(JSON.stringify(this))
+      }
+      
+      this.trigger('calculate',model)
+    },
+
+    dfs: function(v,arr,queue){
+
+      this.marked[v] = true;
+
+      if (_.contains(queue,v)) arr.push(v)
+
+      for (var i=0;i<this.get(v).length;i++) {
+
+        var w = this.get(v)[i]
+
+        if (!this.marked[w]) arr = this.dfs(w,arr,queue)          
+      }
+
+      return arr
+    },
+
+    recover: function(){
+      
+      for (var i in this.marked) this.marked[i] = false
+    }
+
+  }))()
+})

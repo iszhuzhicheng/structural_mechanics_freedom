@@ -67,10 +67,12 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           })
         }
         else {
-          factory.set({
-            "x": x
-            , "y": y
-          })
+          if (!(factory.get("x")&&factory.get("category") == "constr")) {
+            factory.set({
+              "x": x
+              , "y": y
+            })
+          }
 
           if (factory.get("type") == "linebar"&&angle&&barlength){
             var kx = Math.cos(Math.PI * angle / 180)
@@ -186,7 +188,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           } else
             return false
         }.bind(this))) return
-      
+        
       _.each(drawC.models, function(model, index, list) {
         var k = model.get("k")
           , b = model.get("b")
@@ -199,6 +201,8 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           , order = model.get("order")
           , category = model.get("category")
           , connects = model.get("connects")
+          , mbodys = model.get("bodys")
+          , type = model.get("type")
           , coinx = d1 ? x1 : x2
           , coiny = d1 ? y1 : y2
           // 处理由于约束存在而造成的杆件断开
@@ -208,7 +212,9 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         if ((d1 || d2) && newcategory == "constr") {
 
           if (!coincide) {
+            
             this.tools.coorSet(this.factory, coinx, coiny)
+
             coincide = true
           }
 
@@ -232,8 +238,28 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
         if (newcategory == "bar") {
 
+          if (this.factory.get("x") &&bodys.length == 0) {
+
+            var anodj = _.filter(drawC.models,function(m){
+
+              var m = m.toJSON()
+
+              return m.x == this.factory.get("x") &&m.y == this.factory.get("y")
+
+            }.bind(this))
+
+            if (anodj.length == 1) {
+
+              var djbody = anodj[0].get("bodys")[0]
+
+              bodys.push(djbody)    
+            }              
+          }
+
           // 杆端部相连
           if (this.tools.b2bhead(x1, y1, x2, y2, newx, newy, X, Y, 5)) {
+
+            barcide = true
 
             // bar和newbar连在了同一个约束上，那不添加到彼此的连接件上
             if (category == "bar" &&
@@ -248,9 +274,14 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
               }.bind(this))
             ) return
 
-            if (this.tools.b2bhead(x1, y1, null, null, null, null, X, Y, 5)) {
+            if (this.tools.b2bhead(x1, y1, null, null, null, null, X, Y, 5)) {          
+
               X = x1
               Y = y1
+
+              // 杆端连接的是链接在杆身上的约束
+              if (type == "dj" &&mbodys.length > 0 &&bodys.length < 2) bodys.push(mbodys[0])                
+
             } else if (this.tools.b2bhead(x2, y2, null, null, null, null, X, Y, 5)) {
               X = x2
               Y = y2
@@ -270,14 +301,14 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
         // 杆身相连
         if (newcategory == "bar") {
+ 
           X = pointx
           Y = pointy
 
           bodys.push({
-            x1: x1
-            , y1: y1
-            , x2: x2
-            , y2: y2
+            p : "x" + X + "y" + Y
+            , p1: "x" + x1 + "y" + y1
+            , p2 : "x" + x2 + "y" + y2
           })
 
           this.factory.set("bodys",bodys)
@@ -289,11 +320,17 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         if (_.contains(["gdj", "hdj", "dj"], newtype)) {
           n++
 
-          var dx = 6 / Math.sqrt(1 + (-1 / k) * (-1 / k))
-            , dy = 6 * (-1 / k) / Math.sqrt(1 + (-1 / k) * (-1 / k))
+          var dx = Number((6 / Math.sqrt(1 + (-1 / k) * (-1 / k))).toFixed(0))
+            , dy = Number((6 * (-1 / k) / Math.sqrt(1 + (-1 / k) * (-1 / k))).toFixed(0))
 
           X = pointx > X ? pointx - dx : pointx + dx
           Y = pointy > Y ? pointy - dy : pointy + dy
+
+          bodys.push({
+            p : "x" + X + "y" + Y
+            , p1: "x" + x1 + "y" + y1
+            , p2 : "x" + x2 + "y" + y2
+          })
 
           this.tools.connect(connects, order, newconnects, neworder)
         }

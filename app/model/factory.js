@@ -1,7 +1,9 @@
 define(['app/collection/draw'],function(drawC){
 
   return new (Backbone.Model.extend({
-    
+    url : function(){
+    },
+
     defaults: {
       "type": "gdj"
       , "category": "constr"
@@ -38,14 +40,14 @@ define(['app/collection/draw'],function(drawC){
         , minX = maxX == regionx1 ? regionx2 : regionx1
         , maxY = regiony1 >= regiony2 ? regiony1 : regiony2
         , minY = maxY == regiony1 ? regiony2 : regiony1
-
+        
       return x <= maxX + dx && y <= maxY + dy && x >= minX - dx && y >= minY - dy
     },
-
+    
     kSimilar:function(k){
       var k = Math.abs(k) > 9999 ? (k < 0 ? -10000 : 10000) : k
         , k = Math.abs(k) < 0.0001 ? 0.0001 : k
-
+        
       return Number(k.toFixed(4))
     },
 
@@ -110,7 +112,22 @@ define(['app/collection/draw'],function(drawC){
         return category == "constr" && x1 == x && y1 == y
       }.bind(this))
 
-      return constr ? constr.get("connects") : []
+      if (constr) {
+
+        // 最新添加的杆不参与计算 ** shallow copy will change the backbone array element
+        var connects = []
+
+        for (var i = 0; i < constr.get("connects"); i++) {
+          connects.push(constr.get("connects")[i])
+        }
+
+        connects.pop()
+
+        return connects
+      } else {
+        return []
+      }
+
     },
 
     passlineMaker: function(x1, y1, x2, y2) {
@@ -129,7 +146,7 @@ define(['app/collection/draw'],function(drawC){
       if (!pass) return false
 
       if (_.intersection(this.barconstr(x1, y1), this.barconstr(x2, y2)).length > 0) return false
-
+      
       if (this.barconstr(x1, y1).length > 0) {
         return _.intersection(this.barbar(x2, y2), this.barconstr(x1, y1)).length > 0 ? false : true
       } else if (this.barconstr(x2, y2).length > 0) {
@@ -179,11 +196,11 @@ define(['app/collection/draw'],function(drawC){
       }
 
       if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2)) return
-
+     
       geobj.k = this.kSimilar((geobj.y2 - geobj.y) / (geobj.x2 - geobj.x))
       geobj.b = geobj.y - geobj.x * geobj.k
 
-      // console.log(JSON.stringify(geobj))
+      // console.log(JSON.stringify(geobj))      
 
       this.set("bodys",[])
       this.set("connects",[])

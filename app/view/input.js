@@ -11,7 +11,7 @@ define(['react','reactdom'],function(React,ReactDOM){
 
       typeChange: function (type) {
         
-        if (type == "gdj" || type == "gdj" || type == "dxj" || type == "gdd") {
+        if (type == "gdj" || type == "hdj" || type == "dxj" || type == "gdd") {
 
           this.setState({
             angle: true

@@ -8,7 +8,7 @@ requirejs.config({
       , underscore : 'underscore/underscore-min'
       , backbone : 'backbone/backbone-min'
       , browser : 'browser.min/index'
-      , jcanvas : 'jcanvas/jcanvas.min'
+      , jcanvas : 'jcanvas/jcanvas'
       , jqueryui : 'jquery-ui/jquery-ui.min'
       , jqueryuitp : 'jqueryui-touch-punch/jquery.ui.touch-punch.min'
       , pace : 'PACE/pace.min'

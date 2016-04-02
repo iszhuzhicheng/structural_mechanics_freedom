@@ -1,4 +1,4 @@
-define(['app/model/calculate','./draw','app/view/result'],function(calulateM,drawC,result){
+define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],function(calulateM,drawC,nomoM,result){
 
   return new (Backbone.Collection.extend({
     model: calulateM,
@@ -6,30 +6,12 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
     comparator: 'id',
 
     initialize: function() {
-        this.listenTo(drawC, "add", this.captain)
+        this.listenTo(nomoM, "calculate", this.captain)
         this.on("remove", this.mate)
     },
 
-    tools: {
-      b2bhead: function(x, y, x2, y2, newx, newy, newx2, newy2, d) {
-                                  
-        return this.p2pdistance(x, y, newx, newy) <= d ||
-          this.p2pdistance(x2, y2, newx, newy) <= d ||
-          this.p2pdistance(x, y, newx2, newy2) <= d ||
-          this.p2pdistance(x2, y2, newx2, newy2) <= d
-      }
-      , p2pdistance: function(x1, y1, x2, y2) {
-
-        if (x1 == null || y1 == null || x2 == null || y2 == null) return Infinity
-
-        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
-      }
-    },
-
     captain: function(model){
-
-      var model = model.toJSON()
-
+    
       if (model.connects.length == 0 || this.models.length == 0) {
 
         this.add({
@@ -38,10 +20,8 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
                 order: model.order
                 , category: model.category
                 , type: model.type
-                , x1: model.x
-                , y1: model.y
-                , x2: model.x2 ? model.x2 : null
-                , y2: model.y2 ? model.y2 : null
+                , p1: model.p1
+                , p2: model.p2
               }
             ]
           , out: {
@@ -66,13 +46,10 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
         , changed
         // 注入
         , calculating = []
-        , existedX
-        , existedY
+        , existedP
         , ids = []
-        , x1 = model.x
-        , y1 = model.y
-        , x2 = model.x2 ? model.x2 : null
-        , y2 = model.y2 ? model.y2 : null          
+        , p1 = model.p1
+        , p2 = model.p2      
 
       _.each(this.models, function(calculative) {
 
@@ -80,12 +57,9 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
 
         _.each(calculative.c, function(c) {
 
-          var cx1 = c.x1
-            , cy1 = c.y1
-            , cx2 = c.x2 ? c.x2 : null
-            , cy2 = c.y2 ? c.y2 : null
-            , coorx
-            , coory
+          var cp1 = c.p1
+            , cp2 = c.p2 ? c.p2 : null
+            , coorp
                 
           if (!_.contains(model.connects,c.order)) return
 
@@ -95,26 +69,16 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
             ctime++
           }
 
-          if (this.tools.b2bhead(x1, y1, null, null, cx1, cy1, cx2, cy2, 0)) {
+          if (p1 == cp1 ||p1 == cp2) coorp = p1
+          else if (p2 == cp1 ||p2 == cp2) coorp = p2
 
-            coorx = x1
-            coory = y1
-          } else if (this.tools.b2bhead(x2, y2, null, null, cx1, cy1, cx2, cy2, 0)) {
-
-            coorx = x2
-            coory = y2
-          }
-
-          if (coorx !== existedX || coory !== existedY ||
+          if (
             _.some(model.bodys,function(body){
-              return (body.x1 == cx1 && body.y1 == cy1 && body.x2 == cx2 && body.y2 == cy2) ||
-                     (body.x2 == cx1 && body.y2 == cy1 && body.x1 == cx2 && body.y1 == cy2)
-            })) {
-            linktime++
-          }
 
-          existedX = coorx
-          existedY = coory
+              return (body.p1 == cp1 && body.p2 == cp2) || (body.p1 == cp2 && body.p2 == cp1)
+            })||coorp !== existedP) linktime++          
+
+          existedP = coorp
 
         }.bind(this))
       }.bind(this))    
@@ -138,7 +102,7 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
 
         this.remove(this.at(ids[1]))
       } else if (linktime > 1){      
-
+        // alert(1)
         m_in += 3
       }
 
@@ -146,10 +110,8 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
         order: model.order
         , category: model.category
         , type: model.type
-        , x1: model.x
-        , y1: model.y
-        , x2: model.x2 ? model.x2 : null
-        , y2: model.y2 ? model.y2 : null
+        , p1: model.p1
+        , p2: model.p2
       })
 
       m.set("c", m_c)
@@ -162,6 +124,72 @@ define(['app/model/calculate','./draw','app/view/result'],function(calulateM,dra
     },  
 
     dj: function(model){
+
+      var order = model.connects[0]
+        , id = _.filter(this.models,function(thismodel){
+
+          var thismodel = thismodel.toJSON()
+
+          return _.some(thismodel.c,function(c){                     
+            return c.order == order
+          })
+        })[0].id
+        , queue = nomoM.get(model.p1)
+        , ring = 0
+        , m = this.get(id)
+        , m_c = m.get("c")
+        , m_in = m.get("in")
+        , m_out = m.get("out")
+
+      if (queue) m_in -= (queue.length - 1) 
+
+      if (nomoM.marked.hasOwnProperty(model.p1)) nomoM.marked[model.p1] = true
+         
+      while(queue&& queue.length > 0) {
+
+        var v =  queue.shift()
+          , arr = []
+
+        nomoM.dfs(v,arr,queue)
+        queue = _.difference(queue,arr)
+        ring++        
+      }
+
+      // 减少外部约束数，还是增加外部自由度的，这里今后要视情况而定
+      if (ring > 0) m_out.f += (ring - 1)    
+
+      m_c.push({
+        order: model.order
+        , category: model.category
+        , type: model.type
+        , p1: model.p1
+        , p2: model.p2
+      })
+
+      m.set("c",m_c)
+
+      m.set("in", m_in)
+
+      m.set("out", m_out)
+
+      this.set(m, { remove: false }) 
+
+      nomoM.recover()
+    },
+
+    gdj: function(model){
+      this.dj(model)
+    },
+
+    hdj: function(model){
+
+    },
+
+    gdd: function(model){
+
+    },
+
+    dxj: function(model){
 
     },
 

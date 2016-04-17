@@ -100,19 +100,13 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
     setCoor: function(e, X, Y) {
       if ($("canvas").hasClass("moving")) return
 
-      if (drawC.models.length == 0)
-        this.factory.set("order", 0)
-      else
-        this.factory.set("order", drawC.last().get("order") + 1)
+      if (drawC.models.length == 0) this.factory.set("order", 0)
+      else this.factory.set("order", drawC.last().get("order") + 1)
 
-      if (!this.factory.get("connects")) {
-        this.factory.set("connects", [])
-      }
-
-      if (!this.factory.get("bodys")) {
-        this.factory.set("bodys", [])
-      }
+      if (!this.factory.get("connects")) this.factory.set("connects", [])
       
+      if (!this.factory.get("bodys")) this.factory.set("bodys", [])
+            
       var leftpos = this.$el.css("left").indexOf("px")
         , toppos = this.$el.css("top").indexOf("px")
         , borderpos = this.$el.css("border-width").indexOf("px")
@@ -154,39 +148,36 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
             , x2 = model.get("x2")
             , y1 = model.get("y")
             , y2 = model.get("y2")
-
-          // 防止两约束重合
+          
           if (category == "constr" && newcategory == "constr" && this.tools.p2pdistance(x1, y1, X, Y) < 10) {
-            return true
-          }
 
-          // 防止多根杆连接在定向铰和固定端上
-          else if (newcategory == "bar" &&
+            // 防止两约束重合
+            return true
+          } else if (newcategory == "bar" &&
             (type == "gdd" || type == "dxj") &&
             (
               this.tools.p2pdistance(X, Y, x1, y1) < 5 ||
               this.tools.p2pdistance(newx, newy, x1, y1) < 5
             ) && model.get("connects").length > 0
           ) {
-            return true
-          }
 
-          // 防止定向铰和固定端连接在多根杆上
-          else if (model.get("category") == "bar" &&
+            // 防止多根杆连接在定向铰和固定端上
+            return true
+          } else if (model.get("category") == "bar" &&
             (newtype == "gdd" || newtype == "dxj") &&
             (
-              this.tools.p2pdistance(X, Y, x1, y1) < 5 ||
-              this.tools.p2pdistance(X, Y, x2, y2) < 5
+              this.tools.p2pdistance(X, Y, x1, y1) < 5 || this.tools.p2pdistance(X, Y, x2, y2) < 5
             )
           ) {
+
+            // 防止定向铰和固定端连接在多根杆上
             bartime++
 
-            if (bartime > 1)
-              return true
-            else
-              return false
-          } else
+            if (bartime > 1) return true
+            else return false
+          } else {
             return false
+          }
         }.bind(this))) return
         
       _.each(drawC.models, function(model, index, list) {
@@ -259,7 +250,10 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           // 杆端部相连
           if (this.tools.b2bhead(x1, y1, x2, y2, newx, newy, X, Y, 5)) {
 
-            barcide = true
+            if (this.tools.b2bhead(x1, y1, x2, y2, null, null, X, Y, 5)&&
+              this.tools.b2bhead(x1, y1, x2, y2, newx, newy, null, null, 5)){
+              barcide = true
+            }            
 
             // bar和newbar连在了同一个约束上，那不添加到彼此的连接件上
             if (category == "bar" &&
@@ -294,14 +288,14 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
         // 点到杆的距离 作用域与值域范围 约束端部重合 杆端部重合
         if (this.tools.p2ldistance(k, b, X, Y) > 4 || !this.tools.region(X, Y, x1, y1, x2, y2, 4, 4) || coincide || barcide) return
-
+        
         // 垂线交点坐标 
         pointx = Number(((Y + X / k - b) / (k + 1 / k)).toFixed(0))
         pointy = Number((pointx * k + b).toFixed(0))
-
+       
         // 杆身相连
         if (newcategory == "bar") {
- 
+          
           X = pointx
           Y = pointy
 

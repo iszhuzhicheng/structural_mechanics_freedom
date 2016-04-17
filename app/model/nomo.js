@@ -11,6 +11,9 @@ define(['app/collection/draw'],function(drawC){
 
     marked:{},
 
+    // 杆身相连形成的环
+    barbody:{},
+
     addEdge: function(p1,p2){
 
       if (!_.isArray(this.get(p1))) this.set(p1,[])
@@ -34,6 +37,10 @@ define(['app/collection/draw'],function(drawC){
 
       var mp1 = this.instead.hasOwnProperty(model.p1) ? this.instead[model.p1] : model.p1
         , mp2 = this.instead.hasOwnProperty(model.p2) ? this.instead[model.p2] : model.p2
+
+      model.bodys = _.filter(model.bodys,function(body){
+        if (!_.isUndefined(body)) return true
+      })
 
       if (model.type == "linebar") {
         
@@ -71,32 +78,35 @@ define(['app/collection/draw'],function(drawC){
             , p2 = this.instead.hasOwnProperty(model.bodys[0].p2) ? this.instead[model.bodys[0].p2] : model.bodys[0].p2
             
           if (this.get(p1).length <= this.get(p2).length) {
-
-            this.instead[model.bodys[0].p] = p1
+            this.instead[model.bodys[0].p] = p1            
             this.addEdge(remainp,p1)
           } else {
             this.instead[model.bodys[0].p] = p2
             this.addEdge(remainp,p2)
           }
-        } 
-        else {
+          console.log(JSON.stringify(model.bodys))
+          if (!this.barbody.hasOwnProperty(remainp)) this.barbody[remainp] = 0
+          else this.barbody[remainp]++ 
           
+        } 
+        else {          
           this.addEdge(mp1,mp2)
         }
         
-        console.log(JSON.stringify(this))
+        // console.log(JSON.stringify(this))
+        // console.log(JSON.stringify(this.barbody))
       }
-      
+              
       this.trigger('calculate',model)
     },
 
     dfs: function(v,arr,queue){
 
-      this.marked[v] = true;
+      this.marked[v] = true
 
       if (_.contains(queue,v)) arr.push(v)
 
-      for (var i=0;i<this.get(v).length;i++) {
+      for (var i = 0 ;i < this.get(v).length ;i++) {
 
         var w = this.get(v)[i]
 

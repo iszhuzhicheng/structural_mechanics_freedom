@@ -80,5 +80,6 @@ define(['./input','./canvas'],function(input,canvas){
     clean: function() {
       this.$el.find("input").val("")
     }
+    
   }))()
 })

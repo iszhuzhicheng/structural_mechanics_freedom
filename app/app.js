@@ -16,21 +16,21 @@ requirejs.config({
       , reactdom : "react/react-dom.min"
   }
 })
-
-requirejs(["jquery","pace","jqueryui","underscore","backbone","browser"],function($,pace){
+  
+requirejs(["jquery","pace","jsalgo/main","jqueryui","underscore","backbone","browser"],function($,pace,jsalgo){
 
   pace.start()
 
   requirejs(["jcanvas"],function(){
-    
+      
     var preloadImages = ['canvas2', "d", "dxj", "gdd", "gdj", "hdj", "inputangle", "line", "linebar", "mirror", "move"]    
-    
+            
     Promise.all(preloadImages.map(function(arg) {
 
       return new Promise(function(resolve, reject) {
-
+          
         var image = new Image()
-
+        
         image.src = "http://zhouhansen.github.io/structural_mechanics_freedom/img/" + arg + ".png"
         
         image.addEventListener("load", function() {

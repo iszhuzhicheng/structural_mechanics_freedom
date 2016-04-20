@@ -51,6 +51,19 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           this.p2pdistance(x, y, newx2, newy2) <= d ||
           this.p2pdistance(x2, y2, newx2, newy2) <= d
       }
+      , b2bhead_p: function(x, y, x2, y2, newx, newy, newx2, newy2, d) {
+        if (this.p2pdistance(x, y, newx, newy) <= d||this.p2pdistance(x, y, newx2, newy2) <= d){ 
+
+          return ("x" + x + "y" + y)
+        }
+        else if (this.p2pdistance(x2, y2, newx, newy) <= d||this.p2pdistance(x2, y2, newx2, newy2) <= d) {          
+
+          return ("x" + x2 + "y" + y2)
+        } else {
+
+          return false
+        }
+      }
       , region: function(x, y, regionx1, regiony1, regionx2, regiony2, dx, dy) {
         var maxX = regionx1 >= regionx2 ? regionx1 : regionx2
           , minX = maxX == regionx1 ? regionx2 : regionx1
@@ -135,7 +148,8 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         // 约束端部重合
         , coincide = false
         // 杆端端部重合
-        , barcide = false
+        , barcide = 0
+        , barcidearr = []
         , preventdraw = false
 
       this.factory.set("angle", angle)
@@ -243,18 +257,23 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
               var djbody = anodj[0].get("bodys")[0]
 
-              bodys.push(djbody)    
+              if (!_.isUndefined(djbody)){
+                bodys.push(djbody)   
+              }               
+
             }              
           }
 
           // 杆端部相连
           if (this.tools.b2bhead(x1, y1, x2, y2, newx, newy, X, Y, 5)) {
 
-            if (this.tools.b2bhead(x1, y1, x2, y2, null, null, X, Y, 5)&&
-              this.tools.b2bhead(x1, y1, x2, y2, newx, newy, null, null, 5)){
-              barcide = true
-            }            
+            var barp = this.tools.b2bhead_p(x1, y1, x2, y2, newx, newy, X, Y, 5)
 
+            if (!_.contains(barcidearr,barp)) {
+              barcidearr.push(barp)
+              barcide++    
+            }
+                
             // bar和newbar连在了同一个约束上，那不添加到彼此的连接件上
             if (category == "bar" &&
               _.some(connects, function(connect) {
@@ -286,8 +305,14 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           }
         }
 
-        // 点到杆的距离 作用域与值域范围 约束端部重合 杆端部重合
-        if (this.tools.p2ldistance(k, b, X, Y) > 4 || !this.tools.region(X, Y, x1, y1, x2, y2, 4, 4) || coincide || barcide) return
+        // 杆端部重合
+        if (barcide >= 2){
+          this.factory.set("bodys",[])
+          return 
+        }
+
+        // 点到杆的距离 作用域与值域范围 约束端部重合 
+        if (this.tools.p2ldistance(k, b, X, Y) > 4 || !this.tools.region(X, Y, x1, y1, x2, y2, 4, 4) || coincide || (barcide == 1&& _.isUndefined(newx))) return
         
         // 垂线交点坐标 
         pointx = Number(((Y + X / k - b) / (k + 1 / k)).toFixed(0))
@@ -295,10 +320,10 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
        
         // 杆身相连
         if (newcategory == "bar") {
-          
+
           X = pointx
           Y = pointy
-
+          
           bodys.push({
             p : "x" + X + "y" + Y
             , p1: "x" + x1 + "y" + y1

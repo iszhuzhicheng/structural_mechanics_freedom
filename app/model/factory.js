@@ -191,6 +191,9 @@ define(['app/collection/draw'],function(drawC){
           "x": geobj.x
           , "y": geobj.y
         })
+
+        geobj.p1 = "x" + geobj.x + "y" + geobj.y
+        geobj.p2 = null 
    
         drawC.create(geobj)
       }
@@ -199,6 +202,8 @@ define(['app/collection/draw'],function(drawC){
      
       geobj.k = this.kSimilar((geobj.y2 - geobj.y) / (geobj.x2 - geobj.x))
       geobj.b = geobj.y - geobj.x * geobj.k
+      geobj.p1 = "x" + geobj.x + "y" + geobj.y
+      geobj.p2 = "x" + geobj.x2 + "y" + geobj.y2 
 
       // console.log(JSON.stringify(geobj))      
 

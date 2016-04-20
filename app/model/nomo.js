@@ -3,13 +3,14 @@ define(['app/collection/draw'],function(drawC){
   return new (Backbone.Model.extend({
 
     initialize: function() {
-
         this.listenTo(drawC, "add", this.nomo)
     },
 
     instead:{},
 
     marked:{},
+
+    outsidedj:{},
 
     // 杆身相连形成的环
     barbody:{},
@@ -28,12 +29,12 @@ define(['app/collection/draw'],function(drawC){
 
     nomo: function(model){
 
-      // console.log(JSON.stringify(drawC.models))
+      console.log(JSON.stringify(drawC.models))
 
-      var model = model.toJSON()
-
-      model.p1 = "x" + model.x + "y" + model.y
-      model.p2 = model.x2 ? "x" + model.x2 + "y" + model.y2 : null
+      var model = model.toJSON(),
+          models = _.map(drawC.models,function(model){
+            return model.toJSON()
+          })
 
       var mp1 = this.instead.hasOwnProperty(model.p1) ? this.instead[model.p1] : model.p1
         , mp2 = this.instead.hasOwnProperty(model.p2) ? this.instead[model.p2] : model.p2
@@ -84,17 +85,33 @@ define(['app/collection/draw'],function(drawC){
             this.instead[model.bodys[0].p] = p2
             this.addEdge(remainp,p2)
           }
-          console.log(JSON.stringify(model.bodys))
-          if (!this.barbody.hasOwnProperty(remainp)) this.barbody[remainp] = 0
+          // console.log(JSON.stringify(model.bodys))
+          if (!this.barbody.hasOwnProperty(remainp)) this.barbody[remainp] = 1
           else this.barbody[remainp]++ 
-          
+                  
         } 
-        else {          
-          this.addEdge(mp1,mp2)
+        else {  
+          // 一端连接杆身单铰的情况
+
+          var djmodel = _.find(models,function(model){
+            return model.type == "dj"&&(model.p1 == mp1||model.p1 == mp2)&&model.bodys.length > 0
+          })
+
+          if (_.isUndefined(djmodel)){
+
+            this.addEdge(mp1,mp2)
+          } else {
+
+            var remainp = djmodel.p1 == mp1 ? mp2 : mp1
+
+            if (!this.barbody.hasOwnProperty(remainp)) this.barbody[remainp] = 1
+            else this.barbody[remainp]++ 
+          }                          
         }
         
-        // console.log(JSON.stringify(this))
-        // console.log(JSON.stringify(this.barbody))
+        console.log(JSON.stringify(this))
+        //console.log(JSON.stringify(model.bodys))
+        //console.log(JSON.stringify(this.barbody))
       }
               
       this.trigger('calculate',model)

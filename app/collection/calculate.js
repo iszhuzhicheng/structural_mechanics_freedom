@@ -40,7 +40,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],funct
 
     linebar: function(model) {
 
-      //console.log(JSON.stringify(model))
+      // console.log(JSON.stringify(model))
 
       var linktime = 0
         , djlinktime = 0   
@@ -69,7 +69,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],funct
           if (changed !== calculative.id) {
             ids.push(calculative.id)
             changed = calculative.id
-            ctimep = p1
+            ctimep = (p1 == cp1 || p1 == cp2) ? p1 : p2
             ctime++
           }
 
@@ -102,18 +102,23 @@ define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],funct
         , m_c = m.get("c")
         , m_in = m.get("in")
         , m_out = m.get("out")
+        , m_type = m.get("type")
 
       //alert(linktime + " " + djlinktime + " " + ctime)
 
       if (ctime == 2) {
-        
+              
         var sm = this.get(ids[1])
           , sm_c = sm.get("c")
           , sm_out = sm.get("out")
           , sm_in = sm.get("in")
+          , sm_type = sm.get("type")
 
         m_c = m_c.concat(sm_c)
-        m_out.f = m_out.f + sm_out.f - 3
+
+        if (djlinktime == 0){
+          m_out.f = m_out.f + sm_out.f - 3
+        }
 
         // 以后要看它是否连接了大地约束，是改变外部还是内部约束
         if (djlinktime == 1){
@@ -144,6 +149,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],funct
         if (nomoM.get(ctimep).length == 1) {
 
           //第一根杆
+
           m_out.f += 3
         } else {
 
@@ -177,13 +183,16 @@ define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],funct
           queue = _.difference(queue,arr)
           ring++
         }
-
+        // alert(nomoM.outsidedj[dj] + " " + ring)
         var trans = nomoM.outsidedj[dj] - ring
 
         nomoM.outsidedj[dj] -= trans
         m_out.f -= trans
         m_in -= trans
         
+        if (nomoM.outsidedj[dj] == 1) {
+          delete nomoM.outsidedj[dj]
+        }
         nomoM.recover()
       })
 
@@ -265,16 +274,16 @@ define(['app/model/calculate','./draw','app/model/nomo','app/view/result'],funct
       m.set("c",m_c)
 
       m.set("in", m_in)
-
+      
       m.set("out", m_out)
-
+      
       this.set(m, { remove: false }) 
-
+      
       nomoM.recover()
     },  
-
+    
     gdj: function(model){
-      this.dj(model)
+    
     },
 
     hdj: function(model){

@@ -92,7 +92,7 @@ define(['app/collection/draw'],function(drawC){
         } 
         else {  
           // 一端连接杆身单铰的情况
-
+         
           var djmodel = _.find(models,function(model){
             return model.type == "dj"&&(model.p1 == mp1||model.p1 == mp2)&&model.bodys.length > 0
           })

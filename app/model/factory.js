@@ -52,6 +52,7 @@ define(['app/collection/draw'],function(drawC){
     },
 
     retrRule: function(type) {
+      
       var newrule = this.newrule
         , georule = this.georule
 
@@ -62,6 +63,7 @@ define(['app/collection/draw'],function(drawC){
     },
 
     clearAtrrs: function(model, type) {
+
       if (type == "move" || model.previous("type") == "move") return
 
       // 改变type时，清除之前的几何数据
@@ -84,6 +86,7 @@ define(['app/collection/draw'],function(drawC){
 
     // 防止在连在同一根杆上的约束与该杆杆身间再添加新杆
     barbar: function(x, y) {
+
       var bar = _.filter(drawC.models, function(model) {
         if (model.get("category") == "bar") {
           var x1 = model.get("x")
@@ -103,7 +106,8 @@ define(['app/collection/draw'],function(drawC){
     },
 
     // 防止在连在同一根杆上的约束间再添加新杆
-    barconstr: function(x, y) {
+    barconstr: function(x, y, order) {
+
       var constr = _.find(drawC.models, function(model) {
         var category = model.get("category")
           , x1 = model.get("x")
@@ -116,12 +120,14 @@ define(['app/collection/draw'],function(drawC){
 
         // 最新添加的杆不参与计算 ** shallow copy will change the backbone array element
         var connects = []
-
+        
         for (var i = 0; i < constr.get("connects"); i++) {
-          connects.push(constr.get("connects")[i])
+          if (constr.get("connects")[i] !== order){
+            connects.push(constr.get("connects")[i])
+          }
         }
 
-        connects.pop()
+        connects = _.filter(connects,function(connect){ return !_.isUndefined(connect) })
 
         return connects
       } else {
@@ -130,7 +136,8 @@ define(['app/collection/draw'],function(drawC){
 
     },
 
-    passlineMaker: function(x1, y1, x2, y2) {
+    passlineMaker: function(x1, y1, x2, y2, order) {
+
       var pass = _.every(drawC.models, function(model) {
         if (model.get("category") == "constr") return true
 
@@ -142,14 +149,14 @@ define(['app/collection/draw'],function(drawC){
         return (x1 == mx1 && y1 == my1 && x2 == mx2 && y2 == my2) || (x1 == mx2 && y1 == my2 && x2 == mx1 && y2 == my1) ? false : true
 
       }.bind(this))
-
+      
       if (!pass) return false
 
-      if (_.intersection(this.barconstr(x1, y1), this.barconstr(x2, y2)).length > 0) return false
+      if (_.intersection(this.barconstr(x1, y1, order), this.barconstr(x2, y2, order)).length > 0) return false
       
-      if (this.barconstr(x1, y1).length > 0) {
+      if (this.barconstr(x1, y1, order).length > 0) {
         return _.intersection(this.barbar(x2, y2), this.barconstr(x1, y1)).length > 0 ? false : true
-      } else if (this.barconstr(x2, y2).length > 0) {
+      } else if (this.barconstr(x2, y2, order).length > 0) {
         return _.intersection(this.barbar(x1, y1), this.barconstr(x2, y2)).length > 0 ? false : true
       }
 
@@ -169,6 +176,7 @@ define(['app/collection/draw'],function(drawC){
         , isconstr = (category == "constr")
         , k = isgh ? Math.tan((this.get("angle") - 90) / 180 * Math.PI) : Math.tan((this.get("angle")) / 180 * Math.PI)
         , k = this.kSimilar(k)
+        , order = this.get("order")
 
       if (!_.every(geodata, this.passMaker.bind(this))) return
 
@@ -198,17 +206,20 @@ define(['app/collection/draw'],function(drawC){
         drawC.create(geobj)
       }
 
-      if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2)) return
-     
+
+
+      if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2, order)) return
+      //alert(JSON.stringify(this))
       geobj.k = this.kSimilar((geobj.y2 - geobj.y) / (geobj.x2 - geobj.x))
       geobj.b = geobj.y - geobj.x * geobj.k
       geobj.p1 = "x" + geobj.x + "y" + geobj.y
       geobj.p2 = "x" + geobj.x2 + "y" + geobj.y2 
 
       // console.log(JSON.stringify(geobj))      
-
+      
       this.set("bodys",[])
       this.set("connects",[])
+
       drawC.create(geobj)
     }
   }))()

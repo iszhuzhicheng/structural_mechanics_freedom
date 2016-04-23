@@ -63,12 +63,16 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
           return false
         }
-      }
+      } 
       , region: function(x, y, regionx1, regiony1, regionx2, regiony2, dx, dy) {
+
         var maxX = regionx1 >= regionx2 ? regionx1 : regionx2
           , minX = maxX == regionx1 ? regionx2 : regionx1
           , maxY = regiony1 >= regiony2 ? regiony1 : regiony2
           , minY = maxY == regiony1 ? regiony2 : regiony1
+
+
+        if (_.isUndefined(maxX)||_.isUndefined(maxX)||_.isUndefined(maxX)||_.isUndefined(maxX)) return false        
 
         return x <= maxX + dx && y <= maxY + dy && x >= minX - dx && y >= minY - dy
       }
@@ -147,7 +151,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         , pointx, pointy
         // 约束端部重合
         , coincide = false
-        // 杆端端部重合
+        // 杆端部重合
         , barcide = 0
         , barcidearr = []
         , preventdraw = false
@@ -273,7 +277,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
               barcidearr.push(barp)
               barcide++    
             }
-                
+                    
             // bar和newbar连在了同一个约束上，那不添加到彼此的连接件上
             if (category == "bar" &&
               _.some(connects, function(connect) {
@@ -308,11 +312,13 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         // 杆端部重合
         if (barcide >= 2){
           this.factory.set("bodys",[])
-          return 
+          return
         }
-
+        
         // 点到杆的距离 作用域与值域范围 约束端部重合 
-        if (this.tools.p2ldistance(k, b, X, Y) > 4 || !this.tools.region(X, Y, x1, y1, x2, y2, 4, 4) || coincide || (barcide == 1&& _.isUndefined(newx))) return
+        if (this.tools.p2ldistance(k, b, X, Y) > 4 || 
+          !this.tools.region(X, Y, x1, y1, x2, y2, 4, 4) ||
+          coincide || (barcide == 1&& _.isUndefined(newx))) return
         
         // 垂线交点坐标 
         pointx = Number(((Y + X / k - b) / (k + 1 / k)).toFixed(0))
@@ -324,19 +330,24 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           X = pointx
           Y = pointy
           
-          bodys.push({
-            p : "x" + X + "y" + Y
-            , p1: "x" + x1 + "y" + y1
-            , p2 : "x" + x2 + "y" + y2
-          })
+          //  补丁：line的order比constr靠前，coincide尚未设置为true
+          if (!((X == x1&& Y == y1)|| (X == x2&& Y == y2))) {
 
-          this.factory.set("bodys",bodys)
+            bodys.push({
+              p : "x" + X + "y" + Y
+              , p1: "x" + x1 + "y" + y1
+              , p2 : "x" + x2 + "y" + y2
+            })
 
-          this.tools.connect(connects, order, newconnects, neworder)
+            this.factory.set("bodys",bodys)
+
+            this.tools.connect(connects, order, newconnects, neworder)
+          }
         }
 
         // 约束与杆身连接 偏移约束
         if (_.contains(["gdj", "hdj", "dj"], newtype)) {
+
           n++
 
           var dx = Number((6 / Math.sqrt(1 + (-1 / k) * (-1 / k))).toFixed(0))
@@ -358,7 +369,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         if (_.contains(["gdd", "dxj"], newtype)) preventdraw = true
 
       }.bind(this))
-
+      
       if (n > 1 || preventdraw) return
 
       this.tools.coorSet(this.factory, X, Y, angle, barlength)

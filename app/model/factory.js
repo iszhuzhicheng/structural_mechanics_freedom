@@ -1,8 +1,6 @@
-define(['app/collection/draw'],function(drawC){
+define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(drawC, linkedbarC,nomoM){
 
   return new (Backbone.Model.extend({
-    url : function(){
-    },
 
     defaults: {
       "type": "gdj"
@@ -26,7 +24,7 @@ define(['app/collection/draw'],function(drawC){
       , "mirror": "constr"
     },
 
-    initialize: function() {
+    initialize: function() {      
       this.on("change:type", this.clearAtrrs)
     },
 
@@ -202,11 +200,13 @@ define(['app/collection/draw'],function(drawC){
 
         geobj.p1 = "x" + geobj.x + "y" + geobj.y
         geobj.p2 = null 
+
+        if (type == "dj"){
+          nomoM.insertdj(geobj.p1,"head")
+        }
    
         drawC.create(geobj)
       }
-
-
 
       if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2, order)) return
       //alert(JSON.stringify(this))
@@ -222,6 +222,7 @@ define(['app/collection/draw'],function(drawC){
 
       drawC.create(geobj)
     }
+
   }))()
 })
   

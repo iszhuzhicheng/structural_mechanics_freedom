@@ -1,4 +1,4 @@
-define(['app/collection/draw'],function(drawC){
+define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm){
 
   return new (Backbone.Model.extend({
 
@@ -23,13 +23,21 @@ define(['app/collection/draw'],function(drawC){
       if (!_.contains(this.get(p1),p2))  this.set(p1,this.get(p1).concat(p2))
       if (!_.contains(this.get(p2),p1))  this.set(p2,this.get(p2).concat(p1))
 
-      if (!this.marked.hasOwnProperty(p1)) this.marked[p1] = false
-      if (!this.marked.hasOwnProperty(p2)) this.marked[p2] = false
+      if (!this.marked.hasOwnProperty(p1)){
+        this.marked[p1] = false
+        this.markedforbfs[p1] = false
+      }
+
+      if (!this.marked.hasOwnProperty(p2)){
+        this.marked[p2] = false
+        this.markedforbfs[p2] = false
+      }
+
     },
 
     nomo: function(model){
 
-      console.log(JSON.stringify(drawC.models))
+      // console.log(JSON.stringify(drawC.models))
 
       var model = model.toJSON(),
           models = _.map(drawC.models,function(model){
@@ -42,6 +50,8 @@ define(['app/collection/draw'],function(drawC){
       model.bodys = _.filter(model.bodys,function(body){
         if (!_.isUndefined(body)) return true
       })
+
+      model.bodys = _.uniq(model.bodys)
 
       if (model.type == "linebar") {
         
@@ -73,7 +83,7 @@ define(['app/collection/draw'],function(drawC){
           this.addEdge(remainp1,remainp2)
         }        
         else if (model.bodys.length == 1){
-
+          
           var remainp = mp1 == model.bodys[0].p ? mp2 : mp1
             , p1 = this.instead.hasOwnProperty(model.bodys[0].p1) ? this.instead[model.bodys[0].p1] : model.bodys[0].p1
             , p2 = this.instead.hasOwnProperty(model.bodys[0].p2) ? this.instead[model.bodys[0].p2] : model.bodys[0].p2
@@ -92,7 +102,7 @@ define(['app/collection/draw'],function(drawC){
         } 
         else {  
           // 一端连接杆身单铰的情况
-         
+        
           var djmodel = _.find(models,function(model){
             return model.type == "dj"&&(model.p1 == mp1||model.p1 == mp2)&&model.bodys.length > 0
           })
@@ -107,13 +117,19 @@ define(['app/collection/draw'],function(drawC){
             if (!this.barbody.hasOwnProperty(remainp)) this.barbody[remainp] = 1
             else this.barbody[remainp]++ 
           }                          
-        }
+        }        
         
-        console.log(JSON.stringify(this))
-        //console.log(JSON.stringify(model.bodys))
-        //console.log(JSON.stringify(this.barbody))
       }
-              
+
+      //console.log(JSON.stringify(this))
+      //console.log(JSON.stringify(this.instead))
+      //console.log(JSON.stringify(model.bodys))
+      //console.log(JSON.stringify(this.barbody))
+
+      if (model.type == "linebar") {
+        this.trigger('linkedbar',model)
+      }
+      
       this.trigger('calculate',model)
     },
 
@@ -123,9 +139,9 @@ define(['app/collection/draw'],function(drawC){
 
       if (_.contains(queue,v)) arr.push(v)
 
-      for (var i = 0 ;i < this.get(v).length ;i++) {
+      for (var i = 0 ;i < this.general(v).length ;i++) {
 
-        var w = this.get(v)[i]
+        var w = this.general(v)[i]
 
         if (!this.marked[w]) arr = this.dfs(w,arr,queue)          
       }
@@ -136,7 +152,152 @@ define(['app/collection/draw'],function(drawC){
     recover: function(){
       
       for (var i in this.marked) this.marked[i] = false
-    }
+    },
+
+    general: function(id){
+      if (this.get(id)){
+        return this.get(id)
+      } else{
+        return this.get(this.instead[id])
+      }
+    },
+
+    getPj: function(p1, p2){
+      var copynomo = this.toJSON()
+        , index1 = copynomo[p1].indexOf(p2)
+        , index2 = copynomo[p2].indexOf(p1)
+        , pathNum = 1
+        , djNum = 0
+
+      copynomo[p1].splice(index1, 1)
+      copynomo[p2].splice(index2, 1)
+
+      alert(JSON.stringify(copynomo))
+
+      this.bfs(p1, copynomo)
+
+      var path = this.pathTo(p1,p2)
+
+      while (path.length > 0){
+
+        pathNum++
+
+        _.each(path,function(p){
+
+          if (this.djlinkedlist.find(p)){
+            djNum++
+          }
+
+          var intersections = _.intersection(copynomo[p],path)
+
+          _.each(intersections,function(intersection){
+
+            var index = copynomo[intersection].indexOf(p)
+
+            if (index != -1){
+              copynomo[intersection].splice(index, 1)
+            }
+
+            if (copynomo[intersection].length == 0){
+              delete copynomo[intersection]
+            }
+          })
+
+          delete copynomo[p]
+
+        }.bind(this))
+
+        this.recoverforbfs()
+
+        this.bfs(p1, copynomo)        
+
+        path = this.pathTo(p1,p2)
+        
+      }
+
+      alert(djNum)
+      alert(pathNum)
+    },
+
+    bfs: function(p1, cnomo, func){
+      var queue = []
+
+      this.markedforbfs[p1] = true
+
+      queue.push(p1)
+
+      while (queue.length > 0) {
+        
+        var v = queue.shift()
+
+        if (v !== undefined&& func) {
+          func(v)
+        }
+
+        if (cnomo[v] != undefined) {
+
+          for (var i = 0;i < cnomo[v].length; i++) {
+
+            var w = cnomo[v][i]
+
+            if (!this.markedforbfs[w]) {
+              this.edgeTo[w] = v
+              this.markedforbfs[w] = true
+              queue.push(w)
+            }
+
+          }
+        }
+      }
+    },
+
+    pathTo: function(start, end){
+      var source = start
+        , path = []
+
+      if (!this.hasPathTo(end)) {
+        return []
+      }
+
+      for (var i = end; i != source; i = this.edgeTo[i]) {
+
+        if (i == null){
+          break
+        }
+
+        if (i !== end) {
+          path.push(i)
+        }
+      }
+
+      //path.push(source)
+
+      return path      
+    },
+
+    hasPathTo: function(v){
+      return this.markedforbfs[v]
+    },
+
+    edgeTo:{},
+
+    markedforbfs: {},
+
+    recoverforbfs:  function(){
+      
+      for (var i in this.markedforbfs) this.markedforbfs[i] = false
+
+      this.edgeTo = {}  
+    },
+
+    insertdj: function(child, parent){      
+      if (!this.djlinkedlist.find(child)){
+        
+        this.djlinkedlist.insert(child, parent)
+      }
+    },
+
+    djlinkedlist: new algorithm.linkedlist.SingleLList()
 
   }))()
 })

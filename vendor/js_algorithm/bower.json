@@ -1,0 +1,16 @@
+{
+  "name": "js_algorithm",
+  "homepage": "https://github.com/ZhouHansen/js_algorithm",
+  "authors": [
+    "周汉成 <308114274@qq.com>"
+  ],
+  "description": "javascript algorithms modulared by requirejs",
+  "moduleType": [],
+  "license": "MIT",
+  "dependencies": {
+    "requirejs": "^2.1.22",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.4.5",
+    "chai": "^3.5.0"
+  }
+}

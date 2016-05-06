@@ -14,10 +14,11 @@ requirejs.config({
       , pace : 'PACE/pace.min'
       , react : "react/react.min"
       , reactdom : "react/react-dom.min"
+      , js_algorithm: "js_algorithm"
   }
 })
   
-requirejs(["jquery","pace","jsalgo/main","jqueryui","underscore","backbone","browser"],function($,pace,jsalgo){
+requirejs(["jquery","pace","jqueryui","underscore","backbone","browser"],function($,pace){
 
   pace.start()
 

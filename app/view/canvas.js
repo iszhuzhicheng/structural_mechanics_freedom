@@ -11,7 +11,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
       this.drawlib = canvasdraw.draw()
       this.factory = factory
     },
-
+    
     presolve: function(newmodel) {
       var i = 0
         , models = drawC.models
@@ -253,18 +253,21 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
               var m = m.toJSON()
 
-              return m.x == this.factory.get("x") &&m.y == this.factory.get("y")
+              if (m.type == "linebar"){
+                return false
+              }
+
+              return (m.x == this.factory.get("x") &&m.y == this.factory.get("y")) || this.tools.b2bhead(m.x, m.y, null, null, null, null, X, Y, 5)
 
             }.bind(this))
-
+            
             if (anodj.length == 1) {
 
               var djbody = anodj[0].get("bodys")[0]
-
+          
               if (!_.isUndefined(djbody)){
                 bodys.push(djbody)   
               }               
-
             }              
           }
 
@@ -273,7 +276,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
             var barp = this.tools.b2bhead_p(x1, y1, x2, y2, newx, newy, X, Y, 5)
 
-            if (!_.contains(barcidearr,barp)) {
+            if (!_.contains(barcidearr,barp)&& type == "linebar") {
               barcidearr.push(barp)
               barcide++    
             }
@@ -332,7 +335,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           
           //  补丁：line的order比constr靠前，coincide尚未设置为true
           if (!((X == x1&& Y == y1)|| (X == x2&& Y == y2))) {
-
+       
             bodys.push({
               p : "x" + X + "y" + Y
               , p1: "x" + x1 + "y" + y1

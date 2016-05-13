@@ -30,7 +30,7 @@ define([],function(){
   function insert(newElement, currNode){
     var newElement = new Node(newElement)
       , currNode = this.find(currNode) 
-
+      
     newElement.next = currNode.next
     currNode.next = newElement
   }

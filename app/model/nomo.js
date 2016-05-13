@@ -102,7 +102,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
         } 
         else {  
           // 一端连接杆身单铰的情况
-        
+          
           var djmodel = _.find(models,function(model){
             return model.type == "dj"&&(model.p1 == mp1||model.p1 == mp2)&&model.bodys.length > 0
           })
@@ -125,10 +125,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
       //console.log(JSON.stringify(this.instead))
       //console.log(JSON.stringify(model.bodys))
       //console.log(JSON.stringify(this.barbody))
-
-      if (model.type == "linebar") {
-        this.trigger('linkedbar',model)
-      }
+      this.trigger('linkedbar',model)
       
       this.trigger('calculate',model)
     },
@@ -163,16 +160,26 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
     },
 
     getPj: function(p1, p2){
-      var copynomo = this.toJSON()
-        , index1 = copynomo[p1].indexOf(p2)
+
+      // 'copynomo = this.toJSON()' 是浅复制，会改变this的值
+      var copynomo = $.extend(true,{}, this.toJSON()) 
+      console.log(p1 + " " + p2)
+      if (copynomo[p1] == undefined){
+        var p1 = this.instead[p1]
+      }
+
+      if (copynomo[p2] == undefined){
+        var p2 = this.instead[p2]
+      }
+      
+      var index1 = copynomo[p1].indexOf(p2)
         , index2 = copynomo[p2].indexOf(p1)
-        , pathNum = 1
+        , pathNum = 0
         , djNum = 0
+        , increaseInner
 
       copynomo[p1].splice(index1, 1)
       copynomo[p2].splice(index2, 1)
-
-      alert(JSON.stringify(copynomo))
 
       this.bfs(p1, copynomo)
 
@@ -215,8 +222,11 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
         
       }
 
-      alert(djNum)
-      alert(pathNum)
+      this.recoverforbfs()
+
+      increaseInner = djNum + 1 <= pathNum
+      console.log(djNum + " " + pathNum)
+      return increaseInner
     },
 
     bfs: function(p1, cnomo, func){

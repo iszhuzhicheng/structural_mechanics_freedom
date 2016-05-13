@@ -1,4 +1,5 @@
-define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedbar','app/view/result'],function(calulateM,drawC,nomoM,linkedbarC,resultV){
+define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedbar','app/view/result'],
+  function(calulateM,drawC,nomoM,linkedbarC,resultV){
 
   return new (Backbone.Collection.extend({
     model: calulateM,
@@ -65,16 +66,20 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             , coorp
             , type = c.type
                 
-          if (!_.contains(model.connects,c.order)) return
+          if (!_.contains(model.connects,c.order)) {
+            return
+          }
 
           if (changed !== calculative.id) {
+
+            ctime++
 
             ids.push(calculative.id)
 
             changed = calculative.id
 
-            if (type == "dj") {
-   
+            if (nomoM.djlinkedlist.find(cp1)||nomoM.djlinkedlist.find(cp2)) {
+            
               if (!ctimep){
                 ctimep = (p1 == cp1 || p1 == cp2) ? p1 : p2
               } else {
@@ -82,7 +87,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
               }
             }
             
-            ctime++
+            
           }
 
           if (p1 == cp1 ||p1 == cp2) coorp = p1
@@ -114,19 +119,19 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , m_c = m.get("c")
         , m_in = m.get("in")
         , m_out = m.get("out")
-        , m_type = m.get("type")
 
       // alert(linktime + " " + djlinktime + " " + ctime)
-
+    
       if (ctime == 2) {
-          
-        var sm = this.get(ids[1])
+
+        var sm = this.findWhere({id:ids[1]})
           , sm_c = sm.get("c")
           , sm_out = sm.get("out")
           , sm_in = sm.get("in")
-          , sm_type = sm.get("type")
 
         m_c = m_c.concat(sm_c)
+
+        //alert(djlinktime + " " + m_out.f + " " + sm_out.f)
 
         if (djlinktime == 0){
           m_out.f = m_out.f + sm_out.f - 3
@@ -140,7 +145,10 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             nomoM.outsidedj[ctimep]++
           }
 
-          m_out.f += 1
+          if (nomoM.get(ctimep).length > 1){
+            m_out.f += 1
+          }
+
         }
         else if (djlinktime == 2) {
 
@@ -148,29 +156,88 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           if (nomoM.general(ctimep2)) {
             if (nomoM.general(ctimep).length == 1&& nomoM.general(ctimep2).length == 1){
               m_out.f += 3
+            } else {
+              m_out.f += 1
             }
           } else {
-        
+            
             m_out.f += 1
           }
+     
+        } else {
+          m_out.f += sm_out.f
         }
         // console.log(JSON.stringify(nomoM.outsidedj))
         m_out.c = m_out.c + sm_out.c
         m_in += sm_in
 
         this.remove(this.at(ids[1]))
-      } else if (linktime > 1){      
+      } else if (linktime > 1){ 
+        var haslinked = 0     
+
+        if (linkedbarC.islinkedbar){
+      
+          linkedbarC.each(function(linkedbar){
+            var linkedbarlist = linkedbar.get("linkedbar")
+
+            if (linkedbarlist.find(linkedbarC.p1)&& linkedbarlist.find(linkedbarC.p2)){
+              console.log(linkedbar.get("start") + " " + linkedbar.get("end"))
+              haslinked += 1
+            }
+
+          })
+        }
           
         if (djlinktime == 0) {
-          m_in += 3
+          console.log(linkedbarC.islinkedbar)
+          if ((linkedbarC.islinkedbar&& nomoM.getPj(linkedbarC.p1,linkedbarC.p2))|| m_out.f < 4){
+
+            m_in += 3
+          } else {
+            m_in += 2
+            m_out.f -= 1
+          }
+          
         } else if (djlinktime == 1) {
-          m_in += 2
+
+          if (linkedbarC.islinkedbar){
+      
+            //console.log(linkedbarC.p1 + " " + linkedbarC.p2)
+            if (nomoM.getPj(linkedbarC.p1,linkedbarC.p2)|| m_out.f < 4 || linkedbarC.p2 == linkedbarC.p1){
+
+              if (haslinked > 1){
+                m_in += 1
+                m_out.f -= 1
+              } else {
+                m_in += 2
+              }              
+            } else {
+              // 另外要减掉一根可旋转的杆
+              // 两铰已相连
+             
+              if (haslinked >= 2){
+
+                m_out.f -= 1
+                m_in += 1
+              } else {
+
+                m_out.f -= 2
+              }
+            }
+          } else {
+            m_in += 2
+          }
+
         } else if (djlinktime == 2) {
 
           if (linkedbarC.islinkedbar){
-            nomoM.getPj(linkedbarC.p1,linkedbarC.p2)  
+            if (nomoM.getPj(linkedbarC.p1,linkedbarC.p2)|| m_out.f < 4|| haslinked >= 2){
+              m_in += 1
+            } else {
+              m_out.f -= 1
+            }
           }
-          m_in += 1
+          
         }
         // alert(m_in)
       } else if (linktime == 1 && djlinktime == 1) {

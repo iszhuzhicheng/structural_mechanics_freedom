@@ -37,7 +37,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
 
     nomo: function(model){
 
-      // console.log(JSON.stringify(drawC.models))
+      console.log(JSON.stringify(drawC.models))
 
       var model = model.toJSON(),
           models = _.map(drawC.models,function(model){
@@ -104,7 +104,8 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
           // 一端连接杆身单铰的情况
           
           var djmodel = _.find(models,function(model){
-            return model.type == "dj"&&(model.p1 == mp1||model.p1 == mp2)&&model.bodys.length > 0
+            return (model.type == "dj"|| model.type == "gdj"|| model.type == "hdj")&&
+            (model.p1 == mp1|| model.p1 == mp2)&&model.bodys.length > 0
           })
 
           if (_.isUndefined(djmodel)){
@@ -159,11 +160,12 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
       }
     },
 
+    // 查找两点间有多少条不交叉的路径，通道上有多少铰
     getPj: function(p1, p2){
 
       // 'copynomo = this.toJSON()' 是浅复制，会改变this的值
       var copynomo = $.extend(true,{}, this.toJSON()) 
-      console.log(p1 + " " + p2)
+      
       if (copynomo[p1] == undefined){
         var p1 = this.instead[p1]
       }
@@ -225,7 +227,9 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
       this.recoverforbfs()
 
       increaseInner = djNum + 1 <= pathNum
+
       console.log(djNum + " " + pathNum)
+
       return increaseInner
     },
 

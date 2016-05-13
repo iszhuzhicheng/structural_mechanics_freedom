@@ -18,7 +18,7 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
       // 查找该杆是否与单铰相连
       var p1 = nomoM.djlinkedlist.find(model.p1)
         , p2 = nomoM.djlinkedlist.find(model.p2)
-
+  
       // 直接与两个单铰相连
       if (!_.isNull(p1)&& !_.isNull(p2)){
 
@@ -178,6 +178,8 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
         //console.log(this.at(0).get("start") + " " + this.at(0).get("end")  + " " + this.at(0).get("order"))
 
       }
+
+      //console.log(this.models.length)
     },
 
     dj: function(model){
@@ -276,7 +278,7 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
 
       if (model.type == "linebar"){
         this.linebar(model)
-      } else if (model.type == "dj"){
+      } else if (model.type == "dj"|| model.type == "gdj"|| model.type == "hdj"){
         this.dj(model)
       }
     },

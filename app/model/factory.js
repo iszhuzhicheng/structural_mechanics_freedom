@@ -74,7 +74,7 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       _.each(["x", "x2", "y", "y2", "angle", "barlength","bodys","connects"], clear);
     },
 
-    passMaker: function(geo) {
+    passMaker: function(geo) {      
       return _.isUndefined(this.get(geo)) ? false : true
     },
 
@@ -201,7 +201,7 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
         geobj.p1 = "x" + geobj.x + "y" + geobj.y
         geobj.p2 = null 
 
-        if (type == "dj"){
+        if (type == "dj"|| type == "gdj"|| type == "hdj"){
           nomoM.insertdj(geobj.p1,"head")
         }
    

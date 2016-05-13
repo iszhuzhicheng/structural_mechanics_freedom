@@ -45,6 +45,10 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
       var linktime = 0
         , djlinktime = 0   
+        , gdjlinktime = 0
+        , hdjlinktime = 0
+        , gddlinktime = 0
+        , dxjlinktime = 0
         // 连接的刚片数
         , ctime = 0
         , changed
@@ -97,10 +101,19 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             _.some(model.bodys,function(body){
 
               return (body.p1 == cp1 && body.p2 == cp2) || (body.p1 == cp2 && body.p2 == cp1)
-            }) || coorp !== existedP || (type == "dj" && (model.p1 == cp1 || model.p2 == cp1)) ) {
+            }) || coorp !== existedP || ((type == "dj"|| type == "gdj" || type == "hdj") && 
+            (model.p1 == cp1 || model.p2 == cp1)) ) {
 
-              if (type == "dj") { 
+              if (type == "dj"||type == "gdj"||type == "hdj"  ) { 
                 djlinktime++
+
+                if (type == "gdj"){
+                  gdjlinktime++
+                }
+
+                if (type == "hdj"){
+                  hdjlinktime++
+                }
 
                 if (existedP !== cp1) {
                   linktime++  
@@ -121,7 +134,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , m_out = m.get("out")
 
       // alert(linktime + " " + djlinktime + " " + ctime)
-    
+      
       if (ctime == 2) {
 
         var sm = this.findWhere({id:ids[1]})
@@ -155,7 +168,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           //第一根杆
           if (nomoM.general(ctimep2)) {
             if (nomoM.general(ctimep).length == 1&& nomoM.general(ctimep2).length == 1){
-              m_out.f += 3
+             
+              m_out.f += (3 - gdjlinktime * 2 - hdjlinktime * 2)
             } else {
               m_out.f += 1
             }
@@ -204,8 +218,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       
             //console.log(linkedbarC.p1 + " " + linkedbarC.p2)
             if (nomoM.getPj(linkedbarC.p1,linkedbarC.p2)|| m_out.f < 4 || linkedbarC.p2 == linkedbarC.p1){
-
-              if (haslinked > 1){
+       
+              if (haslinked > 1){                
                 m_in += 1
                 m_out.f -= 1
               } else {
@@ -246,8 +260,12 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         if (nomoM.general(ctimep) && nomoM.general(ctimep).length == 1) {
 
           //第一根杆
+          if (gdjlinktime > 0){
+            m_out.f += 1
+          } else {
+            m_out.f += 3
+          }
 
-          m_out.f += 3
         } else {
                             
           if (!nomoM.outsidedj.hasOwnProperty(ctimep)){
@@ -324,7 +342,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       })                                    
     },  
 
-    dj: function(model){
+    dj: function(model, ctype){
 
       var order = model.connects[0]
         , id = _.filter(this.models,function(thismodel){
@@ -381,6 +399,11 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         }
       }
 
+      if (ctype == "gdj"){
+        console.log(model.connects)
+        m_out.f -= 2
+      }
+
       m_c.push({
         order: model.order
         , category: model.category
@@ -401,7 +424,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
     },  
     
     gdj: function(model){
-    
+      this.dj(model,'gdj')      
     },
 
     hdj: function(model){

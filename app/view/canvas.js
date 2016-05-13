@@ -35,21 +35,28 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         if (!_.contains(connect1, order2)) connect1.push(order2)
         if (!_.contains(connect2, order1)) connect2.push(order1)
       }
-      , p2pdistance: function(x1, y1, x2, y2) {
+      , p2pdistance: function(x1, y1, x2, y2,r) {
         if (x1 == null || y1 == null || x2 == null || y2 == null) return Infinity
+
+        if (r == "x"){
+          console.log(x1 + " " + x2 + " " + y1 + " " + y2)
+          console.log(Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)))
+        }
+
         return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
       }
       , p2ldistance: function(k, b, newx, newy) {
+       
         return Math.abs((newx - newy / k + b / k) / Math.sqrt(1 + 1 / (k * k)))
       }
       , isp2l: function(x, y, x2, y2, k, b, newx, newy, d) {
         return this.region(newx, newy, x, y, x2, y2, d + 2, d + 2) && this.p2ldistance(k, b, newx, newy) <= d + 2
       }
-      , b2bhead: function(x, y, x2, y2, newx, newy, newx2, newy2, d) {
-        return this.p2pdistance(x, y, newx, newy) <= d ||
-          this.p2pdistance(x2, y2, newx, newy) <= d ||
-          this.p2pdistance(x, y, newx2, newy2) <= d ||
-          this.p2pdistance(x2, y2, newx2, newy2) <= d
+      , b2bhead: function(x, y, x2, y2, newx, newy, newx2, newy2, d,r) {
+        return this.p2pdistance(x, y, newx, newy,r) <= d ||
+          this.p2pdistance(x2, y2, newx, newy,r) <= d ||
+          this.p2pdistance(x, y, newx2, newy2,r) <= d ||
+          this.p2pdistance(x2, y2, newx2, newy2,r) <= d
       }
       , b2bhead_p: function(x, y, x2, y2, newx, newy, newx2, newy2, d) {
         if (this.p2pdistance(x, y, newx, newy) <= d||this.p2pdistance(x, y, newx2, newy2) <= d){ 
@@ -78,6 +85,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
       }
       , coorSet: function(factory, x, y, angle, barlength) {
         if (factory.get("x") && factory.get("type") == "linebar") {
+          console.error(33333)
           factory.set({
             "x2": x
             , "y2": y
@@ -91,7 +99,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
             })
           }
 
-          if (factory.get("type") == "linebar"&&angle&&barlength){
+          if (factory.get("type") == "linebar"&&!_.isUndefined(angle)&&barlength){
             var kx = Math.cos(Math.PI * angle / 180)
               , ky = Math.sin(Math.PI * angle / 180)
 
@@ -118,6 +126,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
       if ($("canvas").hasClass("moving")) return
 
       if (drawC.models.length == 0) this.factory.set("order", 0)
+
       else this.factory.set("order", drawC.last().get("order") + 1)
 
       if (!this.factory.get("connects")) this.factory.set("connects", [])
@@ -155,7 +164,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         , barcide = 0
         , barcidearr = []
         , preventdraw = false
-
+     
       this.factory.set("angle", angle)
   
       if (
@@ -197,7 +206,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
             return false
           }
         }.bind(this))) return
-        
+      
       _.each(drawC.models, function(model, index, list) {
         var k = model.get("k")
           , b = model.get("b")
@@ -216,6 +225,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           , coiny = d1 ? y1 : y2
           // 处理由于约束存在而造成的杆件断开
           , commonconnects
+          , notbarbody = false
 
         // 约束与杆端部重合
         if ((d1 || d2) && newcategory == "constr") {
@@ -296,15 +306,17 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
 
             if (this.tools.b2bhead(x1, y1, null, null, null, null, X, Y, 5)) {          
 
-              X = x1
+              X = x1  
               Y = y1
-
+              notbarbody = true
               // 杆端连接的是链接在杆身上的约束
               if (type == "dj" &&mbodys.length > 0 &&bodys.length < 2) bodys.push(mbodys[0])                
 
             } else if (this.tools.b2bhead(x2, y2, null, null, null, null, X, Y, 5)) {
+              
               X = x2
-              Y = y2
+              Y = y2    
+              notbarbody = true
             }
 
             this.tools.connect(connects, order, newconnects, neworder)
@@ -328,11 +340,11 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         pointy = Number((pointx * k + b).toFixed(0))
        
         // 杆身相连
-        if (newcategory == "bar") {
-
+        if (newcategory == "bar"&& !notbarbody) {
+          console.log(Y)
           X = pointx
           Y = pointy
-          
+          console.log(Y)
           //  补丁：line的order比constr靠前，coincide尚未设置为true
           if (!((X == x1&& Y == y1)|| (X == x2&& Y == y2))) {
        

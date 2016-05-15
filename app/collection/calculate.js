@@ -11,8 +11,10 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         this.on("remove", this.mate)
     },
 
-    captain: function(model){
-      
+    captain: function(modelObj){
+      var model = modelObj.model
+        , models = modelObj.models
+
       if (model.connects.length == 0 || this.models.length == 0) {
 
         this.add({
@@ -23,6 +25,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
                 , type: model.type
                 , p1: model.p1
                 , p2: model.p2
+                , outc: 0            
               }
             ]
           , out: {
@@ -30,10 +33,10 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             , c: 0
           }
           , in: 0
-          , id: this.models.length
+          , id: this.models.length          
         })
       } else {
-        this[model.type](model)
+        this[model.type](model,models)
       }
 
       resultV.render(this.models)
@@ -107,7 +110,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
               if (type == "dj"||type == "gdj"||type == "hdj"  ) { 
                 djlinktime++
 
-                if (type == "gdj"){
+                if (type == "gdj"){ 
+
                   gdjlinktime++
                 }
 
@@ -208,8 +212,12 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
             m_in += 3
           } else {
+
             m_in += 2
             m_out.f -= 1
+
+            // 最强补丁
+            linkedbarC.islinkedbar = true         
           }
           
         } else if (djlinktime == 1) {
@@ -331,6 +339,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , type: model.type
         , p1: model.p1
         , p2: model.p2
+        , outc: gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1
       })
 
       m.set("c", m_c)
@@ -342,7 +351,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       })                                    
     },  
 
-    dj: function(model, ctype){
+    dj: function(model, ctype, models){
 
       var order = model.connects[0]
         , id = _.filter(this.models,function(thismodel){
@@ -361,7 +370,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , m_c = m.get("c")
         , m_in = m.get("in")
         , m_out = m.get("out")
-               
+        , outc = 0
+  
       if (nomoM.marked.hasOwnProperty(model.p1)) nomoM.marked[model.p1] = true
 
       while(queue&& queue.length > 0) {
@@ -399,9 +409,54 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         }
       }
 
-      if (ctype == "gdj"){
-        console.log(model.connects)
-        m_out.f -= 2
+      if (ctype == "gdj" || ctype == "hdj"){
+
+        if (model.bodys.length == 0){
+          this.search.dj.getmarked[model.p1] = true
+          outc = this.search.dj.getbfs(model.p1, 0, m_c) 
+        } else {
+          var bodyp = nomoM.gdjlinkedlist.find(model.bodys[0]["p1"]) ? model.bodys[0]["p1"] : model.bodys[0]["p2"]
+          this.search.dj.getmarked[bodyp] = true
+          outc = this.search.dj.getbfs(bodyp, 0, m_c) 
+        }
+
+        this.search.dj.getrecover()
+
+        var f = ctype == "gdj" ? 2 : 1
+          , result = outc - f
+        
+        if (result <= -1){
+          m_out.f -= 2
+        } else if (result == 0){
+          m_out.f -= 1
+          m_out.c += 1
+        } else if (result > 0){
+          m_out.c += 2
+        }
+
+        _.each(model.connects,function(connect){
+
+          var p1 = models[connect].p1
+            , p2 = models[connect].p2
+
+            // 取得与铰连接的杆的末端
+            , p = p1 == model.p1 ? p2 : p1
+            , anotherp = p1 == model.p1 ? p1 : p2
+
+          thismodel = _.findWhere(m_c,{p1:p1,p2:p2})
+
+          if (ctype == "gdj"){
+            thismodel.outc += 2
+
+            this.search.dj.putmarked[anotherp] = true
+            m_c = this.search.dj.putbfs(p, m_c)  
+            this.search.dj.putrecover()               
+          } else if (ctype == "hdj"){
+            thismodel.outc += 1
+          }
+
+        }.bind(this))        
+        
       }
 
       m_c.push({
@@ -423,12 +478,12 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       nomoM.recover()
     },  
     
-    gdj: function(model){
-      this.dj(model,'gdj')      
+    gdj: function(model, models){
+      this.dj(model,'gdj',models)      
     },
 
-    hdj: function(model){
-
+    hdj: function(model, models){
+      this.dj(model,'hdj',models)    
     },
 
     gdd: function(model){
@@ -437,6 +492,124 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
     dxj: function(model){
 
+    },
+
+    search: {
+      dj: {
+        putbfs: function(p, m_c){
+          var cnomo = $.extend(true,{}, nomoM.toJSON())   
+            , queue = []
+
+          this.putmarked[p] = true
+
+          queue.push(p)
+
+          while (queue.length > 0){
+
+            var v = queue.shift()
+
+            if (v !== undefined&& this.put&& nomoM.djlinkedlist.find(v)){
+              m_c = this.put(v, m_c)
+            }
+            else if (cnomo[v] != undefined) {
+
+              for (var i = 0;i < cnomo[v].length; i++){
+
+                var w = cnomo[v][i]
+
+                if (!this.putmarked[w]) {
+                  this.putmarked[w] = true
+                  queue.push(w)
+                }
+              }
+            }
+          }
+
+          return m_c
+        },
+
+        put: function(v, m_c){
+
+          _.each(nomoM.get(v),function(p){
+
+            if (this.putmarked[p]){
+              return
+            }
+
+            var thismodel = _.filter(m_c,function(c){
+              return (c.p1 == v && c.p2 == p) || (c.p1 == p && c.p2 == v)
+            })[0]
+
+            if (!thismodel.autodj){
+              thismodel.outc += 1
+              thismodel.autodj = true
+            }
+            
+          }.bind(this))   
+
+          return m_c       
+        },
+
+        putmarked:{},            
+
+        putrecover: function(){
+          for (var i in this.putmarked) this.putmarked[i] = false
+        },
+
+        getbfs: function(p,outc,m_c){
+          var cnomo = $.extend(true,{}, nomoM.toJSON())   
+            , queue = []
+
+          this.getmarked[p] = true
+
+          queue.push(p)
+
+          while (queue.length > 0){
+
+            var v = queue.shift()
+
+            if (cnomo[v] != undefined){
+
+              for (var i = 0;i < cnomo[v].length; i++){
+
+                var w = cnomo[v][i]
+                          
+                if (!this.getmarked[w]) { 
+
+                  var outc = this.get(v, w, outc, m_c)
+
+                  this.getmarked[w] = true
+
+                  if (!nomoM.djlinkedlist.find(w)){
+                    queue.push(w)
+                  }                  
+                }
+              }
+            }
+          }
+
+          return outc
+        },
+
+        get: function(v, w, outc, m_c){
+
+          var thismodel = _.filter(m_c,function(c){
+            return (c.p1 == v && c.p2 == w) || (c.p1 == w && c.p2 == v)
+          })[0]
+
+          if (thismodel.outc){
+            outc += thismodel.outc
+          }
+
+          return outc
+        },
+
+        getmarked:{},
+
+        getrecover: function(){
+          for (var i in this.getmarked) this.getmarked[i] = false
+        }
+      }
     },
 
     mate: function() {

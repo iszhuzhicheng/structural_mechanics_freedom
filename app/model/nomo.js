@@ -37,7 +37,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
 
     nomo: function(model){
 
-      console.log(JSON.stringify(drawC.models))
+      // console.log(JSON.stringify(drawC.models))
 
       var model = model.toJSON(),
           models = _.map(drawC.models,function(model){
@@ -128,7 +128,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
       //console.log(JSON.stringify(this.barbody))
       this.trigger('linkedbar',model)
       
-      this.trigger('calculate',model)
+      this.trigger('calculate',{model:model, models:models})
     },
 
     dfs: function(v,arr,queue){
@@ -311,7 +311,16 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
       }
     },
 
-    djlinkedlist: new algorithm.linkedlist.SingleLList()
+    insertgdj: function(child, parent){      
+      if (!this.gdjlinkedlist.find(child)){
+        
+        this.gdjlinkedlist.insert(child, parent)
+      }
+    },
+
+    djlinkedlist: new algorithm.linkedlist.SingleLList(),
+
+    gdjlinkedlist: new algorithm.linkedlist.SingleLList()
 
   }))()
 })

@@ -195,6 +195,8 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
         var linkedbar = this.filter(function(l){
           if (l.get("end") == p1|| l.get("start") == p1){
             return true
+          } else if (l.get("linkedbar").find(p1)){
+            return true
           }
         })[0]
 

@@ -203,6 +203,10 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
 
         if (type == "dj"|| type == "gdj"|| type == "hdj"){
           nomoM.insertdj(geobj.p1,"head")
+
+          if (type == "gdj"){
+            nomoM.insertgdj(geobj.p1,"head")
+          }
         }
    
         drawC.create(geobj)

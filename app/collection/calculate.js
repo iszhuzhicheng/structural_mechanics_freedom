@@ -61,6 +61,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , p2 = model.p2
         , ctimep
         , ctimep2
+        , outc = 0
+        , autodj = false
 
       _.each(this.models, function(calculative) {
 
@@ -72,7 +74,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             , cp2 = c.p2 ? c.p2 : null
             , coorp
             , type = c.type
-                
+            , category = c.category
+          
           if (!_.contains(model.connects,c.order)) {
             return
           }
@@ -104,19 +107,26 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             _.some(model.bodys,function(body){
 
               return (body.p1 == cp1 && body.p2 == cp2) || (body.p1 == cp2 && body.p2 == cp1)
-            }) || coorp !== existedP || ((type == "dj"|| type == "gdj" || type == "hdj") && 
+            }) || coorp !== existedP || (category == "constr" && 
             (model.p1 == cp1 || model.p2 == cp1)) ) {
 
-              if (type == "dj"||type == "gdj"||type == "hdj"  ) { 
+              if (category == "constr") { 
                 djlinktime++
 
-                if (type == "gdj"){ 
+                if (type == "dxj") {
+                  dxjlinktime++
+                }
 
+                if (type == "gdj"){ 
                   gdjlinktime++
                 }
 
                 if (type == "hdj"){
                   hdjlinktime++
+                }
+
+                if (type == "gdd"){
+                  gddlinktime++
                 }
 
                 if (existedP !== cp1) {
@@ -151,19 +161,25 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         //alert(djlinktime + " " + m_out.f + " " + sm_out.f)
 
         if (djlinktime == 0){
+
           m_out.f = m_out.f + sm_out.f - 3
         }
-        else if (djlinktime == 1&& nomoM.general(ctimep).length > 1){
-
-          // 以后要看它是否连接了大地约束，是改变外部还是内部约束
-          if (!nomoM.outsidedj.hasOwnProperty(ctimep)){
-            nomoM.outsidedj[ctimep] = 2
+        else if (djlinktime == 1){
+          var minus = 3 - (gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1)
+          
+          if (minus < 0){
+            m_out.c -= minus
           } else {
-            nomoM.outsidedj[ctimep]++
+            m_out.f += minus
           }
 
-          if (nomoM.get(ctimep).length > 1){
+          if (nomoM.general(ctimep).length > 1){
             m_out.f += 1
+            if (!nomoM.outsidedj.hasOwnProperty(ctimep)){
+              nomoM.outsidedj[ctimep] = 2
+            } else {
+              nomoM.outsidedj[ctimep]++
+            }
           }
 
         }
@@ -172,8 +188,15 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           //第一根杆
           if (nomoM.general(ctimep2)) {
             if (nomoM.general(ctimep).length == 1&& nomoM.general(ctimep2).length == 1){
-             
-              m_out.f += (3 - gdjlinktime * 2 - hdjlinktime * 2)
+              
+              var minus = 3 - (gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1)
+            
+              if (minus < 0){
+                m_out.c -= minus
+              } else {
+                m_out.f += minus
+              }
+
             } else {
               m_out.f += 1
             }
@@ -183,6 +206,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           }
      
         } else {
+
           m_out.f += sm_out.f
         }
         // console.log(JSON.stringify(nomoM.outsidedj))
@@ -191,6 +215,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
         this.remove(this.at(ids[1]))
       } else if (linktime > 1){ 
+
         var haslinked = 0     
 
         if (linkedbarC.islinkedbar){
@@ -266,12 +291,12 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         // 以后要看它是否连接了大地约束，是改变外部还是内部约束
        
         if (nomoM.general(ctimep) && nomoM.general(ctimep).length == 1) {
-
-          //第一根杆
-          if (gdjlinktime > 0){
-            m_out.f += 1
+          var minus = 3 - (gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1)
+          
+          if (minus < 0){       
+            m_out.c -= minus
           } else {
-            m_out.f += 3
+            m_out.f += minus
           }
 
         } else {
@@ -331,6 +356,13 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         })
       }
 
+      if (this.search.linebar.main(model.p1, m_c) || this.search.linebar.main(model.p2, m_c)){
+        outc += 1
+        autodj = true
+      }
+
+      outc += gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1
+
       linkedbarC.recover()
 
       m_c.push({
@@ -339,7 +371,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , type: model.type
         , p1: model.p1
         , p2: model.p2
-        , outc: gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1
+        , outc: outc
+        , autodj: autodj
       })
 
       m.set("c", m_c)
@@ -409,29 +442,68 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         }
       }
 
-      if (ctype == "gdj" || ctype == "hdj"){
+      if (ctype == "gdj" || ctype == "hdj" || ctype == "gdd"){
 
         if (model.bodys.length == 0){
           this.search.dj.getmarked[model.p1] = true
           outc = this.search.dj.getbfs(model.p1, 0, m_c) 
         } else {
-          var bodyp = nomoM.gdjlinkedlist.find(model.bodys[0]["p1"]) ? model.bodys[0]["p1"] : model.bodys[0]["p2"]
+          if (!nomoM.zzlinkedlist.find(model.bodys[0]["p1"]) && nomoM.djlinkedlist.find(model.bodys[0]["p1"])){
+            if (!nomoM.zzlinkedlist.find(model.bodys[0]["p2"]) && nomoM.djlinkedlist.find(model.bodys[0]["p2"])){
+              var bodyp = nomoM.get(model.bodys[0]["p1"]).length >= nomoM.get(model.bodys[0]["p2"]).length ? model.bodys[0]["p2"] : model.bodys[0]["p1"]  
+            } else {
+              var bodyp = model.bodys[0]["p2"]
+            }
+          }
+          else if (!nomoM.zzlinkedlist.find(model.bodys[0]["p2"]) && nomoM.djlinkedlist.find(model.bodys[0]["p2"])){
+            if (!nomoM.zzlinkedlist.find(model.bodys[0]["p1"]) && nomoM.djlinkedlist.find(model.bodys[0]["p1"])){
+              var bodyp = nomoM.get(model.bodys[0]["p2"]).length >= nomoM.get(model.bodys[0]["p1"]).length ? model.bodys[0]["p1"] : model.bodys[0]["p2"]  
+            } else {
+              var bodyp = model.bodys[0]["p1"]
+            }
+          } else {
+            var bodyp = nomoM.zzlinkedlist.find(model.bodys[0]["p1"]) ? model.bodys[0]["p1"] : model.bodys[0]["p2"]
+          }
+
+          var anotherp = bodyp == model.bodys[0]["p1"] ? model.bodys[0]["p2"] : model.bodys[0]["p1"]
+          
           this.search.dj.getmarked[bodyp] = true
-          outc = this.search.dj.getbfs(bodyp, 0, m_c) 
+          outc = this.search.dj.getbfs(bodyp, 0, m_c, anotherp) 
         }
 
         this.search.dj.getrecover()
-
-        var f = ctype == "gdj" ? 2 : 1
-          , result = outc - f
         
-        if (result <= -1){
-          m_out.f -= 2
-        } else if (result == 0){
-          m_out.f -= 1
-          m_out.c += 1
-        } else if (result > 0){
-          m_out.c += 2
+        var f = ctype == "gdj" ? 2 : (ctype == "hdj" ? 1 : 3)
+          , result = outc - f
+        console.log(result)
+        if (ctype == "gdj"){
+
+          if (result <= -1){
+            m_out.f -= 2
+          } else if (result == 0){
+            m_out.f -= 1
+            m_out.c += 1
+          } else if (result > 0){
+            m_out.c += 2
+          } 
+        } else if (ctype == "hdj"){
+          if (result >= 2){
+            m_out.c += 1
+          } else {
+            m_out.f -= 1
+          }
+        } else if (ctype == "gdd"){
+          if (result == -3){
+            m_out.f -= 3
+          } else if (result == -2){
+            m_out.f -= 2
+            m_out.c += 1
+          } else if (result == -1){
+            m_out.f -= 1
+            m_out.c += 2
+          } else if (result >= 0){
+            m_out.c += 3
+          }
         }
 
         _.each(model.connects,function(connect){
@@ -439,21 +511,45 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           var p1 = models[connect].p1
             , p2 = models[connect].p2
 
-            // 取得与铰连接的杆的末端
-            , p = p1 == model.p1 ? p2 : p1
-            , anotherp = p1 == model.p1 ? p1 : p2
+          // 取得与铰连接的杆的末端
+          if (model.bodys.length == 0){
 
+            var p = p1 == model.p1 ? p2 : p1
+            var anotherp = p1 == model.p1 ? p1 : p2
+          } else {
+            if (nomoM.djlinkedlist.find(model.bodys[0]["p1"])&& 
+              nomoM.djlinkedlist.find(model.bodys[0]["p2"])&&
+              nomoM.get(model.bodys[0]["p1"])&&
+              nomoM.get(model.bodys[0]["p2"])){
+          
+              var p = nomoM.get(model.bodys[0]["p1"]).length >= nomoM.get(model.bodys[0]["p2"]).length ? model.bodys[0]["p1"] : model.bodys[0]["p2"]  
+            } else if (nomoM.djlinkedlist.find(model.bodys[0]["p1"])|| nomoM.djlinkedlist.find(model.bodys[0]["p2"])){
+            
+              var p = nomoM.djlinkedlist.find(model.bodys[0]["p1"]) ? model.bodys[0]["p1"] : model.bodys[0]["p2"]
+            } else {
+              var p = model.bodys[0]["p1"]
+            }            
+            var anotherp = p == model.bodys[0]["p2"] ? model.bodys[0]["p1"] : model.bodys[0]["p2"]
+          }
+          
           thismodel = _.findWhere(m_c,{p1:p1,p2:p2})
 
           if (ctype == "gdj"){
             thismodel.outc += 2
 
             this.search.dj.putmarked[anotherp] = true
-            m_c = this.search.dj.putbfs(p, m_c)  
-            this.search.dj.putrecover()               
+            m_c = this.search.dj.putbfs(p, m_c, "gdj")  
+                        
           } else if (ctype == "hdj"){
+            this.search.dj.putmarked[anotherp] = true
+            m_c = this.search.dj.putbfs(p, m_c, "hdj")  
             thismodel.outc += 1
+          } else if (ctype == "gdd"){
+            this.search.dj.putmarked[anotherp] = true
+            m_c = this.search.dj.putbfs(p, m_c, "gdd")  
+            thismodel.outc += 3
           }
+          this.search.dj.putrecover()   
 
         }.bind(this))        
         
@@ -470,7 +566,13 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       m.set("c",m_c)
 
       m.set("in", m_in)
-      
+
+      // 补丁
+      if (m_out.f < 0){
+        m_out.c -= m_out.f
+        m_out.f = 0
+      }
+
       m.set("out", m_out)
       
       this.set(m, { remove: false }) 
@@ -486,17 +588,86 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       this.dj(model,'hdj',models)    
     },
 
-    gdd: function(model){
-
+    gdd: function(model, models){
+      this.dj(model,'gdd',models)
     },
 
-    dxj: function(model){
-
+    dxj: function(model, models){
+      this.dj(model,'gdj',models)
     },
 
     search: {
+      linebar:{
+        main:function(mainp, m_c){
+          // 连接的是单铰或者滑动铰支座
+          if (nomoM.djlinkedlist.find(mainp)&& (!nomoM.zzlinkedlist.find(mainp) || nomoM.hdjlinkedlist.find(mainp))){
+            return this.getbfs(mainp, m_c)
+          } else {
+            return false
+          }
+        },
+        getbfs: function(p, m_c){
+          var cnomo = $.extend(true,{}, nomoM.toJSON())   
+            , queue = []
+            , outc = 0
+
+          this.marked[p] = true
+
+          queue.push(p)
+
+          while (queue.length > 0){
+
+            var v = queue.shift()
+
+            if (cnomo[v] != undefined){
+
+              for (var i = 0;i < cnomo[v].length; i++){
+                var w = cnomo[v][i]
+                
+                if (!this.marked[w]) { 
+
+                  var outc = this.get(v, w, outc, m_c)
+
+                  if (outc > 2){
+                    break
+                  }
+
+                  this.marked[w] = true
+
+                  if (!nomoM.djlinkedlist.find(w)){
+                    queue.push(w)
+                  }   
+                }
+              }
+
+            }
+
+          }
+
+          if (outc > 2){
+            return true
+          } else {
+            return false
+          }
+        },
+        get: function(v, w, outc, m_c){
+          var thismodel = _.filter(m_c,function(c){
+            return (c.p1 == v && c.p2 == w) || (c.p1 == w && c.p2 == v)
+          })[0]
+
+          if (thismodel){
+            outc += thismodel.outc
+          }
+          
+          return outc
+        },
+        marked:{},
+        recover: function(){
+          for (var i in this.marked) this.marked[i] = false
+        }
+      },
       dj: {
-        putbfs: function(p, m_c){
+        putbfs: function(p, m_c, type){
           var cnomo = $.extend(true,{}, nomoM.toJSON())   
             , queue = []
 
@@ -509,7 +680,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             var v = queue.shift()
 
             if (v !== undefined&& this.put&& nomoM.djlinkedlist.find(v)){
-              m_c = this.put(v, m_c)
+              m_c = this.put(v, m_c, type)
             }
             else if (cnomo[v] != undefined) {
 
@@ -528,7 +699,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           return m_c
         },
 
-        put: function(v, m_c){
+        put: function(v, m_c, type){
 
           _.each(nomoM.get(v),function(p){
 
@@ -540,9 +711,22 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
               return (c.p1 == v && c.p2 == p) || (c.p1 == p && c.p2 == v)
             })[0]
 
-            if (!thismodel.autodj){
-              thismodel.outc += 1
-              thismodel.autodj = true
+            if (thismodel&& !thismodel.autodj){
+              if (type == "gdj"){
+                thismodel.outc += 1
+                thismodel.autodj = true
+              } else if (type == "hdj"){
+
+                if (!thismodel.readydj){
+                  thismodel.readydj = true
+                } else {
+                  thismodel.outc += 1
+                  thismodel.autodj = true
+                }
+              } else if (type == "gdd"){
+                thismodel.outc += 2
+                thismodel.autodj = true
+              }
             }
             
           }.bind(this))   
@@ -556,7 +740,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           for (var i in this.putmarked) this.putmarked[i] = false
         },
 
-        getbfs: function(p,outc,m_c){
+        getbfs: function(p, outc, m_c, anotherp){
           var cnomo = $.extend(true,{}, nomoM.toJSON())   
             , queue = []
 
@@ -576,7 +760,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
                           
                 if (!this.getmarked[w]) { 
 
-                  var outc = this.get(v, w, outc, m_c)
+                  var outc = this.get(v, w, outc, m_c, anotherp, p)
 
                   this.getmarked[w] = true
 
@@ -591,14 +775,22 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           return outc
         },
 
-        get: function(v, w, outc, m_c){
+        get: function(v, w, outc, m_c, anotherp, p){
 
           var thismodel = _.filter(m_c,function(c){
             return (c.p1 == v && c.p2 == w) || (c.p1 == w && c.p2 == v)
           })[0]
 
-          if (thismodel.outc){
-            outc += thismodel.outc
+          if (thismodel&& thismodel.outc){
+            if (!anotherp){
+              outc += thismodel.outc
+            } else if (nomoM.djlinkedlist.find(thismodel.p1)&&nomoM.djlinkedlist.find(thismodel.p2)){
+                if ((anotherp == thismodel.p1&& p == thismodel.p2)||(anotherp == thismodel.p2&& p == thismodel.p1)){
+                  outc += thismodel.outc
+                }
+            } else {
+              outc += thismodel.outc
+            }          
           }
 
           return outc

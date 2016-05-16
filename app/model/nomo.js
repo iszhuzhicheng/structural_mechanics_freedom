@@ -17,11 +17,11 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
 
     addEdge: function(p1,p2){
 
-      if (!_.isArray(this.get(p1))) this.set(p1,[])
-      if (!_.isArray(this.get(p2))) this.set(p2,[])
+      if (!_.isArray(this.general(p1))) this.set(p1,[])
+      if (!_.isArray(this.general(p2))) this.set(p2,[])
 
-      if (!_.contains(this.get(p1),p2))  this.set(p1,this.get(p1).concat(p2))
-      if (!_.contains(this.get(p2),p1))  this.set(p2,this.get(p2).concat(p1))
+      if (!_.contains(this.general(p1),p2))  this.set(p1,this.general(p1).concat(p2))
+      if (!_.contains(this.general(p2),p1))  this.set(p2,this.general(p2).concat(p1))
 
       if (!this.marked.hasOwnProperty(p1)){
         this.marked[p1] = false
@@ -62,7 +62,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
             , p3 = this.instead.hasOwnProperty(model.bodys[1].p1) ? this.instead[model.bodys[1].p1] : model.bodys[1].p1
             , p4 = this.instead.hasOwnProperty(model.bodys[1].p2) ? this.instead[model.bodys[1].p2] : model.bodys[1].p2
 
-          if (this.get(p1).length <= this.get(p2).length) {
+          if (this.general(p1).length <= this.general(p2).length) {
 
             this.instead[model.bodys[0].p] = p1
             var remainp1 = p1
@@ -71,7 +71,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
             var remainp1 = p2
           }
 
-          if (this.get(p3).length <= this.get(p4).length) {
+          if (this.general(p3).length <= this.general(p4).length) {
 
             this.instead[model.bodys[1].p] = p3
             var remainp2 = p3
@@ -88,7 +88,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
             , p1 = this.instead.hasOwnProperty(model.bodys[0].p1) ? this.instead[model.bodys[0].p1] : model.bodys[0].p1
             , p2 = this.instead.hasOwnProperty(model.bodys[0].p2) ? this.instead[model.bodys[0].p2] : model.bodys[0].p2
             
-          if (this.get(p1).length <= this.get(p2).length) {
+          if (this.general(p1).length <= this.general(p2).length) {
             this.instead[model.bodys[0].p] = p1            
             this.addEdge(remainp,p1)
           } else {
@@ -104,8 +104,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
           // 一端连接杆身单铰的情况
           
           var djmodel = _.find(models,function(model){
-            return (model.type == "dj"|| model.type == "gdj"|| model.type == "hdj")&&
-            (model.p1 == mp1|| model.p1 == mp2)&&model.bodys.length > 0
+            return (model.category == "constr")&&(model.p1 == mp1|| model.p1 == mp2)&&model.bodys.length > 0
           })
 
           if (_.isUndefined(djmodel)){
@@ -311,16 +310,25 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
       }
     },
 
-    insertgdj: function(child, parent){      
-      if (!this.gdjlinkedlist.find(child)){
+    insertzz: function(child, parent){      
+      if (!this.zzlinkedlist.find(child)){
         
-        this.gdjlinkedlist.insert(child, parent)
+        this.zzlinkedlist.insert(child, parent)
+      }
+    },
+
+    inserthdj: function(child, parent){      
+      if (!this.hdjlinkedlist.find(child)){
+        
+        this.hdjlinkedlist.insert(child, parent)
       }
     },
 
     djlinkedlist: new algorithm.linkedlist.SingleLList(),
 
-    gdjlinkedlist: new algorithm.linkedlist.SingleLList()
+    zzlinkedlist: new algorithm.linkedlist.SingleLList(),
+
+    hdjlinkedlist: new algorithm.linkedlist.SingleLList()
 
   }))()
 })

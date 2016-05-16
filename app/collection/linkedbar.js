@@ -280,7 +280,7 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
 
       if (model.type == "linebar"){
         this.linebar(model)
-      } else if (model.type == "dj"|| model.type == "gdj"|| model.type == "hdj"){
+      } else if (model.category == "constr"){
         this.dj(model)
       }
     },

@@ -341,10 +341,10 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
        
         // 杆身相连
         if (newcategory == "bar"&& !notbarbody) {
-          console.log(Y)
+        
           X = pointx
           Y = pointy
-          console.log(Y)
+          
           //  补丁：line的order比constr靠前，coincide尚未设置为true
           if (!((X == x1&& Y == y1)|| (X == x2&& Y == y2))) {
        

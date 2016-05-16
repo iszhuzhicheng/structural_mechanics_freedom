@@ -200,12 +200,16 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
 
         geobj.p1 = "x" + geobj.x + "y" + geobj.y
         geobj.p2 = null 
-
-        if (type == "dj"|| type == "gdj"|| type == "hdj"){
+      
+        if (category == "constr"){
           nomoM.insertdj(geobj.p1,"head")
-
-          if (type == "gdj"){
-            nomoM.insertgdj(geobj.p1,"head")
+            
+          if (type == "hdj"){
+            nomoM.inserthdj(geobj.p1,"head")
+          }
+          
+          if (type == "gdj"|| type == "hdj"|| type == "gdd"|| type == "dxj"){
+            nomoM.insertzz(geobj.p1,"head")
           }
         }
    

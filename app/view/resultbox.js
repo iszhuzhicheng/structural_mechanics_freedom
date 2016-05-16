@@ -1,4 +1,4 @@
-define(['jsx!./result'],function(){
+define(['./jsx!result'],function(){
 
   return new (Backbone.View.extend({
     

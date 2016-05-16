@@ -84,8 +84,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         return x <= maxX + dx && y <= maxY + dy && x >= minX - dx && y >= minY - dy
       }
       , coorSet: function(factory, x, y, angle, barlength) {
-        if (factory.get("x") && factory.get("type") == "linebar") {
-          console.error(33333)
+        if (factory.get("x") && factory.get("type") == "linebar") {      
           factory.set({
             "x2": x
             , "y2": y

@@ -15,10 +15,15 @@ requirejs.config({
       , react : "react/react.min"
       , reactdom : "react/react-dom.min"
       , js_algorithm: "js_algorithm"
+      , JSXTransformer: "../app/JSXTransformer"
+      , jsx : "../app/jsx"
+      , text : "../app/text"
   }
+
+
 })
   
-requirejs(["jquery","pace","jqueryui","underscore","backbone","browser"],function($,pace){
+requirejs(["jquery","pace","jqueryui","underscore","backbone","browser","react","reactdom","JSXTransformer"],function($,pace){
 
   pace.start()
 

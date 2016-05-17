@@ -1,4 +1,4 @@
-define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedbar','app/view/result'],
+define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedbar','app/view/resultbox'],
   function(calulateM,drawC,nomoM,linkedbarC,resultV){
 
   return new (Backbone.Collection.extend({
@@ -23,6 +23,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
                 order: model.order
                 , category: model.category
                 , type: model.type
+                              
                 , p1: model.p1
                 , p2: model.p2
                 , outc: 0            
@@ -63,6 +64,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , ctimep2
         , outc = 0
         , autodj = false
+        , linebaroutc      
 
       _.each(this.models, function(calculative) {
 
@@ -147,6 +149,14 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , m_in = m.get("in")
         , m_out = m.get("out")
 
+      this.search.linebar.marked[model.p2] = true
+      linebaroutc = this.search.linebar.main(model.p1, m_c, true)
+      this.search.linebar.recover()
+      
+      this.search.linebar.marked[model.p1] = true
+      linebaroutc += this.search.linebar.main(model.p2, m_c, true)
+      this.search.linebar.recover()
+      
       // alert(linktime + " " + djlinktime + " " + ctime)
       
       if (ctime == 2) {
@@ -161,8 +171,12 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         //alert(djlinktime + " " + m_out.f + " " + sm_out.f)
 
         if (djlinktime == 0){
-
-          m_out.f = m_out.f + sm_out.f - 3
+          if (linebaroutc >= 3){
+            m_out.f = m_out.f 
+            m_out.c += (3 - sm_out.f)
+          } else {
+            m_out.f = m_out.f + sm_out.f - 3     
+          }
         }
         else if (djlinktime == 1){
           var minus = 3 - (gddlinktime * 3 + dxjlinktime * 2 + gdjlinktime * 2 + hdjlinktime * 1)
@@ -356,7 +370,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         })
       }
 
-      if (this.search.linebar.main(model.p1, m_c) || this.search.linebar.main(model.p2, m_c)){
+      if (this.search.linebar.main(model.p1, m_c) > 2 || this.search.linebar.main(model.p2, m_c) > 2){
         outc += 1
         autodj = true
       }
@@ -374,6 +388,12 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , outc: outc
         , autodj: autodj
       })
+
+      // 补丁
+      if (m_out.f < 0){
+        m_out.c -= m_out.f
+        m_out.f = 0
+      }
 
       m.set("c", m_c)
       m.set("out", m_out)
@@ -404,6 +424,10 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , m_in = m.get("in")
         , m_out = m.get("out")
         , outc = 0
+        , linebaroutc = this.search.linebar.main(model.p1, m_c, true)
+        , ringc = 0
+
+      this.search.linebar.recover()
   
       if (nomoM.marked.hasOwnProperty(model.p1)) nomoM.marked[model.p1] = true
 
@@ -427,8 +451,19 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         }
       }
 
+      while (linebaroutc >= 3){
+        linebaroutc -= 3
+        ringc++
+      }
+    
       // 减少外部约束数，还是增加外部自由度的，这里今后要视情况而定
-      if (ring > 0) m_out.f += (ring - 1)  
+      if (ring > 0) {
+        m_out.f += (ring - ringc - 1)  
+      }
+
+      if (ringc > 0) {
+        m_out.c -= ringc  
+      }
 
       // console.log(ring)
 
@@ -598,12 +633,13 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
     search: {
       linebar:{
-        main:function(mainp, m_c){
+        main:function(mainp, m_c, isdj){
           // 连接的是单铰或者滑动铰支座
-          if (nomoM.djlinkedlist.find(mainp)&& (!nomoM.zzlinkedlist.find(mainp) || nomoM.hdjlinkedlist.find(mainp))){
+          if ((nomoM.djlinkedlist.find(mainp)&& (!nomoM.zzlinkedlist.find(mainp) || nomoM.hdjlinkedlist.find(mainp)))
+            ||(isdj)){        
             return this.getbfs(mainp, m_c)
           } else {
-            return false
+            return 0
           }
         },
         getbfs: function(p, m_c){
@@ -628,10 +664,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
                   var outc = this.get(v, w, outc, m_c)
 
-                  if (outc > 2){
-                    break
-                  }
-
                   this.marked[w] = true
 
                   if (!nomoM.djlinkedlist.find(w)){
@@ -644,11 +676,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
           }
 
-          if (outc > 2){
-            return true
-          } else {
-            return false
-          }
+          return outc
         },
         get: function(v, w, outc, m_c){
           var thismodel = _.filter(m_c,function(c){

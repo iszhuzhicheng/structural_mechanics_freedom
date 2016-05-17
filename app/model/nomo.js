@@ -37,7 +37,7 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
 
     nomo: function(model){
 
-      // console.log(JSON.stringify(drawC.models))
+      console.log(JSON.stringify(drawC.models))
 
       var model = model.toJSON(),
           models = _.map(drawC.models,function(model){

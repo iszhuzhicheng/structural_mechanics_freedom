@@ -452,8 +452,8 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           nomoM.outsidedj[model.p1]++
         }
       }
-
-      while (linebaroutc >= 3){
+    
+      while (linebaroutc > 3){
         linebaroutc -= 3
         ringc++
       }
@@ -473,6 +473,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       if (queue) {
 
         if (m_in == 0){
+
           m_out.f += (queuelength - ring) 
         } else {
           m_in -= (queuelength - ring)  
@@ -512,7 +513,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         
         var f = ctype == "gdj" ? 2 : (ctype == "hdj" ? 1 : 3)
           , result = outc - f
-        console.log(result)
+        console.log(outc)
         if (ctype == "gdj"){
 
           if (result <= -1){
@@ -798,7 +799,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
                     queue.push(w)
                   }                  
                 }
-              }
+              }            
             }
           }
 

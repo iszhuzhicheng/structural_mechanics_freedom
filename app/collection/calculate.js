@@ -158,7 +158,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       this.search.linebar.recover()
       
       // alert(linktime + " " + djlinktime + " " + ctime)
-      
+  
       if (ctime == 2) {
 
         var sm = this.findWhere({id:ids[1]})
@@ -184,7 +184,9 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           if (minus < 0){
             m_out.c -= minus
           } else {
-            m_out.f += minus
+            if (linebaroutc < 3){
+              m_out.f += minus
+            }
           }
 
           if (nomoM.general(ctimep).length > 1){

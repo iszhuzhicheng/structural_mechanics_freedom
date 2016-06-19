@@ -122,6 +122,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
     },
 
     setCoor: function(e, X, Y) {
+
       if ($("canvas").hasClass("moving")) return
 
       if (drawC.models.length == 0) this.factory.set("order", 0)
@@ -165,7 +166,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         , preventdraw = false
      
       this.factory.set("angle", angle)
-  
+
       if (
         _.some(drawC.models, function(model) {
           var category = model.get("category")

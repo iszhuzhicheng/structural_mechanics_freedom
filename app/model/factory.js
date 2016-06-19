@@ -61,8 +61,8 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
     },
 
     clearAtrrs: function(model, type) {
-
-      if (type == "move" || model.previous("type") == "move") return
+ 
+      if (type == "move") return
 
       // 改变type时，清除之前的几何数据
       var clear = function(value, key) {

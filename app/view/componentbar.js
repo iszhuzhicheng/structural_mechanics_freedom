@@ -21,9 +21,9 @@ define(['app/model/factory'],function(factory){
         , isRightarrow = e.which === 39
 
       if (isClick && isImgtar)
-        id = $(e.target).parent().attr("id");
+        id = $(e.target).parent().attr("id")
       else if (isClick)
-        id = e.target.id;
+        id = e.target.id
       else if (isLeftarrow) {
         id = this.$el.find(".active").prev().attr("id")
         if (!id)

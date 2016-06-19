@@ -200,7 +200,9 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
           }
         })[0]
 
-        linkedbar.set("used",true)
+        if (!_.isUndefined(linkedbar)){
+          linkedbar.set("used",true)
+        }
 
         return 
       }

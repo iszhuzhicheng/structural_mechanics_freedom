@@ -1,14 +1,29 @@
-define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC,canvasdraw,factory){
+define(['app/collection/drawc','./canvasdraw','app/model/factory'],function(drawC,canvasdraw,factory){
+  // 绘图区域
+
+
+
+
 
   return new (Backbone.View.extend({
 
     el: $("#canvaswrap"),
 
     initialize: function() {
+
+      // 开闭拖动
       this.listenTo(factory, "change:type", this.movable)
+
+      // 绘图数据已送达：监听drawC collection 加入新元素事件
       this.listenTo(drawC, "add", this.presolve)
+
+      // 为了便于引用，定义canvas属性
       this.canvas = this.$el.find("canvas")
+
+      // 引入绘图库
       this.drawlib = canvasdraw.draw()
+
+      // 定义工厂，引入每个加工完成的元素
       this.factory = factory
     },
     
@@ -16,6 +31,8 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
       var i = 0
         , models = drawC.models
         , l = models.length
+
+        // 最近一次的绘制点作为下一根杆的起始点
         , xy = newmodel.get("category") == "constr" ? {
           "x": newmodel.get("x")
           , "y": newmodel.get("y")
@@ -25,11 +42,12 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         }
 
       this.factory.set(xy)
-      this.drawlib[newmodel.get("type")](newmodel)
 
-      for (; i < l - 1; i++) this.$el.find("#canvas").removeLayer('sign' + i)
+      // 绘制
+      this.drawlib[newmodel.get("type")](newmodel)
     },
 
+    // 初等集合的计算库（点到直线的距离、点到点的距离，斜率的近似...）
     tools: {
       connect: function(connect1, order1, connect2, order2) {
         if (!_.contains(connect1, order2)) connect1.push(order2)
@@ -117,10 +135,12 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
       }
     },
 
+    // 点击canvas画布触发事件
     events: {
       "click canvas": "setCoor"
     },
 
+    // 向工厂中运送绘图的初始数据，该数据不直接用于绘制
     setCoor: function(e, X, Y) {
 
       if ($("canvas").hasClass("moving")) return
@@ -140,9 +160,11 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         , bodys = this.factory.get("bodys")
         , barlength = Number(Number($("#line").val()).toFixed(0))
         , borderwidth = Number(this.$el.css("border-width").slice(0, borderpos))
+
         // 画布的left偏移等于其父元素的left偏移加上边框宽度
         , left = Number(Number(this.$el.css("left").slice(0, leftpos)).toFixed(0)) + borderwidth
         , top = Number(Number(this.$el.css("top").slice(0, toppos)).toFixed(0)) + borderwidth
+
         // 此次点击的坐标
         , X = e.type == "click" ? e.pageX - this.canvas.position().left - left : X
         , Y = e.type == "click" ? e.pageY - this.canvas.position().top - top : Y
@@ -153,13 +175,17 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
         , newcategory = this.factory.get("category")
         , newconnects = this.factory.get("connects")
         , coinarr = []
+
         // 定向铰和固定端连接在n根杆上
         , bartime = 0
+
         // 点击与n跟杆接近
         , n = 0
         , pointx, pointy
+
         // 约束端部重合
         , coincide = false
+
         // 杆端部重合
         , barcide = 0
         , barcidearr = []
@@ -223,6 +249,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
           , type = model.get("type")
           , coinx = d1 ? x1 : x2
           , coiny = d1 ? y1 : y2
+
           // 处理由于约束存在而造成的杆件断开
           , commonconnects
           , notbarbody = false
@@ -309,6 +336,7 @@ define(['app/collection/draw','./canvasdraw','app/model/factory'],function(drawC
               X = x1  
               Y = y1
               notbarbody = true
+
               // 杆端连接的是链接在杆身上的约束
               if (type == "dj" &&mbodys.length > 0 &&bodys.length < 2) bodys.push(mbodys[0])                
 

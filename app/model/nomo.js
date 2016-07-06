@@ -1,4 +1,6 @@
-define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm){
+define(['app/collection/drawc',"js_algorithm/lib/main"],function(drawC, algorithm){
+  // 图算法
+
 
   return new (Backbone.Model.extend({
 
@@ -121,10 +123,6 @@ define(['app/collection/draw',"js_algorithm/lib/main"],function(drawC, algorithm
         
       }
 
-      //console.log(JSON.stringify(this))
-      //console.log(JSON.stringify(this.instead))
-      //console.log(JSON.stringify(model.bodys))
-      //console.log(JSON.stringify(this.barbody))
       this.trigger('linkedbar',model)
       
       this.trigger('calculate',{model:model, models:models})

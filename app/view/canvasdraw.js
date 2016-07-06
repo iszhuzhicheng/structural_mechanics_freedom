@@ -1,4 +1,6 @@
-define(['app/collection/draw'],function(drawC){
+define(['app/collection/drawc'],function(drawC){
+  // 构件绘制库
+
 
   return {
 
@@ -9,6 +11,8 @@ define(['app/collection/draw'],function(drawC){
         , cos = Math.cos
         , atan = Math.atan
         , Pi = Math.PI
+
+        // 用于清除后加到杆上的约束上的圆形和表示杆的线发生重合
         , blackArc = function(x, y) {
           canvas.drawArc({
             layer: true
@@ -20,6 +24,8 @@ define(['app/collection/draw'],function(drawC){
             , radius: 3.5
           })
         }
+
+        // 画圆
         , whiteArc = function(x, y) {
           canvas.drawArc({
             layer: true
@@ -30,6 +36,8 @@ define(['app/collection/draw'],function(drawC){
             , radius: 5
           })
         }
+
+        // 画线
         , drawline = function(x1, y1, x2, y2, color) {
           if (!color)
             var color = '#434343';
@@ -46,20 +54,8 @@ define(['app/collection/draw'],function(drawC){
         }
 
       return {
-        signDraw: function(text, order, x, y) {
-          canvas.drawText({
-            layer: true
-            , name: "sign" + order
-            , visible: true
-            , fillStyle: "seagreen"
-            , x: x
-            , y: y
-            , fontSize: 14
-            , fontFamily: 'Verdana, sans-serif'
-            , text: text
-          })
-        },
 
+        // 单铰
         dj: function(model) {
           var x = model.get("x")
             , y = model.get("y")
@@ -75,6 +71,7 @@ define(['app/collection/draw'],function(drawC){
           })
         },
 
+        // 杆
         linebar: function(model) {
           var x1 = model.get("x")
             , y1 = model.get("y")
@@ -96,6 +93,7 @@ define(['app/collection/draw'],function(drawC){
 
         },
 
+        // 滚动铰
         gdj: function(model) {
           var x = model.get("x")
             , y = model.get("y")
@@ -142,6 +140,7 @@ define(['app/collection/draw'],function(drawC){
           })
         },
 
+        // 滑动铰
         hdj: function(model) {
 
           var x = model.get("x")
@@ -184,6 +183,7 @@ define(['app/collection/draw'],function(drawC){
           })
         },
 
+        // 固定端
         gdd: function(model) {
           var x = model.get("x")
             , y = model.get("y")
@@ -222,6 +222,7 @@ define(['app/collection/draw'],function(drawC){
           drawline(lx61, ly61, lx62, ly62, "#5a4283")
         },
 
+        // 定向铰
         dxj: function(model) {
           var x = model.get("x")
             , y = model.get("y")

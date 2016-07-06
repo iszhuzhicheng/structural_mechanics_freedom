@@ -1,4 +1,5 @@
-define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
+define(['app/model/linkedbarm', 'app/model/nomo'],function(linkedbarM, nomoM){
+  // 链表的collection
 
   return new (Backbone.Collection.extend({
     model: linkedbarM,
@@ -15,6 +16,7 @@ define(['app/model/linkedbar', 'app/model/nomo'],function(linkedbarM, nomoM){
     },
 
     linebar: function(model){
+
       // 查找该杆是否与单铰相连
       var p1 = nomoM.djlinkedlist.find(model.p1)
         , p2 = nomoM.djlinkedlist.find(model.p2)

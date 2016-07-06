@@ -1,18 +1,22 @@
-define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(drawC, linkedbarC,nomoM){
+define(['app/collection/drawc','app/collection/linkedbarc','./nomo'],function(drawC, linkedbarC,nomoM){
+  // 将零散的数据组装起来的工程
 
   return new (Backbone.Model.extend({
 
+    // 初始数据
     defaults: {
       "type": "gdj"
       , "category": "constr"
     },
-        
+    
+    // 不同类型构件出厂前必须有的数据    
     georule: {
       "constr": ["x", "y", "angle", "order", "connects","bodys"]
       , "bar": ["x", "y", "x2", "y2", "order", "connects","bodys"]
       , "other": []
     },
 
+    // 定义构件的类型
     newrule: {
       "dj": "constr"
       , "gdj": "constr"
@@ -24,15 +28,18 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       , "mirror": "constr"
     },
 
+    // 类型改变时，清除之前的数据
     initialize: function() {      
       this.on("change:type", this.clearAtrrs)
     },
 
+    // 改变类型
     changeType: function(type) {
       this.set("type", type)
       this.set("category", this.newrule[type])
     },
 
+    // 几何计算
     region: function(x, y, regionx1, regiony1, regionx2, regiony2, dx, dy){
       var maxX = regionx1 >= regionx2 ? regionx1 : regionx2
         , minX = maxX == regionx1 ? regionx2 : regionx1
@@ -42,6 +49,7 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       return x <= maxX + dx && y <= maxY + dy && x >= minX - dx && y >= minY - dy
     },
     
+    // 几何计算
     kSimilar:function(k){
       var k = Math.abs(k) > 9999 ? (k < 0 ? -10000 : 10000) : k
         , k = Math.abs(k) < 0.0001 ? 0.0001 : k
@@ -49,6 +57,7 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       return Number(k.toFixed(4))
     },
 
+    // 引用georule
     retrRule: function(type) {
       
       var newrule = this.newrule
@@ -60,6 +69,7 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       }
     },
 
+    // 清除之前的数据
     clearAtrrs: function(model, type) {
  
       if (type == "move") return
@@ -161,6 +171,7 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       return true
     },
 
+    // 生成绘图及之后计算的数据
     drawelement: function() {
       var type = this.get("type")
         , retr = this.retrRule(type)
@@ -217,17 +228,16 @@ define(['app/collection/draw','app/collection/linkedbar','./nomo'],function(draw
       }
 
       if (!this.passlineMaker.bind(this)(geobj.x, geobj.y, geobj.x2, geobj.y2, order)) return
-      //alert(JSON.stringify(this))
+ 
       geobj.k = this.kSimilar((geobj.y2 - geobj.y) / (geobj.x2 - geobj.x))
       geobj.b = geobj.y - geobj.x * geobj.k
       geobj.p1 = "x" + geobj.x + "y" + geobj.y
       geobj.p2 = "x" + geobj.x2 + "y" + geobj.y2 
 
-      // console.log(JSON.stringify(geobj))      
-      
       this.set("bodys",[])
       this.set("connects",[])
 
+      // 增加新的drawC model，将会触发canvas view的绘图事件
       drawC.create(geobj)
     }
 

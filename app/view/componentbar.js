@@ -1,18 +1,30 @@
 define(['app/model/factory'],function(factory){
+  // 构件及功能的类型栏
+
+
+
+
+
 
   return new (Backbone.View.extend({
     
     el: $("#componentbar"),
 
+    // 点击不活跃状态的构件时触发事件
     events: {
       "click div:not(.active)": "main"
     },
 
     initialize: function() {
+
+      // ui随工厂当前的type改变而改变
       this.listenTo(factory, "change:type", this.ui)
+
+      // 初始化ui
       this.ui()
     },
 
+    // 选择新的type
     main: function(e) {
       var id
         , isClick = e.type === "click"

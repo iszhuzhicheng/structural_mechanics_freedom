@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nomo.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="body.html">
+                  body.js
+                </a>
+              
+                
+                <a class="source" href="calculate.html">
+                  calculate.js
+                </a>
+              
+                
+                <a class="source" href="calculatem.html">
+                  calculatem.js
+                </a>
+              
+                
+                <a class="source" href="canvas.html">
+                  canvas.js
+                </a>
+              
+                
+                <a class="source" href="canvasdraw.html">
+                  canvasdraw.js
+                </a>
+              
+                
+                <a class="source" href="componentbar.html">
+                  componentbar.js
+                </a>
+              
+                
+                <a class="source" href="draw.html">
+                  draw.js
+                </a>
+              
+                
+                <a class="source" href="drawc.html">
+                  drawc.js
+                </a>
+              
+                
+                <a class="source" href="factory.html">
+                  factory.js
+                </a>
+              
+                
+                <a class="source" href="inputbar.html">
+                  inputbar.js
+                </a>
+              
+                
+                <a class="source" href="linkedbar.html">
+                  linkedbar.js
+                </a>
+              
+                
+                <a class="source" href="linkedbarm.html">
+                  linkedbarm.js
+                </a>
+              
+                
+                <a class="source" href="nomo.html">
+                  nomo.js
+                </a>
+              
+                
+                <a class="source" href="resultbox.html">
+                  resultbox.js
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nomo.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'app/collection/drawc'</span>,<span class="hljs-string">"js_algorithm/lib/main"</span>],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">drawC, algorithm</span>)</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>图算法</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> (Backbone.Model.extend({
+
+    initialize: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.listenTo(drawC, <span class="hljs-string">"add"</span>, <span class="hljs-keyword">this</span>.nomo)
+    },
+
+    instead:{},
+
+    marked:{},
+
+    outsidedj:{},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>杆身相连形成的环</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    barbody:{},
+
+    addEdge: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">p1,p2</span>)</span>{
+
+      <span class="hljs-keyword">if</span> (!_.isArray(<span class="hljs-keyword">this</span>.general(p1))) <span class="hljs-keyword">this</span>.set(p1,[])
+      <span class="hljs-keyword">if</span> (!_.isArray(<span class="hljs-keyword">this</span>.general(p2))) <span class="hljs-keyword">this</span>.set(p2,[])
+
+      <span class="hljs-keyword">if</span> (!_.contains(<span class="hljs-keyword">this</span>.general(p1),p2))  <span class="hljs-keyword">this</span>.set(p1,<span class="hljs-keyword">this</span>.general(p1).concat(p2))
+      <span class="hljs-keyword">if</span> (!_.contains(<span class="hljs-keyword">this</span>.general(p2),p1))  <span class="hljs-keyword">this</span>.set(p2,<span class="hljs-keyword">this</span>.general(p2).concat(p1))
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.marked.hasOwnProperty(p1)){
+        <span class="hljs-keyword">this</span>.marked[p1] = <span class="hljs-literal">false</span>
+        <span class="hljs-keyword">this</span>.markedforbfs[p1] = <span class="hljs-literal">false</span>
+      }
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.marked.hasOwnProperty(p2)){
+        <span class="hljs-keyword">this</span>.marked[p2] = <span class="hljs-literal">false</span>
+        <span class="hljs-keyword">this</span>.markedforbfs[p2] = <span class="hljs-literal">false</span>
+      }
+
+    },
+
+    nomo: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">model</span>)</span>{
+
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">JSON</span>.stringify(drawC.models))
+
+      <span class="hljs-keyword">var</span> model = model.toJSON(),
+          models = _.map(drawC.models,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">model</span>)</span>{
+            <span class="hljs-keyword">return</span> model.toJSON()
+          })
+
+      <span class="hljs-keyword">var</span> mp1 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.p1) ? <span class="hljs-keyword">this</span>.instead[model.p1] : model.p1
+        , mp2 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.p2) ? <span class="hljs-keyword">this</span>.instead[model.p2] : model.p2
+
+      model.bodys = _.filter(model.bodys,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">body</span>)</span>{
+        <span class="hljs-keyword">if</span> (!_.isUndefined(body)) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+      })
+
+      model.bodys = _.uniq(model.bodys)
+
+      <span class="hljs-keyword">if</span> (model.type == <span class="hljs-string">"linebar"</span>) {
+        
+        <span class="hljs-keyword">if</span> (model.bodys.length == <span class="hljs-number">2</span>) {
+
+          <span class="hljs-keyword">var</span> p1 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.bodys[<span class="hljs-number">0</span>].p1) ? <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p1] : model.bodys[<span class="hljs-number">0</span>].p1
+            , p2 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.bodys[<span class="hljs-number">0</span>].p2) ? <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p2] : model.bodys[<span class="hljs-number">0</span>].p2
+            , p3 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.bodys[<span class="hljs-number">1</span>].p1) ? <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">1</span>].p1] : model.bodys[<span class="hljs-number">1</span>].p1
+            , p4 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.bodys[<span class="hljs-number">1</span>].p2) ? <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">1</span>].p2] : model.bodys[<span class="hljs-number">1</span>].p2
+
+          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.general(p1).length &lt;= <span class="hljs-keyword">this</span>.general(p2).length) {
+
+            <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p] = p1
+            <span class="hljs-keyword">var</span> remainp1 = p1
+          } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p] = p2
+            <span class="hljs-keyword">var</span> remainp1 = p2
+          }
+
+          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.general(p3).length &lt;= <span class="hljs-keyword">this</span>.general(p4).length) {
+
+            <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">1</span>].p] = p3
+            <span class="hljs-keyword">var</span> remainp2 = p3
+          } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">1</span>].p] = p4
+            <span class="hljs-keyword">var</span> remainp2 = p4
+          }
+
+          <span class="hljs-keyword">this</span>.addEdge(remainp1,remainp2)
+        }        
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (model.bodys.length == <span class="hljs-number">1</span>){
+          
+          <span class="hljs-keyword">var</span> remainp = mp1 == model.bodys[<span class="hljs-number">0</span>].p ? mp2 : mp1
+            , p1 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.bodys[<span class="hljs-number">0</span>].p1) ? <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p1] : model.bodys[<span class="hljs-number">0</span>].p1
+            , p2 = <span class="hljs-keyword">this</span>.instead.hasOwnProperty(model.bodys[<span class="hljs-number">0</span>].p2) ? <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p2] : model.bodys[<span class="hljs-number">0</span>].p2
+            
+          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.general(p1).length &lt;= <span class="hljs-keyword">this</span>.general(p2).length) {
+            <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p] = p1            
+            <span class="hljs-keyword">this</span>.addEdge(remainp,p1)
+          } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.instead[model.bodys[<span class="hljs-number">0</span>].p] = p2
+            <span class="hljs-keyword">this</span>.addEdge(remainp,p2)
+          }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>console.log(JSON.stringify(model.bodys))</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.barbody.hasOwnProperty(remainp)) <span class="hljs-keyword">this</span>.barbody[remainp] = <span class="hljs-number">1</span>
+          <span class="hljs-keyword">else</span> <span class="hljs-keyword">this</span>.barbody[remainp]++ 
+                  
+        } 
+        <span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>一端连接杆身单铰的情况</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          
+          <span class="hljs-keyword">var</span> djmodel = _.find(models,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">model</span>)</span>{
+            <span class="hljs-keyword">return</span> (model.category == <span class="hljs-string">"constr"</span>)&amp;&amp;(model.p1 == mp1|| model.p1 == mp2)&amp;&amp;model.bodys.length &gt; <span class="hljs-number">0</span>
+          })
+
+          <span class="hljs-keyword">if</span> (_.isUndefined(djmodel)){
+
+            <span class="hljs-keyword">this</span>.addEdge(mp1,mp2)
+          } <span class="hljs-keyword">else</span> {
+
+            <span class="hljs-keyword">var</span> remainp = djmodel.p1 == mp1 ? mp2 : mp1
+
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.barbody.hasOwnProperty(remainp)) <span class="hljs-keyword">this</span>.barbody[remainp] = <span class="hljs-number">1</span>
+            <span class="hljs-keyword">else</span> <span class="hljs-keyword">this</span>.barbody[remainp]++ 
+          }                          
+        }        
+        
+      }
+
+      <span class="hljs-keyword">this</span>.trigger(<span class="hljs-string">'linkedbar'</span>,model)
+      
+      <span class="hljs-keyword">this</span>.trigger(<span class="hljs-string">'calculate'</span>,{model:model, models:models})
+    },
+
+    dfs: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v,arr,queue</span>)</span>{
+
+      <span class="hljs-keyword">this</span>.marked[v] = <span class="hljs-literal">true</span>
+
+      <span class="hljs-keyword">if</span> (_.contains(queue,v)) arr.push(v)
+
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span> ;i &lt; <span class="hljs-keyword">this</span>.general(v).length ;i++) {
+
+        <span class="hljs-keyword">var</span> w = <span class="hljs-keyword">this</span>.general(v)[i]
+
+        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.marked[w]) arr = <span class="hljs-keyword">this</span>.dfs(w,arr,queue)          
+      }
+
+      <span class="hljs-keyword">return</span> arr
+    },
+
+    recover: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+      
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.marked) <span class="hljs-keyword">this</span>.marked[i] = <span class="hljs-literal">false</span>
+    },
+
+    general: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">id</span>)</span>{
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.get(id)){
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.get(id)
+      } <span class="hljs-keyword">else</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.get(<span class="hljs-keyword">this</span>.instead[id])
+      }
+    },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>查找两点间有多少条不交叉的路径，通道上有多少铰</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    getPj: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">p1, p2</span>)</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>‘copynomo = this.toJSON()’ 是浅复制，会改变this的值</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">var</span> copynomo = $.extend(<span class="hljs-literal">true</span>,{}, <span class="hljs-keyword">this</span>.toJSON()) 
+      
+      <span class="hljs-keyword">if</span> (copynomo[p1] == <span class="hljs-literal">undefined</span>){
+        <span class="hljs-keyword">var</span> p1 = <span class="hljs-keyword">this</span>.instead[p1]
+      }
+
+      <span class="hljs-keyword">if</span> (copynomo[p2] == <span class="hljs-literal">undefined</span>){
+        <span class="hljs-keyword">var</span> p2 = <span class="hljs-keyword">this</span>.instead[p2]
+      }
+      
+      <span class="hljs-keyword">var</span> index1 = copynomo[p1].indexOf(p2)
+        , index2 = copynomo[p2].indexOf(p1)
+        , pathNum = <span class="hljs-number">0</span>
+        , djNum = <span class="hljs-number">0</span>
+        , increaseInner
+
+      copynomo[p1].splice(index1, <span class="hljs-number">1</span>)
+      copynomo[p2].splice(index2, <span class="hljs-number">1</span>)
+
+      <span class="hljs-keyword">this</span>.bfs(p1, copynomo)
+
+      <span class="hljs-keyword">var</span> path = <span class="hljs-keyword">this</span>.pathTo(p1,p2)
+
+      <span class="hljs-keyword">while</span> (path.length &gt; <span class="hljs-number">0</span>){
+
+        pathNum++
+
+        _.each(path,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">p</span>)</span>{
+
+          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.djlinkedlist.find(p)){
+            djNum++
+          }
+
+          <span class="hljs-keyword">var</span> intersections = _.intersection(copynomo[p],path)
+
+          _.each(intersections,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">intersection</span>)</span>{
+
+            <span class="hljs-keyword">var</span> index = copynomo[intersection].indexOf(p)
+
+            <span class="hljs-keyword">if</span> (index != <span class="hljs-number">-1</span>){
+              copynomo[intersection].splice(index, <span class="hljs-number">1</span>)
+            }
+
+            <span class="hljs-keyword">if</span> (copynomo[intersection].length == <span class="hljs-number">0</span>){
+              <span class="hljs-keyword">delete</span> copynomo[intersection]
+            }
+          })
+
+          <span class="hljs-keyword">delete</span> copynomo[p]
+
+        }.bind(<span class="hljs-keyword">this</span>))
+
+        <span class="hljs-keyword">this</span>.recoverforbfs()
+
+        <span class="hljs-keyword">this</span>.bfs(p1, copynomo)        
+
+        path = <span class="hljs-keyword">this</span>.pathTo(p1,p2)
+        
+      }
+
+      <span class="hljs-keyword">this</span>.recoverforbfs()
+
+      increaseInner = djNum + <span class="hljs-number">1</span> &lt;= pathNum
+
+      <span class="hljs-built_in">console</span>.log(djNum + <span class="hljs-string">" "</span> + pathNum)
+
+      <span class="hljs-keyword">return</span> increaseInner
+    },
+
+    bfs: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">p1, cnomo, func</span>)</span>{
+      <span class="hljs-keyword">var</span> queue = []
+
+      <span class="hljs-keyword">this</span>.markedforbfs[p1] = <span class="hljs-literal">true</span>
+
+      queue.push(p1)
+
+      <span class="hljs-keyword">while</span> (queue.length &gt; <span class="hljs-number">0</span>) {
+        
+        <span class="hljs-keyword">var</span> v = queue.shift()
+
+        <span class="hljs-keyword">if</span> (v !== <span class="hljs-literal">undefined</span>&amp;&amp; func) {
+          func(v)
+        }
+
+        <span class="hljs-keyword">if</span> (cnomo[v] != <span class="hljs-literal">undefined</span>) {
+
+          <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;i &lt; cnomo[v].length; i++) {
+
+            <span class="hljs-keyword">var</span> w = cnomo[v][i]
+
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.markedforbfs[w]) {
+              <span class="hljs-keyword">this</span>.edgeTo[w] = v
+              <span class="hljs-keyword">this</span>.markedforbfs[w] = <span class="hljs-literal">true</span>
+              queue.push(w)
+            }
+
+          }
+        }
+      }
+    },
+
+    pathTo: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">start, end</span>)</span>{
+      <span class="hljs-keyword">var</span> source = start
+        , path = []
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.hasPathTo(end)) {
+        <span class="hljs-keyword">return</span> []
+      }
+
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = end; i != source; i = <span class="hljs-keyword">this</span>.edgeTo[i]) {
+
+        <span class="hljs-keyword">if</span> (i == <span class="hljs-literal">null</span>){
+          <span class="hljs-keyword">break</span>
+        }
+
+        <span class="hljs-keyword">if</span> (i !== end) {
+          path.push(i)
+        }
+      }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>path.push(source)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+      <span class="hljs-keyword">return</span> path      
+    },
+
+    hasPathTo: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>)</span>{
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.markedforbfs[v]
+    },
+
+    edgeTo:{},
+
+    markedforbfs: {},
+
+    recoverforbfs:  <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+      
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.markedforbfs) <span class="hljs-keyword">this</span>.markedforbfs[i] = <span class="hljs-literal">false</span>
+
+      <span class="hljs-keyword">this</span>.edgeTo = {}  
+    },
+
+    insertdj: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">child, parent</span>)</span>{      
+      <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.djlinkedlist.find(child)){
+        
+        <span class="hljs-keyword">this</span>.djlinkedlist.insert(child, parent)
+      }
+    },
+
+    insertzz: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">child, parent</span>)</span>{      
+      <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.zzlinkedlist.find(child)){
+        
+        <span class="hljs-keyword">this</span>.zzlinkedlist.insert(child, parent)
+      }
+    },
+
+    inserthdj: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">child, parent</span>)</span>{      
+      <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.hdjlinkedlist.find(child)){
+        
+        <span class="hljs-keyword">this</span>.hdjlinkedlist.insert(child, parent)
+      }
+    },
+
+    djlinkedlist: <span class="hljs-keyword">new</span> algorithm.linkedlist.SingleLList(),
+
+    zzlinkedlist: <span class="hljs-keyword">new</span> algorithm.linkedlist.SingleLList(),
+
+    hdjlinkedlist: <span class="hljs-keyword">new</span> algorithm.linkedlist.SingleLList()
+
+  }))()
+})</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

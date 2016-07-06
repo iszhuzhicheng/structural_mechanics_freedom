@@ -1,4 +1,9 @@
 define(['./canvas', 'react', 'reactdom'],function(canvasV, React, ReactDOM){
+  // 输入精确的几何参数
+
+
+
+
 
   return new (Backbone.View.extend({
     
@@ -34,6 +39,7 @@ define(['./canvas', 'react', 'reactdom'],function(canvasV, React, ReactDOM){
 
       if (!_.every(inputs, validate)) return;
 
+      // 验证输入的值是否合法
       function validate(value, key) {
         var val = $(value).val()
           , isEmpty = val.length == 0 || /^\s+$/.test(val)
@@ -47,6 +53,8 @@ define(['./canvas', 'react', 'reactdom'],function(canvasV, React, ReactDOM){
     },
 
     post: function(e) {
+
+      // 角度和长度都取整
       var angle = Number(Number($("#angle").val()).toFixed(0))
         , barlength = Number(Number($("#line").val()).toFixed(0))
 
@@ -58,6 +66,7 @@ define(['./canvas', 'react', 'reactdom'],function(canvasV, React, ReactDOM){
 
       while (barlength < 0) barlength = Math.abs(barlength)
 
+      // 将角度转化为斜率
       var kx = Math.cos(Math.PI * angle / 180)
         , ky = Math.sin(Math.PI * angle / 180)
         , X = canvasV.factory.get("x") + kx * barlength
@@ -82,7 +91,7 @@ define(['./canvas', 'react', 'reactdom'],function(canvasV, React, ReactDOM){
     },
 
     input: (function(){
-
+      // 不想在index.html里用underscore template，就用了React.
       var Input = React.createClass({
 
         displayName: "Input",
@@ -93,6 +102,7 @@ define(['./canvas', 'react', 'reactdom'],function(canvasV, React, ReactDOM){
           }
         },
 
+        // 打开要用上的输入框，
         typeChange: function (type) {
           
           if (type == "gdj" || type == "hdj" || type == "dxj" || type == "gdd") {

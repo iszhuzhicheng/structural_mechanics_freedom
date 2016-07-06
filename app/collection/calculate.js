@@ -1,5 +1,8 @@
-define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedbar','app/view/resultbox'],
+define(['app/model/calculatem','./draw','app/model/nomo','app/collection/linkedbarc','app/view/resultbox'],
   function(calulateM,drawC,nomoM,linkedbarC,resultV){
+  // 计算模块  
+    
+
 
   return new (Backbone.Collection.extend({
     model: calulateM,
@@ -44,8 +47,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
     },
 
     linebar: function(model) {
-
-      // console.log(JSON.stringify(model))
 
       var linktime = 0
         , djlinktime = 0   
@@ -156,8 +157,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       this.search.linebar.marked[model.p1] = true
       linebaroutc += this.search.linebar.main(model.p2, m_c, true)
       this.search.linebar.recover()
-      
-      // alert(linktime + " " + djlinktime + " " + ctime)
   
       if (ctime == 2) {
 
@@ -167,8 +166,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           , sm_in = sm.get("in")
 
         m_c = m_c.concat(sm_c)
-
-        //alert(djlinktime + " " + m_out.f + " " + sm_out.f)
 
         if (djlinktime == 0){
           if (linebaroutc >= 3){
@@ -225,7 +222,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
           m_out.f += sm_out.f
         }
-        // console.log(JSON.stringify(nomoM.outsidedj))
+   
         m_out.c = m_out.c + sm_out.c
         m_in += sm_in
 
@@ -264,8 +261,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         } else if (djlinktime == 1) {
 
           if (linkedbarC.islinkedbar){
-      
-            //console.log(linkedbarC.p1 + " " + linkedbarC.p2)
+   
             if (nomoM.getPj(linkedbarC.p1,linkedbarC.p2)|| m_out.f < 4 || linkedbarC.p2 == linkedbarC.p1){
        
               if (haslinked > 1){                
@@ -275,6 +271,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
                 m_in += 2
               }              
             } else {
+
               // 另外要减掉一根可旋转的杆
               // 两铰已相连
              
@@ -302,7 +299,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
           }
           
         }
-        // alert(m_in)
+
       } else if (linktime == 1 && djlinktime == 1) {
         // 以后要看它是否连接了大地约束，是改变外部还是内部约束
        
@@ -323,12 +320,11 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
             nomoM.outsidedj[ctimep]++
           } 
 
-          //第n根杆
+          // 第n根杆
           m_out.f += 1
         }
       }
 
-      //alert(JSON.stringify(nomoM.outsidedj))
       if (ctime == 1&& linktime > 1) {
 
         _.each(nomoM.outsidedj,function(v,dj){
@@ -358,9 +354,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
             if (!linkedbarC.islinkedbar) {
               m_out.f -= trans
-              // alert("pre:" + m_in)
               m_in -= trans
-              // alert("after:" + m_in)
             }
 
             if (nomoM.outsidedj[dj] == 1) {
@@ -420,7 +414,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         , queue = nomoM.get(model.p1)
         , queuelength = queue ? queue.length : false
         , ring = 0
-     // , ringplus = nomoM.barbody[model.p1] ? nomoM.barbody[model.p1] : 0
         , m = this.get(id)
         , m_c = m.get("c")
         , m_in = m.get("in")
@@ -437,7 +430,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
 
         var v =  queue[0]
           , arr = []
-        // console.log(v)  
+
         arr = nomoM.dfs(v,arr,queue)
         
         queue = _.difference(queue,arr)
@@ -458,7 +451,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
         ringc++
       }
     
-      // 减少外部约束数，还是增加外部自由度的，这里今后要视情况而定
       if (ring > 0) {
         m_out.f += (ring - ringc - 1)  
       }
@@ -466,8 +458,6 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
       if (ringc > 0) {
         m_out.c -= ringc  
       }
-
-      // console.log(ring)
 
       // 减少内部约束数  
       if (queue) {
@@ -637,6 +627,7 @@ define(['app/model/calculate','./draw','app/model/nomo','app/collection/linkedba
     search: {
       linebar:{
         main:function(mainp, m_c, isdj){
+          
           // 连接的是单铰或者滑动铰支座
           if ((nomoM.djlinkedlist.find(mainp)&& (!nomoM.zzlinkedlist.find(mainp) || nomoM.hdjlinkedlist.find(mainp)))
             ||(isdj)){        

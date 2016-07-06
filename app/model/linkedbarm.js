@@ -1,4 +1,6 @@
 define(["js_algorithm/lib/main"],function(algorithm){
+  // 链表的model
+
             
   return (Backbone.Model.extend({
 

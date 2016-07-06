@@ -22,35 +22,52 @@ requirejs.config({
   
 requirejs(["jquery","pace","jqueryui","underscore","backbone","browser"],function($,pace){
 
-  pace.start()
+  requirejs(["app/route"],function(route){
+    var route = new route()
 
-  requirejs(["jcanvas"],function(){
-      
-    var preloadImages = ['canvas2', "d", "dxj", "gdd", "gdj", "hdj", "inputangle", "line", "linebar", "mirror", "move"]    
-            
-    Promise.all(preloadImages.map(function(arg) {
+    pace.start()
 
-      return new Promise(function(resolve, reject) {
+    route.on("route:app",function(){
+
+      requirejs(["jcanvas"],function(){
           
-        var image = new Image()
-        
-        image.src = "http://zhouhansen.github.io/structural_mechanics_freedom/img/" + arg + ".png"
-        
-        image.addEventListener("load", function() {
-          resolve(arg)
-        }, false)
+        var preloadImages = ['canvas2', "d", "dxj", "gdd", "gdj", "hdj", "inputangle", "line", "linebar", "mirror", "move"]    
+                
+        Promise.all(preloadImages.map(function(arg) {
 
-        image.addEventListener("error", function() {
-          resolve(arg + "_unloaded")
-        }, false)
-      })
-    })).then(function(imgs) {
+          return new Promise(function(resolve, reject) {
+              
+            var image = new Image()
+            
+            image.src = "http://zhouhansen.github.io/structural_mechanics_freedom/img/" + arg + ".png"
+            
+            image.addEventListener("load", function() {
+              resolve(arg)
+            }, false)
 
-      var unloads = _.filter(imgs, function(img) {
-        return /_unloaded/.test(img)
-      })
+            image.addEventListener("error", function() {
+              resolve(arg + "_unloaded")
+            }, false)
+          })
+        })).then(function(imgs) {
 
-      if (unloads.length == 0 || unloads.length == preloadImages.length) requirejs(['app/view/body'])
-    })  
-  })        
+          var unloads = _.filter(imgs, function(img) {
+            return /_unloaded/.test(img)
+          })
+
+          if (unloads.length == 0 || unloads.length == preloadImages.length) requirejs(['app/view/body'])
+        })  
+
+      })   
+
+    })
+
+    route.on('route:doc',function(file){
+
+      window.location.href = "docs/" + file + ".html";
+    })
+
+    Backbone.history.start()
+               
+  })
 })

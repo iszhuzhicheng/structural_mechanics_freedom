@@ -1,4 +1,4 @@
-define(['app/collection/drawc','app/collection/linkedbarc','./nomo'],function(drawC, linkedbarC,nomoM){
+define(['app/collection/drawc','app/collection/linkedbar','./nomo'],function(drawC, linkedbarC,nomoM){
   // 将零散的数据组装起来的工程
 
   return new (Backbone.Model.extend({

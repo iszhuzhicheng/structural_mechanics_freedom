@@ -1,4 +1,4 @@
-define(['app/model/calculatem','./draw','app/model/nomo','app/collection/linkedbarc','app/view/resultbox'],
+define(['app/model/calculatem','./draw','app/model/nomo','app/collection/linkedbar','app/view/resultbox'],
   function(calulateM,drawC,nomoM,linkedbarC,resultV){
   // 计算模块  
     

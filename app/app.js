@@ -3,7 +3,7 @@ requirejs.config({
   baseUrl: 'app/vendor'
 
   , paths: {
-      app: '../app'
+      app: '../../app'
       , jquery : 'jquery/dist/jquery.min'
       , underscore : 'underscore/underscore-min'
       , backbone : 'backbone/backbone'

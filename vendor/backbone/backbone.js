@@ -151,6 +151,7 @@
         events = iteratee(events, names[i], callback, opts);
       }
     } else {
+     
       // Finally, standard events.
       events = iteratee(events, name, callback, opts);
     }
@@ -216,12 +217,14 @@
   // callbacks with that function. If `callback` is null, removes all
   // callbacks for the event. If `name` is null, removes all bound
   // callbacks for all events.
-  Events.off =  function(name, callback, context) {
+  Events.off =  function(name, callback, context) {    
     if (!this._events) return this;
+
     this._events = eventsApi(offApi, this._events, name, callback, {
         context: context,
         listeners: this._listeners
     });
+   
     return this;
   };
 
@@ -256,12 +259,15 @@
 
     // Delete all events listeners and "drop" events.
     if (!name && !callback && !context) {
+
       var ids = _.keys(listeners);
+
       for (; i < ids.length; i++) {
         listening = listeners[ids[i]];
         delete listeners[listening.id];
         delete listening.listeningTo[listening.objId];
-      }
+      }  
+
       return;
     }
 
@@ -337,6 +343,7 @@
   // (unless you're listening on `"all"`, which will cause your callback to
   // receive the true name of the event as the first argument).
   Events.trigger =  function(name) {
+
     if (!this._events) return this;
 
     var length = Math.max(0, arguments.length - 1);
@@ -352,7 +359,9 @@
     if (objEvents) {
       var events = objEvents[name];
       var allEvents = objEvents.all;
+
       if (events && allEvents) allEvents = allEvents.slice();
+
       if (events) triggerEvents(events, args);
       if (allEvents) triggerEvents(allEvents, [name].concat(args));
     }
@@ -363,6 +372,7 @@
   // triggering events. Tries to keep the usual cases speedy (most internal
   // Backbone events have 3 arguments).
   var triggerEvents = function(events, args) {
+
     var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
     switch (args.length) {
       case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
@@ -1142,9 +1152,11 @@
     // events simply proxy through. "add" and "remove" events that originate
     // in other collections are ignored.
     _onModelEvent: function(event, model, collection, options) {
+
       if ((event === 'add' || event === 'remove') && collection !== this) return;
       if (event === 'destroy') this.remove(model, options);
       if (event === 'change') {
+
         var prevId = this.modelId(model.previousAttributes());
         var id = this.modelId(model.attributes);
         if (prevId !== id) {
@@ -1152,6 +1164,7 @@
           if (id != null) this._byId[id] = model;
         }
       }
+
       this.trigger.apply(this, arguments);
     }
 

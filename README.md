@@ -1,5 +1,9 @@
 # Structural mechanics freedom
 
+这是一个web app，为中国结构力学相关专业的大学生打造，用于结构力学的计算。
+
+使用说明视频：http://v.youku.com/v_show/id_XMTgwOTkwMDEwMA==.html
+
 ## License
 
 The MIT License (MIT)

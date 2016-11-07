@@ -7,7 +7,6 @@ requirejs.config({
       , jquery : 'jquery/dist/jquery.min'
       , underscore : 'underscore/underscore-min'
       , backbone : 'backbone/backbone'
-      , browser : 'browser.min/index'
       , jcanvas : 'jcanvas/jcanvas.min'
       , jqueryui : 'jquery-ui/jquery-ui.min'
       , jqueryuitp : 'jqueryui-touch-punch/jquery.ui.touch-punch.min'
@@ -19,7 +18,7 @@ requirejs.config({
 
 })
   
-requirejs(["jquery","pace","jqueryui","underscore","backbone","browser"],function($,pace){
+requirejs(["jquery","pace","jqueryui","underscore","backbone"],function($,pace){
 
   requirejs(["app/route"],function(route){
     var route = new route()

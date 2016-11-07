@@ -1,6 +1,6 @@
 requirejs.config({
 
-  baseUrl: 'vendor'
+  baseUrl: 'app/vendor'
 
   , paths: {
       app: '../app'

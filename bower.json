@@ -1,25 +1,20 @@
 {
-  "name": "structural_mechanics_freedom",
-  "homepage": "https://github.com/ZhouHansen/structural_mechanics_freedom",
+  "name": "zhouhansen.github.io",
+  "description": "my blog",
+  "main": "index.js",
   "authors": [
     "周汉成 <308114274@qq.com>"
   ],
-  "description": "结构力学自由度计算工具",
-  "main": "app",
+  "license": "ISC",
+  "homepage": "https://github.com/ZhouHansen/zhouhansen.github.io",
   "moduleType": [],
-  "license": "MIT",
   "dependencies": {
-    "jquery": "^2.2.1",
-    "jcanvas": "^15.12.12",
-    "jqueryui-touch-punch": "furf/jquery-ui-touch-punch",
-    "backbone": "^1.2.3",
-    "react": "^0.14.7",
-    "bowser": "browser#^1.0.0",
+    "jquery": "^3.1.1",
+    "underscore": "^1.8.3",
+    "bootstrap": "^3.3.7",
     "obvious-buttons": "skidding/obvious-buttons",
-    "animate.css": "daneden/animate.css#^3.5.1",
-    "Browser": "browser.js#^0.1.2",
-    "browser.min": "https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.min.js",
-    "PACE": "HubSpot/pace#^1.0.2",
-    "requirejs": "^2.1.22"
+    "animate.less": "*",
+    "EaselJS": "easeljs#^0.8.2",
+    "model": "^0.2.5"
   }
 }

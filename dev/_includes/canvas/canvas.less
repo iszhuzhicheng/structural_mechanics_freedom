@@ -1,0 +1,28 @@
+#canvaswrap{
+  position: absolute;
+  border:2px solid #f3b3c1;
+  .border-radius(5px);
+  .border-bottom-right-radius(0px);
+  .border-top-right-radius(0px);
+  top:30px;
+  left:25px;
+  width:860px;
+  height:560px;
+  overflow:hidden;
+  cursor:crosshair;
+  .animated();
+  .bounceInDown();
+
+  #canvas{
+    display:block;
+    position:relative;
+    top:0px;
+    left:0px;
+    cursor:crosshair;
+
+    &.move{
+      cursor: grab;
+      cursor: -webkit-grab;
+    }
+  }
+}

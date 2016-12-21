@@ -1,0 +1,37 @@
+#inputs{
+  position:absolute;
+  top:615px;
+  left:460px;
+  .animated();
+	.fadeInLeftBig();
+
+  .txt{
+    position:relative;
+  	display: inline-block;
+
+    input{
+      .form-control();
+    	font-size:20px;
+    	color:#000;
+    	height:45px;
+    	width:100px;
+      cursor:text;
+      &:hover{
+        background-color:rgba(255, 255, 255, 0.1);
+      	text-shadow:none;
+      };
+      &:focus{
+        background-color:rgba(255, 255, 255, 0.1);
+	      border-color:#488a6f;
+      };
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button{
+        .appearance();
+      };
+    };
+
+    &:first-child{
+      margin-right: 30px;
+    };
+  };
+}

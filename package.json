@@ -1,0 +1,31 @@
+{
+  "name": "zhouhansen.github.io",
+  "version": "1.0.0",
+  "description": "my blog",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZhouHansen/zhouhansen.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZhouHansen/zhouhansen.github.io/issues"
+  },
+  "homepage": "https://github.com/ZhouHansen/zhouhansen.github.io#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-contrib-less": "^1.4.0",
+    "grunt-contrib-pug": "^1.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "lesshat": "^4.1.0",
+    "load-grunt-tasks": "^3.5.2",
+    "minimongo": "^4.3.0"
+  }
+}
